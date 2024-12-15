@@ -21,5 +21,6 @@ public class ParcelMain {
         List<ParcelDto> parcelDtos = readPackages(filePath);
         TruckService truckService = packPackages(parcelDtos);
         truckService.print();
+        log.info("Программа завершила работу.");
     }
 }

@@ -3,9 +3,9 @@ package org.parking.service;
 import org.parking.model.dto.TruckCapacityDto;
 import org.parking.model.dto.ParcelDto;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
+import java.nio.file.Paths;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
@@ -13,10 +13,9 @@ import java.util.stream.Stream;
 public class ParcelLoaderService {
 
     public static List<ParcelDto> readPackages(String filePath) throws IOException {
-        try (Stream<String> lines = new BufferedReader(new FileReader(filePath)).lines()) {
-            StringBuilder currentPackage = new StringBuilder();
-            List<ParcelDto> parcelDtos = new ArrayList<>();
-
+        List<ParcelDto> parcelDtos = new ArrayList<>();
+        StringBuilder currentPackage = new StringBuilder();
+        try (Stream<String> lines = Files.lines(Paths.get(filePath))) {
             lines.forEach(line -> {
                 if (!line.trim().isEmpty()) {
                     currentPackage.append(line).append("\n");
@@ -30,8 +29,9 @@ public class ParcelLoaderService {
             if (currentPackage.length() > 0) {
                 parcelDtos.add(new ParcelDto(currentPackage.toString().trim()));
             }
-            return parcelDtos;
         }
+
+        return parcelDtos;
     }
 
     public static TruckService packPackages(List<ParcelDto> parcelDtos) {
