@@ -1,12 +1,14 @@
 package org.parking;
 
 import lombok.extern.slf4j.Slf4j;
+import org.parking.model.dto.ParcelDto;
+import org.parking.service.TruckService;
 
 import java.io.IOException;
 import java.util.List;
 
-import static org.parking.ParcelLoader.packPackages;
-import static org.parking.ParcelLoader.readPackages;
+import static org.parking.service.ParcelLoaderService.packPackages;
+import static org.parking.service.ParcelLoaderService.readPackages;
 @Slf4j
 public class ParcelMain {
     public static void main(String[] args) throws IOException {
@@ -16,8 +18,8 @@ public class ParcelMain {
         }
 
         String filePath = args[0]; // Получаем путь из параметров командной строки
-        List<Parcel> parcels = readPackages(filePath);
-        Truck truck = packPackages(parcels);
-        truck.print();
+        List<ParcelDto> parcelDtos = readPackages(filePath);
+        TruckService truckService = packPackages(parcelDtos);
+        truckService.print();
     }
 }

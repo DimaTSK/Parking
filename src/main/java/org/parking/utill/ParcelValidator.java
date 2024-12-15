@@ -1,4 +1,4 @@
-package org.parking;
+package org.parking.utill;
 
 import lombok.extern.slf4j.Slf4j;
 

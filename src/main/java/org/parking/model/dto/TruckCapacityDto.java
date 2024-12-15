@@ -1,10 +1,10 @@
-package org.parking;
+package org.parking.model.dto;
 
-public class  TruckCapacity {
+public class TruckCapacityDto {
     private final int width;
     private final int height;
 
-    public TruckCapacity(int width, int height) {
+    public TruckCapacityDto(int width, int height) {
         this.width = width;
         this.height = height;
     }

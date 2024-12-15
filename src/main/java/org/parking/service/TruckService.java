@@ -1,21 +1,23 @@
-package org.parking;
+package org.parking.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.parking.model.dto.TruckCapacityDto;
+import org.parking.model.dto.ParcelDto;
 
 import java.util.List;
 @Slf4j
-public class Truck {
-    private final TruckCapacity capacity;
-    private final TruckGrid grid;
+public class TruckService {
+    private final TruckCapacityDto capacity;
+    private final TruckGridService grid;
 
-    public Truck(TruckCapacity capacity) {
+    public TruckService(TruckCapacityDto capacity) {
         this.capacity = capacity;
-        this.grid = new TruckGrid(capacity.getWidth(), capacity.getHeight());
+        this.grid = new TruckGridService(capacity.getWidth(), capacity.getHeight());
     }
 
-    public void packPackages(List<Parcel> parcels) {
-        log.info("Началось размещение пакетов. Всего пакетов: {}", parcels.size());
-        parcels.forEach(pkg -> {
+    public void packPackages(List<ParcelDto> parcelDtos) {
+        log.info("Началось размещение пакетов. Всего пакетов: {}", parcelDtos.size());
+        parcelDtos.forEach(pkg -> {
             boolean placed = false;
 
             for (int i = 0; i <= capacity.getHeight() - pkg.getHeight(); i++) {

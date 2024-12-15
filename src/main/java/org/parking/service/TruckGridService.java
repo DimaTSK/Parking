@@ -1,19 +1,20 @@
-package org.parking;
+package org.parking.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.parking.model.dto.ParcelDto;
 
 import java.util.stream.IntStream;
 
 @Slf4j
-public class TruckGrid {
+public class TruckGridService {
     private final char[][] grid;
 
-    public TruckGrid(int width, int height) {
+    public TruckGridService(int width, int height) {
         this.grid = new char[height][width];
         IntStream.range(0, height).forEach(i -> IntStream.range(0, width).forEach(j -> grid[i][j] = ' '));
     }
 
-    public boolean canPlacePackage(Parcel pkg, int startRow, int startCol) {
+    public boolean canPlacePackage(ParcelDto pkg, int startRow, int startCol) {
         log.debug("Проверка размещения пакета на позиции: ({}, {})", startRow, startCol);
         for (int i = 0; i < pkg.getHeight(); i++) {
             for (int j = 0; j < pkg.getWidth(); j++) {
@@ -25,7 +26,7 @@ public class TruckGrid {
         return true;
     }
 
-    public void placePackage(Parcel pkg, int startRow, int startCol) {
+    public void placePackage(ParcelDto pkg, int startRow, int startCol) {
         for (int i = 0; i < pkg.getHeight(); i++) {
             for (int j = 0; j < pkg.getWidth(); j++) {
                 grid[startRow + i][startCol + j] = pkg.getLines()[i].charAt(j);
