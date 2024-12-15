@@ -1,7 +1,9 @@
 package org.parking;
 
-import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 
+import java.util.List;
+@Slf4j
 public class Truck {
     private final TruckCapacity capacity;
     private final TruckGrid grid;
@@ -12,6 +14,7 @@ public class Truck {
     }
 
     public void packPackages(List<Parcel> parcels) {
+        log.info("Началось размещение пакетов. Всего пакетов: {}", parcels.size());
         parcels.forEach(pkg -> {
             boolean placed = false;
 
@@ -20,6 +23,7 @@ public class Truck {
                 for (int j = 0; j <= capacity.getWidth() - pkg.getWidth(); j++) {
                     if (grid.canPlacePackage(pkg, i, j)) {
                         grid.placePackage(pkg, i, j);
+                        log.debug("Пакет успешно размещён на позиции: ({}, {})", i, j);
                         placed = true;
                         break;
                     }
@@ -27,9 +31,10 @@ public class Truck {
             }
 
             if (!placed) {
-                System.out.println("Не удалось разместить посылку:\n" + String.join("\n", pkg.getLines()));
+                log.warn("Не удалось разместить пакет:\n{}", String.join("\n", pkg.getLines()));
             }
         });
+        log.info("Завершено размещение пакетов.");
     }
 
     public void print() {

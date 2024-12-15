@@ -1,7 +1,10 @@
 package org.parking;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.stream.IntStream;
 
+@Slf4j
 public class TruckGrid {
     private final char[][] grid;
 
@@ -11,6 +14,7 @@ public class TruckGrid {
     }
 
     public boolean canPlacePackage(Parcel pkg, int startRow, int startCol) {
+        log.debug("Проверка размещения пакета на позиции: ({}, {})", startRow, startCol);
         for (int i = 0; i < pkg.getHeight(); i++) {
             for (int j = 0; j < pkg.getWidth(); j++) {
                 if (grid[startRow + i][startCol + j] != ' ') {
