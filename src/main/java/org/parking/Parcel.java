@@ -1,9 +1,9 @@
-package org.example;
+package org.parking;
 
-public class Package {
+public class Parcel {
     private final String[] lines;
 
-    public Package(String packageStr) {
+    public Parcel(String packageStr) {
         this.lines = packageStr.split("\n");
     }
 

@@ -1,7 +1,6 @@
-package org.example;
+package org.parking;
 
 import java.util.List;
-import java.util.stream.IntStream;
 
 public class Truck {
     private final TruckCapacity capacity;
@@ -12,8 +11,8 @@ public class Truck {
         this.grid = new TruckGrid(capacity.getWidth(), capacity.getHeight());
     }
 
-    public void packPackages(List<Package> packages) {
-        packages.forEach(pkg -> {
+    public void packPackages(List<Parcel> parcels) {
+        parcels.forEach(pkg -> {
             boolean placed = false;
 
             for (int i = 0; i <= capacity.getHeight() - pkg.getHeight(); i++) {

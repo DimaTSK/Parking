@@ -1,4 +1,4 @@
-package org.example;
+package org.parking;
 
 import java.util.stream.IntStream;
 
@@ -10,7 +10,7 @@ public class TruckGrid {
         IntStream.range(0, height).forEach(i -> IntStream.range(0, width).forEach(j -> grid[i][j] = ' '));
     }
 
-    public boolean canPlacePackage(Package pkg, int startRow, int startCol) {
+    public boolean canPlacePackage(Parcel pkg, int startRow, int startCol) {
         for (int i = 0; i < pkg.getHeight(); i++) {
             for (int j = 0; j < pkg.getWidth(); j++) {
                 if (grid[startRow + i][startCol + j] != ' ') {
@@ -21,7 +21,7 @@ public class TruckGrid {
         return true;
     }
 
-    public void placePackage(Package pkg, int startRow, int startCol) {
+    public void placePackage(Parcel pkg, int startRow, int startCol) {
         for (int i = 0; i < pkg.getHeight(); i++) {
             for (int j = 0; j < pkg.getWidth(); j++) {
                 grid[startRow + i][startCol + j] = pkg.getLines()[i].charAt(j);

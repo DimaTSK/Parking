@@ -1,4 +1,4 @@
-package org.example;
+package org.parking;
 
 public class  TruckCapacity {
     private final int width;
