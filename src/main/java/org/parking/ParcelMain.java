@@ -12,6 +12,7 @@ import static org.parking.service.ParcelLoaderService.readPackages;
 @Slf4j
 public class ParcelMain {
     public static void main(String[] args) throws IOException {
+        log.info("Программа начала работу.");
         if (args.length == 0) {
             log.error("Пожалуйста, укажите путь к файлу в качестве аргумента.");
             return;
