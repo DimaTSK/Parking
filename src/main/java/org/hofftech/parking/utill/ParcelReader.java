@@ -21,7 +21,7 @@ public class ParcelReader {
             } else {
                 if (isStringBuilderNotEmpty(currentPackage)) {
                     parcelDtos.add(ParcelDto.create(currentPackage.toString().trim()));
-                    currentPackage.setLength(0); // Сбрасываем StringBuilder
+                    currentPackage.setLength(0);
                 }
             }
         }
@@ -33,6 +33,6 @@ public class ParcelReader {
     }
 
     private boolean isStringBuilderNotEmpty(StringBuilder sb) {
-        return sb.length() != 0;
+        return !sb.isEmpty();
     }
 }

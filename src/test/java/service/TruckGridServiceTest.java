@@ -28,7 +28,7 @@ public class TruckGridServiceTest {
     public void testPlacePackage() {
         ParcelDto parcel = new ParcelDto(new String[]{"##", "##"});
         truckGridService.placePackage(parcel, 0, 0);
-        char[][] grid = truckGridService.getGrid();
+        char[][] grid = truckGridService.getTruckDto();
 
         assertEquals('#', grid[0][0]);
         assertEquals('#', grid[0][1]);

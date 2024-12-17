@@ -1,5 +1,10 @@
 package org.hofftech.parking.model.dto;
 
+import lombok.Getter;
+
+import java.util.Arrays;
+
+@Getter
 public class TruckDto {
     private final char[][] grid;
 
@@ -9,15 +14,9 @@ public class TruckDto {
     }
 
     private void clear() {
-        for (int i = 0; i < grid.length; i++) {
-            for (int j = 0; j < grid[i].length; j++) {
-                grid[i][j] = ' ';
-            }
+        for (char[] chars : grid) {
+            Arrays.fill(chars, ' ');
         }
-    }
-
-    public char[][] getGrid() {
-        return grid;
     }
 
     public boolean canPlaceParcel(ParcelDto parcel, int startRow, int startCol) {
