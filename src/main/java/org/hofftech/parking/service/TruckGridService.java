@@ -22,7 +22,25 @@ public class TruckGridService {
     }
 
     public void print() {
-        truckDto.print();
+        System.out.print("+");
+        for (int j = 0; j < truckDto.getGrid()[0].length; j++) {
+            System.out.print("-");
+        }
+        System.out.println("+");
+
+        for (int i = truckDto.getGrid().length - 1; i >= 0; i--) {
+            System.out.print("|");
+            for (int j = 0; j < truckDto.getGrid()[i].length; j++) {
+                System.out.print(truckDto.getGrid()[i][j]);
+            }
+            System.out.println("|");
+        }
+
+        System.out.print("+");
+        for (int j = 0; j < truckDto.getGrid()[0].length; j++) {
+            System.out.print("-");
+        }
+        System.out.println("+");
     }
 
     public char[][] getTruckDto() {
