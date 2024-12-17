@@ -1,8 +1,8 @@
-package org.parking.service;
+package org.hofftech.parking.service;
 
 import lombok.extern.slf4j.Slf4j;
-import org.parking.model.dto.TruckCapacityDto;
-import org.parking.model.dto.ParcelDto;
+import org.hofftech.parking.model.dto.TruckCapacityDto;
+import org.hofftech.parking.model.dto.ParcelDto;
 
 import java.util.List;
 

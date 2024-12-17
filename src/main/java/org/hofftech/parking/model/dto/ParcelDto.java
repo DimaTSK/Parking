@@ -1,8 +1,8 @@
-package org.parking.model.dto;
+package org.hofftech.parking.model.dto;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.parking.utill.ParcelValidator;
+import org.hofftech.parking.utill.ParcelValidator;
 
 @Slf4j
 public class ParcelDto {

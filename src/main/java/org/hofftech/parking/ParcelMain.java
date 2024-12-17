@@ -1,12 +1,12 @@
-package org.parking;
+package org.hofftech.parking;
 
 import lombok.extern.slf4j.Slf4j;
-import org.parking.model.dto.ParcelDto;
-import org.parking.model.dto.TruckCapacityDto;
-import org.parking.service.ParcelPackerService;
-import org.parking.service.TruckGridService;
-import org.parking.service.TruckService;
-import org.parking.utill.ParcelReader;
+import org.hofftech.parking.model.dto.ParcelDto;
+import org.hofftech.parking.model.dto.TruckCapacityDto;
+import org.hofftech.parking.service.ParcelPackerService;
+import org.hofftech.parking.service.TruckGridService;
+import org.hofftech.parking.service.TruckService;
+import org.hofftech.parking.utill.ParcelReader;
 
 import java.io.IOException;
 import java.util.List;

@@ -1,4 +1,4 @@
-package org.parking.exception;
+package org.hofftech.parking.exception;
 
 public class EmptyPackageStringException extends RuntimeException {
     public EmptyPackageStringException(String message) {

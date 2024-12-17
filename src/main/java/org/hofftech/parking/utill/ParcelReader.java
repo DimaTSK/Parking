@@ -1,6 +1,6 @@
-package org.parking.utill;
+package org.hofftech.parking.utill;
 
-import org.parking.model.dto.ParcelDto;
+import org.hofftech.parking.model.dto.ParcelDto;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ParcelReader {
-    // Метод для чтения пакетов из файла
     public List<ParcelDto> readPackages(String filePath) throws IOException {
         List<ParcelDto> parcelDtos = new ArrayList<>();
         StringBuilder currentPackage = new StringBuilder();

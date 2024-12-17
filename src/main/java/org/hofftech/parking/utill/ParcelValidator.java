@@ -1,8 +1,8 @@
-package org.parking.utill;
+package org.hofftech.parking.utill;
 
 import lombok.extern.slf4j.Slf4j;
-import org.parking.exception.EmptyPackageStringException;
-import org.parking.exception.InvalidLineException;
+import org.hofftech.parking.exception.EmptyPackageStringException;
+import org.hofftech.parking.exception.InvalidLineException;
 
 @Slf4j
 public class ParcelValidator {

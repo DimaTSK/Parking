@@ -1,4 +1,4 @@
-package org.parking.model.dto;
+package org.hofftech.parking.model.dto;
 
 public class TruckDto {
     private final char[][] grid;
