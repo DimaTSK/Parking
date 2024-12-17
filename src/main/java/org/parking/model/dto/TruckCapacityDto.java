@@ -1,19 +1,4 @@
 package org.parking.model.dto;
 
-public class TruckCapacityDto {
-    private final int width;
-    private final int height;
-
-    public TruckCapacityDto(int width, int height) {
-        this.width = width;
-        this.height = height;
-    }
-
-    public int getWidth() {
-        return width;
-    }
-
-    public int getHeight() {
-        return height;
-    }
+public record TruckCapacityDto(int width, int height) {
 }

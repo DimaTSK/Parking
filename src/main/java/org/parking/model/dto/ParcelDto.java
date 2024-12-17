@@ -8,12 +8,9 @@ import org.parking.utill.ParcelValidator;
 public class ParcelDto {
     @Getter
     private final String[] lines;
-    private final ParcelValidator validator;
 
-    public ParcelDto(String packageStr) {
-        this.validator = new ParcelValidator();
-        validator.validate(packageStr);  // Вызов функции валидации
-        this.lines = packageStr.split("\n");
+    public ParcelDto(String[] lines) {
+        this.lines = lines;
         log.info("Создан объект Parcel с шириной: " + getWidth() + " и высотой: " + getHeight());
     }
 
@@ -25,4 +22,10 @@ public class ParcelDto {
         return lines.length;
     }
 
+    public static ParcelDto create(String packageStr) {
+        ParcelValidator validator = new ParcelValidator();
+        validator.validate(packageStr);
+        String[] lines = packageStr.split("\n");
+        return new ParcelDto(lines);
+    }
 }
