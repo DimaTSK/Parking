@@ -3,6 +3,7 @@ package org.hofftech.parking;
 import lombok.extern.slf4j.Slf4j;
 import org.hofftech.parking.model.dto.ParcelDto;
 import org.hofftech.parking.model.dto.TruckCapacityDto;
+import org.hofftech.parking.model.dto.TruckDto;
 import org.hofftech.parking.service.TruckService;
 import org.hofftech.parking.utill.ParcelReader;
 
@@ -20,13 +21,15 @@ public class ParcelMain {
         String filePath = args[0];
 
         TruckCapacityDto capacity = new TruckCapacityDto(6, 6);
-        TruckService truckService = new TruckService(capacity, capacity.width(), capacity.height());
+        TruckService truckService = new TruckService(capacity);
+
+        TruckDto truckDto = new TruckDto(capacity.width(), capacity.height());
         ParcelReader parcelReader = new ParcelReader();
 
         try {
             List<ParcelDto> parcelDtos = parcelReader.readPackages(filePath);
-            truckService.packPackages(parcelDtos);
-            truckService.print();
+            truckService.packPackages(parcelDtos, truckDto);
+            truckService.print(truckDto);
         } catch (IOException e) {
             log.error("Ошибка при чтении пакетов из файла: {}", e.getMessage());
         } catch (Exception e) {

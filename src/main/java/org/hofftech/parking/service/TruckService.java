@@ -10,20 +10,18 @@ import java.util.List;
 @Slf4j
 public class TruckService {
     private final TruckCapacityDto capacity;
-    private final TruckDto truckDto;
 
-    public TruckService(TruckCapacityDto capacity, int width, int height) {
+    public TruckService(TruckCapacityDto capacity) {
         this.capacity = capacity;
-        this.truckDto = new TruckDto(width, height);
     }
 
-    public boolean canPlacePackage(ParcelDto pkg, int startRow, int startCol) {
+    public boolean canPlacePackage(ParcelDto pkg, int startRow, int startCol, TruckDto truckDto) {
         log.debug("Проверка размещения пакета на позиции: ({}, {})", startRow, startCol);
-        return canPlaceParcel(pkg, startRow, startCol);
+        return canPlaceParcel(pkg, startRow, startCol, truckDto);
     }
 
-    public void placePackage(ParcelDto pkg, int startRow, int startCol) {
-        if (!canPlaceParcel(pkg, startRow, startCol)) {
+    public void placePackage(ParcelDto pkg, int startRow, int startCol, TruckDto truckDto) {
+        if (!canPlaceParcel(pkg, startRow, startCol, truckDto)) {
             throw new IllegalArgumentException("Не удается разместить посылку на указанной позиции.");
         }
 
@@ -34,7 +32,7 @@ public class TruckService {
         }
     }
 
-    public boolean canPlaceParcel(ParcelDto parcel, int startRow, int startCol) {
+    public boolean canPlaceParcel(ParcelDto parcel, int startRow, int startCol, TruckDto truckDto) {
         if (startRow < 0 || startCol < 0 || startRow + parcel.getHeight() > truckDto.getGrid().length || startCol + parcel.getWidth() > truckDto.getGrid()[0].length) {
             return false;
         }
@@ -49,7 +47,7 @@ public class TruckService {
         return true;
     }
 
-    public void print() {
+    public void print(TruckDto truckDto) {
         System.out.print("+");
         for (int j = 0; j < truckDto.getGrid()[0].length; j++) {
             System.out.print("-");
@@ -71,22 +69,17 @@ public class TruckService {
         System.out.println("+");
     }
 
-    public char[][] getTruckDto() {
-        return truckDto.getGrid();
-    }
-
-    public void packPackages(List<ParcelDto> parcelDtos) {
+    public void packPackages(List<ParcelDto> parcelDtos, TruckDto truckDto) {
         log.info("Началось размещение пакетов. Всего пакетов: {}", parcelDtos.size());
 
-        for (int idx = 0; idx < parcelDtos.size(); idx++) {
-            ParcelDto pkg = parcelDtos.get(idx);
+        for (ParcelDto pkg : parcelDtos) {
             boolean placed = false;
 
             for (int i = 0; i <= capacity.height() - pkg.getHeight(); i++) {
                 if (placed) break;
                 for (int j = 0; j <= capacity.width() - pkg.getWidth(); j++) {
-                    if (canPlacePackage(pkg, i, j)) {
-                        placePackage(pkg, i, j);
+                    if (canPlacePackage(pkg, i, j, truckDto)) {
+                        placePackage(pkg, i, j, truckDto);
                         log.debug("Пакет успешно размещён на позиции: ({}, {})", i, j);
                         placed = true;
                         break;
