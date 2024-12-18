@@ -42,8 +42,4 @@ public class TruckService {
 
         log.info("Завершено размещение пакетов.");
     }
-
-    public void print() {
-        truckGridService.print();
-    }
 }

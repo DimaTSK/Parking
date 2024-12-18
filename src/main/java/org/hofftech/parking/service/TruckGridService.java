@@ -14,11 +14,34 @@ public class TruckGridService {
 
     public boolean canPlacePackage(ParcelDto pkg, int startRow, int startCol) {
         log.debug("Проверка размещения пакета на позиции: ({}, {})", startRow, startCol);
-        return truckDto.canPlaceParcel(pkg, startRow, startCol);
+        return canPlaceParcel(pkg, startRow, startCol);
     }
 
     public void placePackage(ParcelDto pkg, int startRow, int startCol) {
-        truckDto.placeParcel(pkg, startRow, startCol);
+        if (!canPlaceParcel(pkg, startRow, startCol)) {
+            throw new IllegalArgumentException("Не удается разместить посылку на указанной позиции.");
+        }
+
+        for (int i = 0; i < pkg.getHeight(); i++) {
+            for (int j = 0; j < pkg.getWidth(); j++) {
+                truckDto.getGrid()[startRow + i][startCol + j] = pkg.getLines()[i].charAt(j);
+            }
+        }
+    }
+
+    public boolean canPlaceParcel(ParcelDto parcel, int startRow, int startCol) {
+        if (startRow < 0 || startCol < 0 || startRow + parcel.getHeight() > truckDto.getGrid().length || startCol + parcel.getWidth() > truckDto.getGrid()[0].length) {
+            return false;
+        }
+
+        for (int i = 0; i < parcel.getHeight(); i++) {
+            for (int j = 0; j < parcel.getWidth(); j++) {
+                if (truckDto.getGrid()[startRow + i][startCol + j] != ' ') {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     public void print() {

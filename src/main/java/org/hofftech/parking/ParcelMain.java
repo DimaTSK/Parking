@@ -28,7 +28,7 @@ public class ParcelMain {
         try {
             List<ParcelDto> parcelDtos = parcelReader.readPackages(filePath);
             truckService.packPackages(parcelDtos);
-            truckService.print();
+            truckGridService.print();
         } catch (IOException e) {
             log.error("Ошибка при чтении пакетов из файла: {}", e.getMessage());
         } catch (Exception e) {

@@ -19,20 +19,16 @@ public class ParcelReader {
             if (!line.trim().isEmpty()) {
                 currentPackage.append(line).append("\n");
             } else {
-                if (isStringBuilderNotEmpty(currentPackage)) {
+                if (!currentPackage.isEmpty()) {
                     parcelDtos.add(ParcelDto.create(currentPackage.toString().trim()));
                     currentPackage.setLength(0);
                 }
             }
         }
-        if (isStringBuilderNotEmpty(currentPackage)) {
+        if (!currentPackage.isEmpty()) {
             parcelDtos.add(ParcelDto.create(currentPackage.toString().trim()));
         }
 
         return parcelDtos;
-    }
-
-    private boolean isStringBuilderNotEmpty(StringBuilder sb) {
-        return !sb.isEmpty();
     }
 }
