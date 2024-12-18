@@ -29,7 +29,7 @@ public class ParcelMain {
         try {
             List<ParcelDto> parcelDtos = parcelReader.readPackages(filePath);
             truckService.packPackages(parcelDtos, truckDto);
-            truckService.print(truckDto);
+            log.info("\n{}", truckDto);
         } catch (IOException e) {
             log.error("Ошибка при чтении пакетов из файла: {}", e.getMessage());
         } catch (Exception e) {

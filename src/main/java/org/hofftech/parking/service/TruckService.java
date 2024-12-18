@@ -33,7 +33,9 @@ public class TruckService {
     }
 
     public boolean canPlaceParcel(ParcelDto parcel, int startRow, int startCol, TruckDto truckDto) {
-        if (startRow < 0 || startCol < 0 || startRow + parcel.getHeight() > truckDto.getGrid().length || startCol + parcel.getWidth() > truckDto.getGrid()[0].length) {
+        if (startRow < 0 || startCol < 0
+                || startRow + parcel.getHeight() > truckDto.getGrid().length
+                || startCol + parcel.getWidth() > truckDto.getGrid()[0].length) {
             return false;
         }
 
@@ -45,28 +47,6 @@ public class TruckService {
             }
         }
         return true;
-    }
-
-    public void print(TruckDto truckDto) {
-        System.out.print("+");
-        for (int j = 0; j < truckDto.getGrid()[0].length; j++) {
-            System.out.print("-");
-        }
-        System.out.println("+");
-
-        for (int i = truckDto.getGrid().length - 1; i >= 0; i--) {
-            System.out.print("|");
-            for (int j = 0; j < truckDto.getGrid()[i].length; j++) {
-                System.out.print(truckDto.getGrid()[i][j]);
-            }
-            System.out.println("|");
-        }
-
-        System.out.print("+");
-        for (int j = 0; j < truckDto.getGrid()[0].length; j++) {
-            System.out.print("-");
-        }
-        System.out.println("+");
     }
 
     public void packPackages(List<ParcelDto> parcelDtos, TruckDto truckDto) {

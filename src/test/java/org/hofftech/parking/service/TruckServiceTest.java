@@ -1,4 +1,4 @@
-package service;
+package org.hofftech.parking.service;
 
 import org.hofftech.parking.model.dto.ParcelDto;
 import org.hofftech.parking.model.dto.TruckCapacityDto;

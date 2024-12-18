@@ -2,7 +2,6 @@ package org.hofftech.parking.model.dto;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.hofftech.parking.utill.ParcelValidator;
 
 @Slf4j
 public class ParcelDto {
@@ -11,7 +10,7 @@ public class ParcelDto {
 
     public ParcelDto(String[] lines) {
         this.lines = lines;
-        log.info(String.format("Создан объект Parcel с шириной: %d и высотой: %d", getWidth(), getHeight()));
+        log.info("Создан объект Parcel с шириной: {} и высотой: {}", getWidth(), getHeight());
     }
 
     public int getWidth() {
