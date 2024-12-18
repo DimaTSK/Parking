@@ -3,7 +3,6 @@ package org.hofftech.parking.service;
 import org.hofftech.parking.model.dto.ParcelDto;
 import org.hofftech.parking.model.dto.TruckCapacityDto;
 import org.hofftech.parking.model.dto.TruckDto;
-import org.hofftech.parking.service.TruckService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -15,13 +14,13 @@ public class TruckServiceTest {
     private TruckCapacityDto truckCapacity;
 
     @BeforeEach
-    public void setUp() {
-        truckCapacity = new TruckCapacityDto(5, 5); // Ширина 5, Высота 5
+    void setUp() {
+        truckCapacity = new TruckCapacityDto(5, 5);
         truckService = new TruckService(truckCapacity);
     }
 
     @Test
-    public void testCanPlacePackage() {
+    void testCanPlacePackage() {
         TruckDto truckDto = new TruckDto(truckCapacity.width(), truckCapacity.height());
         String[] parcelLines = {
                 "XX",
@@ -41,7 +40,7 @@ public class TruckServiceTest {
     }
 
     @Test
-    public void testPlacePackage() {
+    void testPlacePackage() {
         TruckDto truckDto = new TruckDto(truckCapacity.width(), truckCapacity.height());
         String[] parcelLines = {
                 "XX",
@@ -63,7 +62,7 @@ public class TruckServiceTest {
     }
 
     @Test
-    public void testCannotPlacePackageExceedingBounds() {
+    void testCannotPlacePackageExceedingBounds() {
         TruckDto truckDto = new TruckDto(truckCapacity.width(), truckCapacity.height());
         String[] parcelLines = {
                 "XXX",
