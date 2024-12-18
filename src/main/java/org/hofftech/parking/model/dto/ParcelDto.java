@@ -11,7 +11,7 @@ public class ParcelDto {
 
     public ParcelDto(String[] lines) {
         this.lines = lines;
-        log.info("Создан объект Parcel с шириной: " + getWidth() + " и высотой: " + getHeight());
+        log.info(String.format("Создан объект Parcel с шириной: %d и высотой: %d", getWidth(), getHeight()));
     }
 
     public int getWidth() {
@@ -20,12 +20,5 @@ public class ParcelDto {
 
     public int getHeight() {
         return lines.length;
-    }
-
-    public static ParcelDto create(String packageStr) {
-        ParcelValidator validator = new ParcelValidator();
-        validator.validate(packageStr);
-        String[] lines = packageStr.split("\n");
-        return new ParcelDto(lines);
     }
 }

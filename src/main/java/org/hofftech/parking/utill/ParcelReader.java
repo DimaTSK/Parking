@@ -20,25 +20,27 @@ public class ParcelReader {
             if (!line.trim().isEmpty()) {
                 currentPackage.append(line).append("\n");
             } else {
-                if (isStringBuilderNotEmpty(currentPackage)) {
-                    String[] packageLines = currentPackage.toString().trim().split("\n");
-                    for (String packageLine : packageLines) {
-                        validator.validate(packageLine);
-                    }
-                    parcelDtos.add(new ParcelDto(packageLines));
-                    currentPackage.setLength(0);
-                }
+                processCurrentPackage(currentPackage, parcelDtos, validator);
             }
         }
+        processCurrentPackage(currentPackage, parcelDtos, validator);
+
+        return parcelDtos;
+    }
+
+    private void processCurrentPackage(StringBuilder currentPackage, List<ParcelDto> parcelDtos, ParcelValidator validator) {
         if (isStringBuilderNotEmpty(currentPackage)) {
-            String[] packageLines = currentPackage.toString().trim().split("\n");
+            String[] packageLines = currentPackageToLines(currentPackage);
             for (String packageLine : packageLines) {
                 validator.validate(packageLine);
             }
             parcelDtos.add(new ParcelDto(packageLines));
+            currentPackage.setLength(0);
         }
+    }
 
-        return parcelDtos;
+    private String[] currentPackageToLines(StringBuilder currentPackage) {
+        return currentPackage.toString().trim().split("\n");
     }
 
     private boolean isStringBuilderNotEmpty(StringBuilder sb) {
