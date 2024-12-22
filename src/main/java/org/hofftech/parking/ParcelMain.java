@@ -1,41 +1,55 @@
 package org.hofftech.parking;
 
 import lombok.extern.slf4j.Slf4j;
-import org.hofftech.parking.model.dto.ParcelDto;
-import org.hofftech.parking.model.dto.TruckCapacityDto;
-import org.hofftech.parking.model.dto.TruckDto;
-import org.hofftech.parking.service.TruckService;
-import org.hofftech.parking.utill.ParcelReader;
+import org.hofftech.parking.handler.CommandHandler;
+import org.hofftech.parking.handler.ConsoleCommandHandler;
+import org.hofftech.parking.service.*;
+import org.hofftech.parking.utill.FileParserUtil;
+import org.hofftech.parking.utill.FileReaderUtil;
 
-import java.io.IOException;
-import java.util.List;
+import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
+import java.util.Scanner;
+
 
 @Slf4j
 public class ParcelMain {
+    private final CommandHandler commandHandler;
+
+    public ParcelMain() {
+        log.info("Создаем зависимости...");
+        PackingService packingService = new PackingService();
+        TruckService truckService = new TruckService(packingService);
+        ValidatorService validatorService = new ValidatorService();
+        FileReaderUtil fileReader = new FileReaderUtil();
+        FileParserUtil fileParser = new FileParserUtil();
+        JsonProcessingService jsonProcessingService = new JsonProcessingService(validatorService);
+        FileProcessingService fileProcessingService =
+                new FileProcessingService(fileReader, fileParser, validatorService, truckService, jsonProcessingService);
+        this.commandHandler = new ConsoleCommandHandler(fileProcessingService, jsonProcessingService);
+    }
+
+    public void listen() {
+        Scanner scanner = new Scanner(System.in);
+        log.info("Ожидание команды пользователя...");
+        System.out.print("Введите import easyalgorithm [путь_к_файлу] или import [путь_к_файлу] или " +
+                "save [путь_к_файлу] или importjson [путь_к_файлу] или import even [кол-во грузовиков] [путь_к_файлу]" +
+                " для выхода используйте exit: ");
+
+        while (scanner.hasNextLine()) {
+            String command = scanner.nextLine();
+            commandHandler.handle(command);
+        }
+        scanner.close();
+    }
+
     public static void main(String[] args) {
-        log.info("Программа начала работу.");
-        if (args.length == 0) {
-            log.error("Пожалуйста, укажите путь к файлу в качестве аргумента.");
-            return;
-        }
-        String filePath = args[0];
+        System.setOut(new PrintStream(System.out, true, StandardCharsets.UTF_8));
+        log.info("Приложение запускается...");
 
-        TruckCapacityDto capacity = new TruckCapacityDto(6, 6);
-        TruckService truckService = new TruckService(capacity);
+        ParcelMain parcelMain = new ParcelMain();
+        parcelMain.listen();
 
-        TruckDto truckDto = new TruckDto(capacity.width(), capacity.height());
-        ParcelReader parcelReader = new ParcelReader();
-
-        try {
-            List<ParcelDto> parcelDtos = parcelReader.readPackages(filePath);
-            truckService.packPackages(parcelDtos, truckDto);
-            log.info("\n{}", truckDto);
-        } catch (IOException e) {
-            log.error("Ошибка при чтении пакетов из файла: {}", e.getMessage());
-        } catch (Exception e) {
-            log.error("Произошла ошибка: {}", e.getMessage());
-        }
-
-        log.info("Программа завершила работу.");
+        log.info("Приложение завершило работу.");
     }
 }
