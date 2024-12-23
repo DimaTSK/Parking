@@ -1,22 +1,22 @@
 package org.hofftech.parking.service;
 
 import lombok.extern.slf4j.Slf4j;
-import org.hofftech.parking.model.PackageStartPosition;
-import org.hofftech.parking.model.Truck;
-import org.hofftech.parking.model.Package;
+import org.hofftech.parking.model.dto.ParcelPositionDto;
+import org.hofftech.parking.model.dto.TruckDto;
+import org.hofftech.parking.model.dto.ParcelDto;
 
 import java.util.List;
 
 @Slf4j
-public class PackingService {
-    protected boolean canAddPackage(Truck truck, Package pkg, int startX, int startY) {
-        log.debug("Проверяем возможность добавить упаковку {} в координаты X={}, Y={}", pkg.getType(), startX, startY);
+public class ParcelService {
+    protected boolean canAddPackage(TruckDto truckDto, ParcelDto pkg, int startX, int startY) {
+        log.debug("Проверка возможности добавить упаковку {} в координаты X={}, Y={}", pkg.getType(), startX, startY);
         List<String> shape = pkg.getType().getShape();
         int height = shape.size();
 
         for (int y = 0; y < height; y++) {
             int rowWidth = shape.get(y).length();
-            if (startX + rowWidth > truck.getWIDTH() || startY + y >= truck.getHEIGHT()) {
+            if (startX + rowWidth > truckDto.getWIDTH() || startY + y >= truckDto.getHEIGHT()) {
                 log.debug("Упаковка {} выходит за пределы грузовика", pkg.getType());
                 return false;
             }
@@ -24,7 +24,7 @@ public class PackingService {
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < shape.get(y).length(); x++) {
-                if (shape.get(y).charAt(x) != ' ' && truck.getGrid()[startY + y][startX + x] != ' ') {
+                if (shape.get(y).charAt(x) != ' ' && truckDto.getGrid()[startY + y][startX + x] != ' ') {
                     log.debug("Упаковка {} пересекается с другой упаковкой", pkg.getType());
                     return false;
                 }
@@ -34,18 +34,18 @@ public class PackingService {
         return true;
     }
 
-    protected boolean addPackage(Truck truck, Package pkg) {
+    protected boolean addPackage(TruckDto truckDto, ParcelDto pkg) {
         log.info("Пытаемся добавить упаковку {} в грузовик.", pkg.getType());
 
         List<String> shape = pkg.getType().getShape();
         int height = shape.size();
 
-        for (int startY = 0; startY <= truck.getHEIGHT() - height; startY++) {
-            for (int startX = 0; startX <= truck.getWIDTH() - shape.getFirst().length(); startX++) { // Слева направо
-                if (canAddPackage(truck, pkg, startX, startY)) {
+        for (int startY = 0; startY <= truckDto.getHEIGHT() - height; startY++) {
+            for (int startX = 0; startX <= truckDto.getWIDTH() - shape.getFirst().length(); startX++) { // Слева направо
+                if (canAddPackage(truckDto, pkg, startX, startY)) {
                     log.info("Упаковка {} успешно добавлена", pkg.getType());
-                    pkg.setPackageStartPosition(new PackageStartPosition(startX, startY));
-                    placePackage(truck, pkg, startX, startY);
+                    pkg.setParcelPositionDto(new ParcelPositionDto(startX, startY));
+                    placePackage(truckDto, pkg, startX, startY);
                     return true;
                 }
             }
@@ -57,20 +57,18 @@ public class PackingService {
     }
 
 
-    protected void placePackage(Truck truck, Package pkg, int startX, int startY) {
+    protected void placePackage(TruckDto truckDto, ParcelDto pkg, int startX, int startY) {
         List<String> shape = pkg.getType().getShape();
 
         for (int y = 0; y < shape.size(); y++) {
             for (int x = 0; x < shape.get(y).length(); x++) {
                 if (shape.get(y).charAt(x) != ' ') {
-                    truck.getGrid()[startY + y][startX + x] = shape.get(y).charAt(x);
+                    truckDto.getGrid()[startY + y][startX + x] = shape.get(y).charAt(x);
                 }
             }
         }
-        pkg.setPackageStartPosition(new PackageStartPosition(startX, startY));
-        truck.getPackages().add(pkg);
+        pkg.setParcelPositionDto(new ParcelPositionDto(startX, startY));
+        truckDto.getParcelDtos().add(pkg);
         log.info("Упаковка {} размещена на грузовике", pkg.getType());
     }
-
-
 }

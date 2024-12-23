@@ -2,8 +2,8 @@ package org.hofftech.parking.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
-import org.hofftech.parking.model.Package;
-import org.hofftech.parking.model.PackageType;
+import org.hofftech.parking.model.dto.ParcelDto;
+import org.hofftech.parking.model.enums.ParcelType;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -14,34 +14,34 @@ import java.util.Map;
 public class ValidatorService {
     public boolean isValidFile(List<String> lines) {
         if (CollectionUtils.isEmpty(lines)) {
-            log.error("Файл пустой или не содержит данных.");
+            log.error("Файл пустой.");
             return false;
         }
-        log.info("Файл успешно проверен. Количество строк: {}", lines.size());
+        log.info("Файл проверен, количество строк: {}", lines.size());
         return true;
     }
 
-    public boolean isValidPackages(List<Package> packages) {
-        List<Package> invalidPackages = new ArrayList<>();
-        for (Package pkg : packages) {
+    public boolean isValidPackages(List<ParcelDto> parcelDtos) {
+        List<ParcelDto> invalidParcelDtos = new ArrayList<>();
+        for (ParcelDto pkg : parcelDtos) {
             if (!isValidPackage(pkg)) {
-                invalidPackages.add(pkg);
+                invalidParcelDtos.add(pkg);
             }
         }
-        if (!invalidPackages.isEmpty()) {
-            for (Package invalidPkg : invalidPackages) {
+        if (!invalidParcelDtos.isEmpty()) {
+            for (ParcelDto invalidPkg : invalidParcelDtos) {
                 log.error("Упаковка с ID {} имеет некорректную форму: {}",
                         invalidPkg.getId(), invalidPkg.getType().getShape());
             }
             return false;
         }
 
-        log.info("Все упаковки успешно проверены.");
+        log.info("Все упаковки успешно.");
         return true;
     }
 
-    private boolean isValidPackage(Package pkg) {
-        PackageType type = pkg.getType();
+    private boolean isValidPackage(ParcelDto pkg) {
+        ParcelType type = pkg.getType();
         List<String> shape = type.getShape();
 
         // Проверяем, что форма упаковки не имеет "выпадающих" символов
@@ -81,7 +81,7 @@ public class ValidatorService {
                 }
             }
         }
-        log.info("JSON успешно провалидирован.");
+        log.info("JSON успешно проверен.");
         return true;
     }
 

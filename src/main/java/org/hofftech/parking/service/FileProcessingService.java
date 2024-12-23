@@ -1,23 +1,23 @@
 package org.hofftech.parking.service;
 
 import lombok.extern.slf4j.Slf4j;
-import org.hofftech.parking.model.Package;
-import org.hofftech.parking.model.Truck;
-import org.hofftech.parking.utill.FileParserUtil;
-import org.hofftech.parking.utill.FileReaderUtil;
+import org.hofftech.parking.model.dto.ParcelDto;
+import org.hofftech.parking.model.dto.TruckDto;
+import org.hofftech.parking.utill.FileParser;
+import org.hofftech.parking.utill.FileReader;
 
 import java.nio.file.Path;
 import java.util.List;
 
 @Slf4j
 public class FileProcessingService {
-    private final FileReaderUtil fileReader;
-    private final FileParserUtil fileParser;
+    private final FileReader fileReader;
+    private final FileParser fileParser;
     private final ValidatorService validatorService;
     private final TruckService truckService;
     private final JsonProcessingService jsonProcessingService;
 
-    public FileProcessingService(FileReaderUtil fileReader, FileParserUtil fileParser,
+    public FileProcessingService(FileReader fileReader, FileParser fileParser,
                                  ValidatorService validatorService, TruckService truckService, JsonProcessingService jsonProcessingService) {
         this.fileReader = fileReader;
         this.fileParser = fileParser;
@@ -29,14 +29,14 @@ public class FileProcessingService {
     public void processFile(Path filePath, boolean useEasyAlgorithm, boolean saveToFile, int maxTrucks, boolean lazyAlg) {
         List<String> lines = readFile(filePath);
         validateFile(filePath, lines);
-        List<Package> packages = parseFileLines(filePath, lines);
-        validatePackages(packages);
-        List<Truck> trucks = addPackages(useEasyAlgorithm, packages, maxTrucks, lazyAlg);
+        List<ParcelDto> parcelDtos = parseFileLines(filePath, lines);
+        validatePackages(parcelDtos);
+        List<TruckDto> truckDtos = addPackages(useEasyAlgorithm, parcelDtos, maxTrucks, lazyAlg);
 
         if (saveToFile) {
-            saveTrucksToFile(trucks);
+            saveTrucksToFile(truckDtos);
         } else {
-            printTrucks(trucks);
+            printTrucks(truckDtos);
         }
     }
 
@@ -49,47 +49,47 @@ public class FileProcessingService {
         }
     }
 
-    protected void saveTrucksToFile(List<Truck> trucks) {
+    protected void saveTrucksToFile(List<TruckDto> truckDtos) {
         try {
             log.info("Сохраняем данные грузовиков в JSON...");
-            jsonProcessingService.saveToJson(trucks);
+            jsonProcessingService.saveToJson(truckDtos);
         } catch (Exception e) {
             throw new RuntimeException("Ошибка сохранения грузовиков в JSON", e);
         }
     }
 
-    private void printTrucks(List<Truck> trucks) {
-        truckService.printTrucks(trucks);
+    private void printTrucks(List<TruckDto> truckDtos) {
+        truckService.printTrucks(truckDtos);
     }
 
 
-    protected List<Truck> addPackages(boolean useEasyAlgorithm, List<Package> packages, int maxTrucks, Boolean lazyAlg) {
+    protected List<TruckDto> addPackages(boolean useEasyAlgorithm, List<ParcelDto> parcelDtos, int maxTrucks, Boolean lazyAlg) {
         // Распределение упаковок по грузовикам
-        List<Truck> trucks;
+        List<TruckDto> truckDtos;
         if (useEasyAlgorithm) {
-            trucks = truckService.addPackagesToIndividualTrucks(packages);
+            truckDtos = truckService.addPackagesToIndividualTrucks(parcelDtos);
         } else {
-            trucks = truckService.addPackagesToMultipleTrucks(packages, maxTrucks, lazyAlg);
+            truckDtos = truckService.addPackagesToMultipleTrucks(parcelDtos, maxTrucks, lazyAlg);
         }
-        return trucks;
+        return truckDtos;
     }
 
-    private void validatePackages(List<Package> packages) {
+    private void validatePackages(List<ParcelDto> parcelDtos) {
         // Валидация упаковок
-        if (!validatorService.isValidPackages(packages)) {
+        if (!validatorService.isValidPackages(parcelDtos)) {
             log.warn("Не все упаковки прошли валидацию.");
         }
         log.info("Все упаковки успешно прошли валидацию.");
     }
 
-    protected List<Package> parseFileLines(Path filePath, List<String> lines) {
+    protected List<ParcelDto> parseFileLines(Path filePath, List<String> lines) {
         // Парсинг строк в упаковки
-        List<Package> packages = fileParser.parsePackages(lines);
-        if (packages.isEmpty()) {
+        List<ParcelDto> parcelDtos = fileParser.parsePackages(lines);
+        if (parcelDtos.isEmpty()) {
             log.warn("Не удалось распарсить ни одной упаковки из файла: {}", filePath);
         }
-        log.info("Успешно распарсено {} упаковок.", packages.size());
-        return packages;
+        log.info("Успешно распарсено {} упаковок.", parcelDtos.size());
+        return parcelDtos;
     }
 
     protected void validateFile(Path filePath, List<String> lines) {

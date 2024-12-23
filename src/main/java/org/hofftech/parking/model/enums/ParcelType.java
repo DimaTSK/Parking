@@ -1,4 +1,4 @@
-package org.hofftech.parking.model;
+package org.hofftech.parking.model.enums;
 
 import lombok.Getter;
 
@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 @Getter
-public enum PackageType {
+public enum ParcelType {
     ONE(List.of("1")),
     TWO(List.of("22")),
     THREE(List.of("333")),
@@ -21,16 +21,16 @@ public enum PackageType {
     EIGHT(Arrays.asList("8888", "8888")),
     NINE(Arrays.asList("999", "999", "999"));
 
-    private static final Map<List<String>, PackageType> SHAPE_MAP = new HashMap<>();
+    private static final Map<List<String>, ParcelType> SHAPE_MAP = new HashMap<>();
     private final List<String> shape;
 
     static {
-        for (PackageType type : values()) {
+        for (ParcelType type : values()) {
             SHAPE_MAP.put(type.shape, type);
         }
     }
 
-    PackageType(List<String> shape) {
+    ParcelType(List<String> shape) {
         this.shape = shape;
     }
 
@@ -42,8 +42,8 @@ public enum PackageType {
         return shape.size();
     }
 
-    public static PackageType fromShape(List<String> shape) {
-        PackageType type = SHAPE_MAP.get(shape);
+    public static ParcelType fromShape(List<String> shape) {
+        ParcelType type = SHAPE_MAP.get(shape);
         if (type == null) {
             throw new IllegalArgumentException("Нет соответствующего PackageType для формы: " + shape);
         }

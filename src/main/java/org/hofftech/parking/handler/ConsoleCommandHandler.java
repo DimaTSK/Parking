@@ -3,7 +3,7 @@ package org.hofftech.parking.handler;
 import lombok.extern.slf4j.Slf4j;
 import org.hofftech.parking.service.FileProcessingService;
 import org.hofftech.parking.service.JsonProcessingService;
-import org.hofftech.parking.utill.FileSavingUtil;
+import org.hofftech.parking.utill.FileSaving;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -12,7 +12,7 @@ import java.util.List;
 @Slf4j
 public class ConsoleCommandHandler implements CommandHandler {
     private static final String EXIT_COMMAND = "exit";
-    private static final String OUTPUT_TXT = "out/in.txt";
+    private static final String OUTPUT_TXT = "out/input.txt";
     private int maxTrucks;
     private String filePath;
     private String algorithm;
@@ -59,9 +59,9 @@ public class ConsoleCommandHandler implements CommandHandler {
             String jsonFilePath = command.replace("importjson ", "").trim();
             try {
                 List<String> packageTypes = jsonProcessingService.importJson(jsonFilePath);
-                FileSavingUtil.savePackagesToFile(packageTypes, OUTPUT_TXT);
+                FileSaving.savePackagesToFile(packageTypes, OUTPUT_TXT);
             } catch (IOException e) {
-                log.error("Ошибка при обработке команды importjson: {}", e.getMessage(), e);
+                log.error("Ошибка при обработке команды json: {}", e.getMessage(), e);
             }
         } else {
             parseAdvancedCommand(command);
@@ -83,7 +83,7 @@ public class ConsoleCommandHandler implements CommandHandler {
             parseDigitInsideCommand(command, parts, toReplace);
         } else {
             if (useEvenAlgorithm) {
-                log.error("Для алгоритма распределения по равным частям нужно указать кол-во грузовиков!");
+                log.error("Для алгоритма распределения требуется указать кол-во грузовиков!");
                 throw new RuntimeException("Не указано количество грузовиков");
             }
             filePath = command.replace(toReplace.trim(), "").trim();
@@ -95,7 +95,7 @@ public class ConsoleCommandHandler implements CommandHandler {
             maxTrucks = Integer.parseInt(parts[1]); // Лимит грузовиков
             filePath = command.replace(toReplace + parts[1], "").trim();
         } catch (NumberFormatException e) {
-            log.error("Некорректный формат лимита грузовиков: {}", parts[1]);
+            log.error("Некорректный формат количесвтва грузовиков: {}", parts[1]);
         }
     }
 

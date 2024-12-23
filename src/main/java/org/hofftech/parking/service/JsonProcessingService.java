@@ -1,10 +1,10 @@
 package org.hofftech.parking.service;
 
 import lombok.extern.slf4j.Slf4j;
-import org.hofftech.parking.model.PackageType;
-import org.hofftech.parking.model.Truck;
-import org.hofftech.parking.model.Package;
-import org.hofftech.parking.model.PackageStartPosition;
+import org.hofftech.parking.model.enums.ParcelType;
+import org.hofftech.parking.model.dto.TruckDto;
+import org.hofftech.parking.model.dto.ParcelDto;
+import org.hofftech.parking.model.dto.ParcelPositionDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
@@ -28,7 +28,7 @@ public class JsonProcessingService {
         this.objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
     }
 
-    public void saveToJson(List<Truck> trucks) {
+    public void saveToJson(List<TruckDto> truckDtos) {
         File outputDir = new File(OUTPUT_DIRECTORY);
         if (!outputDir.exists()) {
             boolean dirCreated = outputDir.mkdirs();
@@ -41,17 +41,17 @@ public class JsonProcessingService {
         File outputFile = new File(outputDir, FILE_NAME);
 
         List<Map<String, Object>> trucksData = new ArrayList<>();
-        for (Truck truck : trucks) {
+        for (TruckDto truckDto : truckDtos) {
             Map<String, Object> truckMap = new LinkedHashMap<>(); //Linked чтобы вывод в json был по порядку
-            truckMap.put("truck_id", trucks.indexOf(truck) + 1);
+            truckMap.put("truck_id", truckDtos.indexOf(truckDto) + 1);
 
             List<Map<String, Object>> packagesData = new ArrayList<>();
-            for (Package pkg : truck.getPackages()) {
+            for (ParcelDto pkg : truckDto.getParcelDtos()) {
                 Map<String, Object> packageMap = new LinkedHashMap<>();
                 packageMap.put("id", pkg.getId());
                 packageMap.put("type", pkg.getType().name());
 
-                PackageStartPosition position = pkg.getPackageStartPosition();
+                ParcelPositionDto position = pkg.getParcelPositionDto();
                 if (position != null) {
                     Map<String, Object> positionMap = new LinkedHashMap<>();
                     positionMap.put("x", position.getX() + 1);
@@ -95,7 +95,7 @@ public class JsonProcessingService {
             List<Map<String, Object>> packages = (List<Map<String, Object>>) truck.get("packages");
             for (Map<String, Object> pkg : packages) {
                 String type = (String) pkg.get("type");
-                List<String> shape = PackageType.valueOf(type).getShape();
+                List<String> shape = ParcelType.valueOf(type).getShape();
                 packagesOutput.addAll(shape);
                 packagesOutput.add("");
             }

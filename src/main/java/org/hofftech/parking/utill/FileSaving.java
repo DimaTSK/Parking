@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.List;
 
 @Slf4j
-public class FileSavingUtil {
+public class FileSaving {
     public static void savePackagesToFile(List<String> packages, String outputFilePath) throws IOException {
         File outputFile = new File(outputFilePath);
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
@@ -20,6 +20,6 @@ public class FileSavingUtil {
         } catch (IOException e) {
             log.error(e.getMessage());
         }
-        log.info("Посылки успешно импортированы и сохранены в файл: {}", outputFile.getAbsolutePath());
+        log.info("Посылки успешно сохранены в файл: {}", outputFile.getAbsolutePath());
     }
 }

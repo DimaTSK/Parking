@@ -1,4 +1,4 @@
-package org.hofftech.parking.model;
+package org.hofftech.parking.model.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,7 +9,7 @@ import lombok.ToString;
 @Setter
 @ToString
 @AllArgsConstructor
-public class PackageStartPosition {
+public class ParcelPositionDto {
     int x;
     int y;
 }
