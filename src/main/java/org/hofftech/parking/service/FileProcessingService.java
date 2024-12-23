@@ -44,17 +44,17 @@ public class FileProcessingService {
         try {
             return fileReader.readAllLines(filePath);
         } catch (Exception e) {
-            log.error("Произошла ошибка чтения файла {}", filePath);
+            log.error("Ошибка при чтении файла {}", filePath);
             throw new RuntimeException("Ошибка чтения файла: " + filePath, e);
         }
     }
 
     protected void saveTrucksToFile(List<TruckDto> truckDtos) {
         try {
-            log.info("Сохраняем данные грузовиков в JSON...");
+            log.info("Сохранение загруженных грузовиков в JSON");
             jsonProcessingService.saveToJson(truckDtos);
         } catch (Exception e) {
-            throw new RuntimeException("Ошибка сохранения грузовиков в JSON", e);
+            throw new RuntimeException("Ошибка при сохранении в JSON", e);
         }
     }
 
@@ -62,9 +62,7 @@ public class FileProcessingService {
         truckService.printTrucks(truckDtos);
     }
 
-
     protected List<TruckDto> addPackages(boolean useEasyAlgorithm, List<ParcelDto> parcelDtos, int maxTrucks, Boolean lazyAlg) {
-        // Распределение упаковок по грузовикам
         List<TruckDto> truckDtos;
         if (useEasyAlgorithm) {
             truckDtos = truckService.addPackagesToIndividualTrucks(parcelDtos);
@@ -75,27 +73,26 @@ public class FileProcessingService {
     }
 
     private void validatePackages(List<ParcelDto> parcelDtos) {
-        // Валидация упаковок
         if (!validatorService.isValidPackages(parcelDtos)) {
-            log.warn("Не все упаковки прошли валидацию.");
+            log.warn("Некоторые упаковки не прошли валидацию.");
+        } else {
+            log.info("Все упаковки успешно прошли валидацию.");
         }
-        log.info("Все упаковки успешно прошли валидацию.");
     }
 
     protected List<ParcelDto> parseFileLines(Path filePath, List<String> lines) {
-        // Парсинг строк в упаковки
         List<ParcelDto> parcelDtos = fileParser.parsePackages(lines);
         if (parcelDtos.isEmpty()) {
             log.warn("Не удалось распарсить ни одной упаковки из файла: {}", filePath);
+        } else {
+            log.info("Успешно распарсено {} упаковок.", parcelDtos.size());
         }
-        log.info("Успешно распарсено {} упаковок.", parcelDtos.size());
         return parcelDtos;
     }
 
     protected void validateFile(Path filePath, List<String> lines) {
-        // Валидация файла
         if (!validatorService.isValidFile(lines)) {
-            log.error("Файл не прошел валидацию");
+            log.error("Файл не прошел валидацию: {}", filePath);
             throw new RuntimeException("Файл не прошел валидацию: " + filePath);
         }
         log.info("Файл успешно прошел валидацию.");

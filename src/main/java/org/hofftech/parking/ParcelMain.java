@@ -1,8 +1,8 @@
 package org.hofftech.parking;
 
 import lombok.extern.slf4j.Slf4j;
-import org.hofftech.parking.handler.CommandHandler;
-import org.hofftech.parking.handler.ConsoleCommandHandler;
+import org.hofftech.parking.processor.CommandProcessor;
+import org.hofftech.parking.processor.ConsoleCommandProcessor;
 import org.hofftech.parking.listener.ConsoleListener;
 import org.hofftech.parking.service.*;
 import org.hofftech.parking.utill.FileParser;
@@ -26,7 +26,7 @@ public class ParcelMain {
         FileParser fileParser = new FileParser();
         JsonProcessingService jsonProcessingService = new JsonProcessingService(validatorService);
         FileProcessingService fileProcessingService = new FileProcessingService(fileReader, fileParser, validatorService, truckService, jsonProcessingService);
-        CommandHandler commandHandler = new ConsoleCommandHandler(fileProcessingService, jsonProcessingService);
+        CommandProcessor commandHandler = new ConsoleCommandProcessor(fileProcessingService, jsonProcessingService);
 
         ConsoleListener consoleListener = new ConsoleListener(commandHandler);
         consoleListener.listen();

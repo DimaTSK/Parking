@@ -1,15 +1,15 @@
 package org.hofftech.parking.listener;
 
 import lombok.extern.slf4j.Slf4j;
-import org.hofftech.parking.handler.CommandHandler;
+import org.hofftech.parking.processor.CommandProcessor;
 
 import java.util.Scanner;
 
 @Slf4j
 public class ConsoleListener {
-    private final CommandHandler commandHandler;
+    private final CommandProcessor commandHandler;
 
-    public ConsoleListener(CommandHandler commandHandler) {
+    public ConsoleListener(CommandProcessor commandHandler) {
         this.commandHandler = commandHandler;
     }
 

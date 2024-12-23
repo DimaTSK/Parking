@@ -1,4 +1,4 @@
-package org.hofftech.parking.handler;
+package org.hofftech.parking.processor;
 
 import lombok.extern.slf4j.Slf4j;
 import org.hofftech.parking.service.FileProcessingService;
@@ -10,7 +10,7 @@ import java.nio.file.Path;
 import java.util.List;
 
 @Slf4j
-public class ConsoleCommandHandler implements CommandHandler {
+public class ConsoleCommandProcessor implements CommandProcessor {
     private static final String EXIT_COMMAND = "exit";
     private static final String OUTPUT_TXT = "out/input.txt";
     private int maxTrucks;
@@ -23,7 +23,7 @@ public class ConsoleCommandHandler implements CommandHandler {
     private final FileProcessingService fileProcessingService;
     private final JsonProcessingService jsonProcessingService;
 
-    public ConsoleCommandHandler(FileProcessingService fileProcessingService, JsonProcessingService jsonProcessingService) {
+    public ConsoleCommandProcessor(FileProcessingService fileProcessingService, JsonProcessingService jsonProcessingService) {
         this.fileProcessingService = fileProcessingService;
         this.jsonProcessingService = jsonProcessingService;
     }
@@ -36,19 +36,18 @@ public class ConsoleCommandHandler implements CommandHandler {
         }
         if (command.startsWith("import ") || command.startsWith("save ") || command.startsWith("importjson ")) {
             parseCommand(command);
-        }
-        else {
+        } else {
             log.warn("Неизвестная команда: {}", command);
             return;
         }
 
         if (filePath != null) {
             try {
-                log.info("Начинаем обработку файла: {}. Используем алгоритм: {}. Сохранение в файл: {}", filePath, algorithm, saveToFile);
+                log.info("Обработка файла: {} с использованием алгоритма: {}. Сохранение в файл: {}", filePath, algorithm, saveToFile);
                 Path path = Path.of(filePath);
                 fileProcessingService.processFile(path, useEasyAlgorithm, saveToFile, maxTrucks, useEvenAlgorithm);
             } catch (Exception e) {
-                log.error("Произошла ошибка при обработке файла {}", filePath, e);
+                log.error("Ошибка при обработке файла {}: {}", filePath, e.getMessage(), e);
             }
         }
     }
@@ -69,33 +68,35 @@ public class ConsoleCommandHandler implements CommandHandler {
     }
 
     private void parseAdvancedCommand(String command) {
-        String toReplace = command.startsWith("import ") ? "import " : "save ";
+        String commandType = command.startsWith("import ") ? "import " : "save ";
         saveToFile = !command.startsWith("import ");
         useEasyAlgorithm = command.contains("easyalgorithm");
         algorithm = useEasyAlgorithm ? "easyalgorithm" : "multipletrucksalgorithm";
+
         if (command.contains("even") && !useEasyAlgorithm) {
             useEvenAlgorithm = true;
             command = command.replace("even ", "");
-            algorithm = algorithm + "_even";
+            algorithm += "_even";
         }
+
         String[] parts = command.split(" ");
         if (!useEasyAlgorithm && parts.length > 2) {
-            parseDigitInsideCommand(command, parts, toReplace);
+            parseDigitInsideCommand(command, parts, commandType);
         } else {
             if (useEvenAlgorithm) {
-                log.error("Для алгоритма распределения требуется указать кол-во грузовиков!");
+                log.error("Для алгоритма распределения требуется указать количество грузовиков!");
                 throw new RuntimeException("Не указано количество грузовиков");
             }
-            filePath = command.replace(toReplace.trim(), "").trim();
+            filePath = command.replace(commandType.trim(), "").trim();
         }
     }
 
-    private void parseDigitInsideCommand(String command, String[] parts, String toReplace) {
+    private void parseDigitInsideCommand(String command, String[] parts, String commandType) {
         try {
             maxTrucks = Integer.parseInt(parts[1]); // Лимит грузовиков
-            filePath = command.replace(toReplace + parts[1], "").trim();
+            filePath = command.replace(commandType + parts[1], "").trim();
         } catch (NumberFormatException e) {
-            log.error("Некорректный формат количесвтва грузовиков: {}", parts[1]);
+            log.error("Некорректный формат количества грузовиков: {}", parts[1]);
         }
     }
 

@@ -20,6 +20,6 @@ public class FileSaving {
         } catch (IOException e) {
             log.error(e.getMessage());
         }
-        log.info("Посылки успешно сохранены в файл: {}", outputFile.getAbsolutePath());
+        log.info("Посылки сохранены в файл: {}", outputFile.getAbsolutePath());
     }
 }

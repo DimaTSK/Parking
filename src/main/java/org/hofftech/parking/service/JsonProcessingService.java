@@ -84,7 +84,7 @@ public class JsonProcessingService {
     private void writeJsonToFile(File outputFile, List<Map<String, Object>> trucksData) {
         try {
             objectMapper.writeValue(outputFile, Map.of("trucks", trucksData));
-            log.info("JSON файл успешно создан: {}", outputFile.getAbsolutePath());
+            log.info("Файл JSON создан: {}", outputFile.getAbsolutePath());
         } catch (IOException e) {
             log.error("Ошибка при записи JSON файла: {}", e.getMessage());
         }
