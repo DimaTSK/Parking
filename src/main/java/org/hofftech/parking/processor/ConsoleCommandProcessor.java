@@ -34,7 +34,7 @@ public class ConsoleCommandProcessor implements CommandProcessor {
             log.info("Приложение завершает работу по команде пользователя.");
             return;
         }
-        if (command.startsWith("import ") || command.startsWith("save ") || command.startsWith("importjson ")) {
+        if (command.startsWith("import ") || command.startsWith("save ") || command.startsWith("import_json ")) {
             parseCommand(command);
         } else {
             log.warn("Неизвестная команда: {}", command);
@@ -54,8 +54,8 @@ public class ConsoleCommandProcessor implements CommandProcessor {
 
     private void parseCommand(String command) {
         resetState();
-        if (command.startsWith("importjson ")) {
-            String jsonFilePath = command.replace("importjson ", "").trim();
+        if (command.startsWith("import_json ")) {
+            String jsonFilePath = command.replace("import_json ", "").trim();
             try {
                 List<String> packageTypes = jsonProcessingService.importJson(jsonFilePath);
                 FileSaving.savePackagesToFile(packageTypes, OUTPUT_TXT);
@@ -84,7 +84,7 @@ public class ConsoleCommandProcessor implements CommandProcessor {
             parseDigitInsideCommand(command, parts, commandType);
         } else {
             if (useEvenAlgorithm) {
-                log.error("Для алгоритма распределения требуется указать количество грузовиков!");
+                log.error("Требуется указать количество грузовиков!");
                 throw new RuntimeException("Не указано количество грузовиков");
             }
             filePath = command.replace(commandType.trim(), "").trim();
@@ -93,7 +93,7 @@ public class ConsoleCommandProcessor implements CommandProcessor {
 
     private void parseDigitInsideCommand(String command, String[] parts, String commandType) {
         try {
-            maxTrucks = Integer.parseInt(parts[1]); // Лимит грузовиков
+            maxTrucks = Integer.parseInt(parts[1]);
             filePath = command.replace(commandType + parts[1], "").trim();
         } catch (NumberFormatException e) {
             log.error("Некорректный формат количества грузовиков: {}", parts[1]);

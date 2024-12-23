@@ -57,7 +57,7 @@ public class TruckService {
         int currentTruckIndex = 0;
         for (ParcelDto pkg : parcelDtos) {
             truckPackages.get(currentTruckIndex).add(pkg);
-            currentTruckIndex = (currentTruckIndex + 1) % numberOfTrucks; // Переходим к следующему грузовику
+            currentTruckIndex = (currentTruckIndex + 1) % numberOfTrucks;
         }
 
         for (int i = 0; i < numberOfTrucks; i++) {

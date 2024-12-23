@@ -7,6 +7,7 @@ import org.hofftech.parking.model.dto.ParcelDto;
 import org.hofftech.parking.model.dto.ParcelPositionDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import org.hofftech.parking.utill.ParcelValidator;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,10 +21,10 @@ public class JsonProcessingService {
     private static final String OUTPUT_DIRECTORY = "out";
     private static final String FILE_NAME = "parcels.json";
     private final ObjectMapper objectMapper;
-    private final ValidatorService validatorService;
+    private final ParcelValidator parcelValidator;
 
-    public JsonProcessingService(ValidatorService validatorService) {
-        this.validatorService = validatorService;
+    public JsonProcessingService(ParcelValidator parcelValidator) {
+        this.parcelValidator = parcelValidator;
         this.objectMapper = new ObjectMapper();
         this.objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
     }
@@ -31,7 +32,7 @@ public class JsonProcessingService {
     public void saveToJson(List<TruckDto> truckDtos) {
         File outputFile = createOutputFile();
         if (outputFile == null) {
-            return; // Ошибка уже залогирована
+            return;
         }
 
         List<Map<String, Object>> trucksData = new ArrayList<>();
@@ -92,7 +93,7 @@ public class JsonProcessingService {
 
     public List<String> importJson(String jsonFilePath) throws IOException {
         File jsonFile = new File(jsonFilePath);
-        if (!validatorService.isFileExists(jsonFile)) {
+        if (!parcelValidator.isFileExists(jsonFile)) {
             log.error("Файл не найден: {}", jsonFile.getAbsolutePath());
             throw new IOException("Файл не найден: " + jsonFilePath);
         }
@@ -108,7 +109,7 @@ public class JsonProcessingService {
     }
 
     private void validateJsonStructure(Map<String, Object> jsonData) throws IOException {
-        if (!validatorService.isValidJsonStructure(jsonData)) {
+        if (!parcelValidator.isValidJsonStructure(jsonData)) {
             log.error("Структура Json некорректа!");
             throw new IOException("Структура Json некорректа!");
         }

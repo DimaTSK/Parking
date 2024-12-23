@@ -1,4 +1,4 @@
-package org.hofftech.parking.service;
+package org.hofftech.parking.utill;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 @Slf4j
-public class ValidatorService {
+public class ParcelValidator {
     public boolean isValidFile(List<String> lines) {
         if (CollectionUtils.isEmpty(lines)) {
             log.error("Файл пустой.");
@@ -44,14 +44,12 @@ public class ValidatorService {
         ParcelType type = pkg.getType();
         List<String> shape = type.getShape();
 
-        // Проверяем, что форма упаковки не имеет "выпадающих" символов
         int maxWidth = 0;
         for (String row : shape) {
             maxWidth = Math.max(maxWidth, row.length());
         }
 
         for (String row : shape) {
-            // Если в строке справа от длины строки есть символы, это ошибка
             if (row.length() < maxWidth) {
                 for (int x = row.length(); x < maxWidth; x++) {
                     if (row.length() > x) {

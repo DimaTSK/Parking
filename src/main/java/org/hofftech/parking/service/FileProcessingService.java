@@ -5,6 +5,7 @@ import org.hofftech.parking.model.dto.ParcelDto;
 import org.hofftech.parking.model.dto.TruckDto;
 import org.hofftech.parking.utill.FileParser;
 import org.hofftech.parking.utill.FileReader;
+import org.hofftech.parking.utill.ParcelValidator;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -13,15 +14,15 @@ import java.util.List;
 public class FileProcessingService {
     private final FileReader fileReader;
     private final FileParser fileParser;
-    private final ValidatorService validatorService;
+    private final ParcelValidator parcelValidator;
     private final TruckService truckService;
     private final JsonProcessingService jsonProcessingService;
 
     public FileProcessingService(FileReader fileReader, FileParser fileParser,
-                                 ValidatorService validatorService, TruckService truckService, JsonProcessingService jsonProcessingService) {
+                                 ParcelValidator parcelValidator, TruckService truckService, JsonProcessingService jsonProcessingService) {
         this.fileReader = fileReader;
         this.fileParser = fileParser;
-        this.validatorService = validatorService;
+        this.parcelValidator = parcelValidator;
         this.truckService = truckService;
         this.jsonProcessingService = jsonProcessingService;
     }
@@ -73,7 +74,7 @@ public class FileProcessingService {
     }
 
     private void validatePackages(List<ParcelDto> parcelDtos) {
-        if (!validatorService.isValidPackages(parcelDtos)) {
+        if (!parcelValidator.isValidPackages(parcelDtos)) {
             log.warn("Некоторые упаковки не прошли валидацию.");
         } else {
             log.info("Все упаковки успешно прошли валидацию.");
@@ -91,7 +92,7 @@ public class FileProcessingService {
     }
 
     protected void validateFile(Path filePath, List<String> lines) {
-        if (!validatorService.isValidFile(lines)) {
+        if (!parcelValidator.isValidFile(lines)) {
             log.error("Файл не прошел валидацию: {}", filePath);
             throw new RuntimeException("Файл не прошел валидацию: " + filePath);
         }

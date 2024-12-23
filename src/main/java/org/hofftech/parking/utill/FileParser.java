@@ -28,7 +28,6 @@ public class FileParser {
             }
         }
 
-        // Обработка последней упаковки
         if (!currentShape.isEmpty()) {
             ParcelDto pkg = createPackage(currentShape, packageId++);
             if (pkg != null) {
