@@ -70,8 +70,8 @@ public class ConsoleCommandProcessor implements CommandProcessor {
     private void parseAdvancedCommand(String command) {
         String commandType = command.startsWith("import ") ? "import " : "save ";
         saveToFile = !command.startsWith("import ");
-        useEasyAlgorithm = command.contains("easyalgorithm");
-        algorithm = useEasyAlgorithm ? "easyalgorithm" : "multipletrucksalgorithm";
+        useEasyAlgorithm = command.contains("easyAlgorithm");
+        algorithm = useEasyAlgorithm ? "easyAlgorithm" : "multipleTrucksAlgorithm";
 
         if (command.contains("even") && !useEasyAlgorithm) {
             useEvenAlgorithm = true;
