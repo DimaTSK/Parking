@@ -18,7 +18,7 @@ import java.util.Map;
 @Slf4j
 public class JsonProcessingService {
     private static final String OUTPUT_DIRECTORY = "out";
-    private static final String FILE_NAME = "trucks.json";
+    private static final String FILE_NAME = "parcels.json";
     private final ObjectMapper objectMapper;
     private final ValidatorService validatorService;
 
@@ -29,45 +29,59 @@ public class JsonProcessingService {
     }
 
     public void saveToJson(List<TruckDto> truckDtos) {
-        File outputDir = new File(OUTPUT_DIRECTORY);
-        if (!outputDir.exists()) {
-            boolean dirCreated = outputDir.mkdirs();
-            if (!dirCreated) {
-                log.error("Не удалось создать папку для вывода Json");
-                return;
-            }
+        File outputFile = createOutputFile();
+        if (outputFile == null) {
+            return; // Ошибка уже залогирована
         }
-
-        File outputFile = new File(outputDir, FILE_NAME);
 
         List<Map<String, Object>> trucksData = new ArrayList<>();
-        for (TruckDto truckDto : truckDtos) {
-            Map<String, Object> truckMap = new LinkedHashMap<>(); //Linked чтобы вывод в json был по порядку
-            truckMap.put("truck_id", truckDtos.indexOf(truckDto) + 1);
-
-            List<Map<String, Object>> packagesData = new ArrayList<>();
-            for (ParcelDto pkg : truckDto.getParcelDtos()) {
-                Map<String, Object> packageMap = new LinkedHashMap<>();
-                packageMap.put("id", pkg.getId());
-                packageMap.put("type", pkg.getType().name());
-
-                ParcelPositionDto position = pkg.getParcelPositionDto();
-                if (position != null) {
-                    Map<String, Object> positionMap = new LinkedHashMap<>();
-                    positionMap.put("x", position.getX() + 1);
-                    positionMap.put("y", position.getY() + 1);
-                    packageMap.put("position", positionMap);
-                } else {
-                    log.warn("У упаковки с ID {} отсутствует стартовая позиция", pkg.getId());
-                }
-
-                packagesData.add(packageMap);
-            }
-
-            truckMap.put("packages", packagesData);
-            trucksData.add(truckMap);
+        for (int i = 0; i < truckDtos.size(); i++) {
+            trucksData.add(createTruckMap(truckDtos.get(i), i + 1));
         }
 
+        writeJsonToFile(outputFile, trucksData);
+    }
+
+    private File createOutputFile() {
+        File outputDir = new File(OUTPUT_DIRECTORY);
+        if (!outputDir.exists() && !outputDir.mkdirs()) {
+            log.error("Не удалось создать папку для вывода Json");
+            return null;
+        }
+        return new File(outputDir, FILE_NAME);
+    }
+
+    private Map<String, Object> createTruckMap(TruckDto truckDto, int truckId) {
+        Map<String, Object> truckMap = new LinkedHashMap<>();
+        truckMap.put("truck_id", truckId);
+        truckMap.put("packages", createPackagesData(truckDto));
+        return truckMap;
+    }
+
+    private List<Map<String, Object>> createPackagesData(TruckDto truckDto) {
+        List<Map<String, Object>> packagesData = new ArrayList<>();
+        for (ParcelDto pkg : truckDto.getParcelDtos()) {
+            packagesData.add(createPackageMap(pkg));
+        }
+        return packagesData;
+    }
+
+    private Map<String, Object> createPackageMap(ParcelDto pkg) {
+        Map<String, Object> packageMap = new LinkedHashMap<>();
+        packageMap.put("id", pkg.getId());
+        packageMap.put("type", pkg.getType().name());
+
+        ParcelPositionDto position = pkg.getParcelPositionDto();
+        if (position != null) {
+            packageMap.put("position", Map.of("x", position.getX() + 1, "y", position.getY() + 1));
+        } else {
+            log.warn("У упаковки с ID {} отсутствует стартовая позиция", pkg.getId());
+        }
+
+        return packageMap;
+    }
+
+    private void writeJsonToFile(File outputFile, List<Map<String, Object>> trucksData) {
         try {
             objectMapper.writeValue(outputFile, Map.of("trucks", trucksData));
             log.info("JSON файл успешно создан: {}", outputFile.getAbsolutePath());
@@ -82,13 +96,25 @@ public class JsonProcessingService {
             log.error("Файл не найден: {}", jsonFile.getAbsolutePath());
             throw new IOException("Файл не найден: " + jsonFilePath);
         }
-        Map<String, Object> jsonData = objectMapper.readValue(jsonFile, Map.class);
 
+        Map<String, Object> jsonData = readJsonFile(jsonFile);
+        validateJsonStructure(jsonData);
+
+        return extractPackagesFromJson(jsonData);
+    }
+
+    private Map<String, Object> readJsonFile(File jsonFile) throws IOException {
+        return objectMapper.readValue(jsonFile, Map.class);
+    }
+
+    private void validateJsonStructure(Map<String, Object> jsonData) throws IOException {
         if (!validatorService.isValidJsonStructure(jsonData)) {
             log.error("Структура Json некорректа!");
             throw new IOException("Структура Json некорректа!");
         }
+    }
 
+    private List<String> extractPackagesFromJson(Map<String, Object> jsonData) {
         List<String> packagesOutput = new ArrayList<>();
         List<Map<String, Object>> trucks = (List<Map<String, Object>>) jsonData.get("trucks");
         for (Map<String, Object> truck : trucks) {
@@ -97,7 +123,7 @@ public class JsonProcessingService {
                 String type = (String) pkg.get("type");
                 List<String> shape = ParcelType.valueOf(type).getShape();
                 packagesOutput.addAll(shape);
-                packagesOutput.add("");
+                packagesOutput.add(""); // Добавляем пустую строку для разделения пакетов
             }
         }
         return packagesOutput;
