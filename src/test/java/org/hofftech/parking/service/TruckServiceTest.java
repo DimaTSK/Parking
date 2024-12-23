@@ -3,14 +3,12 @@ package org.hofftech.parking.service;
 import org.hofftech.parking.model.dto.ParcelDto;
 import org.hofftech.parking.model.dto.TruckDto;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -30,33 +28,33 @@ public class TruckServiceTest {
     }
 
     @Test
-    public void testAddPackagesToMultipleTrucks_ExceedMaxTrucks() {
+    public void testAddParcelsToMultipleTrucks_ExceedMaxTrucks() {
         List<ParcelDto> parcels = createParcelList(20);
-        when(parcelService.addPackage(any(TruckDto.class), any(ParcelDto.class))).thenReturn(false);
+        when(parcelService.addParcels(any(TruckDto.class), any(ParcelDto.class))).thenReturn(false);
 
         assertThrows(RuntimeException.class, () -> {
-            truckService.addPackagesToMultipleTrucks(parcels, 1, false);
+            truckService.addParcelsToMultipleTrucks(parcels, 1, false);
         });
     }
 
     @Test
-    public void testDistributePackagesEvenly_NoTrucks() {
+    public void testDistributeParcelsEvenly_NoTrucks() {
         List<ParcelDto> parcels = createParcelList(10);
 
         assertThrows(IllegalArgumentException.class, () -> {
-            truckService.distributePackagesEvenly(parcels, new ArrayList<>());
+            truckService.distributeParcelsEvenly(parcels, new ArrayList<>());
         });
     }
 
     @Test
-    public void testDistributePackagesEvenly_Success() {
+    public void testDistributeParcelsEvenly_Success() {
         List<ParcelDto> parcels = createParcelList(10);
         List<TruckDto> trucks = createTruckList(2);
-        when(parcelService.addPackage(any(TruckDto.class), any(ParcelDto.class))).thenReturn(true);
+        when(parcelService.addParcels(any(TruckDto.class), any(ParcelDto.class))).thenReturn(true);
 
-        truckService.distributePackagesEvenly(parcels, trucks);
+        truckService.distributeParcelsEvenly(parcels, trucks);
 
-        verify(parcelService, atLeastOnce()).addPackage(any(TruckDto.class), any(ParcelDto.class));
+        verify(parcelService, atLeastOnce()).addParcels(any(TruckDto.class), any(ParcelDto.class));
     }
 
     private List<ParcelDto> createParcelList(int count) {

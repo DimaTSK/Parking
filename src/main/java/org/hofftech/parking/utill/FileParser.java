@@ -9,15 +9,15 @@ import java.util.List;
 
 @Slf4j
 public class FileParser {
-    public List<ParcelDto> parsePackages(List<String> lines) {
+    public List<ParcelDto> parseParcels(List<String> lines) {
         List<ParcelDto> parcelDtos = new ArrayList<>();
         List<String> currentShape = new ArrayList<>();
-        int packageId = 1;
+        int parcelId = 1;
 
         for (String line : lines) {
             if (line.trim().isEmpty()) {
                 if (!currentShape.isEmpty()) {
-                    ParcelDto pkg = createPackage(currentShape, packageId++);
+                    ParcelDto pkg = createParcel(currentShape, parcelId++);
                     if (pkg != null) {
                         parcelDtos.add(pkg);
                     }
@@ -29,7 +29,7 @@ public class FileParser {
         }
 
         if (!currentShape.isEmpty()) {
-            ParcelDto pkg = createPackage(currentShape, packageId++);
+            ParcelDto pkg = createParcel(currentShape, parcelId++);
             if (pkg != null) {
                 parcelDtos.add(pkg);
             }
@@ -39,7 +39,7 @@ public class FileParser {
         return parcelDtos;
     }
 
-    private ParcelDto createPackage(List<String> shapeLines, int id) {
+    private ParcelDto createParcel(List<String> shapeLines, int id) {
         try {
             ParcelType parcelType = ParcelType.fromShape(shapeLines);
             return new ParcelDto(parcelType, id, null);

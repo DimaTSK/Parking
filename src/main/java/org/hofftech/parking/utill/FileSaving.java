@@ -10,10 +10,10 @@ import java.util.List;
 
 @Slf4j
 public class FileSaving {
-    public static void savePackagesToFile(List<String> packages, String outputFilePath) throws IOException {
+    public static void saveParcelsToFile(List<String> parcels, String outputFilePath) throws IOException {
         File outputFile = new File(outputFilePath);
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
-            for (String line : packages) {
+            for (String line : parcels) {
                 writer.write(line);
                 writer.newLine();
             }

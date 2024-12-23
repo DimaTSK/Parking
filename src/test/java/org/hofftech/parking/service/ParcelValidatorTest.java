@@ -33,11 +33,11 @@ public class ParcelValidatorTest {
     }
 
     @Test
-    public void testIsValidPackages_AllValid() {
+    public void testIsValidParcels_AllValid() {
         ParcelDto parcel1 = new ParcelDto(ParcelType.ONE, 1, null);
         ParcelDto parcel2 = new ParcelDto(ParcelType.TWO, 2, null);
         List<ParcelDto> parcels = Arrays.asList(parcel1, parcel2);
-        assertTrue(parcelValidator.isValidPackages(parcels));
+        assertTrue(parcelValidator.isValidParcels(parcels));
     }
 
     @Test
@@ -47,14 +47,14 @@ public class ParcelValidatorTest {
     }
 
     @Test
-    public void testIsValidJsonStructure_InvalidPackage() {
+    public void testIsValidJsonStructure_InvalidParcels() {
         Map<String, Object> jsonData = new HashMap<>();
         List<Map<String, Object>> trucks = new ArrayList<>();
         Map<String, Object> truck = new HashMap<>();
-        List<Map<String, Object>> packages = new ArrayList<>();
+        List<Map<String, Object>> parcels = new ArrayList<>();
         Map<String, Object> pkg = new HashMap<>();
-        packages.add(pkg);
-        truck.put("packages", packages);
+        parcels.add(pkg);
+        truck.put("parcels", parcels);
         trucks.add(truck);
         jsonData.put("trucks", trucks);
 
@@ -66,11 +66,11 @@ public class ParcelValidatorTest {
         Map<String, Object> jsonData = new HashMap<>();
         List<Map<String, Object>> trucks = new ArrayList<>();
         Map<String, Object> truck = new HashMap<>();
-        List<Map<String, Object>> packages = new ArrayList<>();
+        List<Map<String, Object>> parcels = new ArrayList<>();
         Map<String, Object> pkg = new HashMap<>();
         pkg.put("type", "ONE");
-        packages.add(pkg);
-        truck.put("packages", packages);
+        parcels.add(pkg);
+        truck.put("parcels", parcels);
         trucks.add(truck);
         jsonData.put("trucks", trucks);
 

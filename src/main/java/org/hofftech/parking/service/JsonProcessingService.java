@@ -55,31 +55,31 @@ public class JsonProcessingService {
     private Map<String, Object> createTruckMap(TruckDto truckDto, int truckId) {
         Map<String, Object> truckMap = new LinkedHashMap<>();
         truckMap.put("truck_id", truckId);
-        truckMap.put("packages", createPackagesData(truckDto));
+        truckMap.put("parcels", createParcelsData(truckDto));
         return truckMap;
     }
 
-    private List<Map<String, Object>> createPackagesData(TruckDto truckDto) {
-        List<Map<String, Object>> packagesData = new ArrayList<>();
+    private List<Map<String, Object>> createParcelsData(TruckDto truckDto) {
+        List<Map<String, Object>> parcelsData = new ArrayList<>();
         for (ParcelDto pkg : truckDto.getParcelDtos()) {
-            packagesData.add(createPackageMap(pkg));
+            parcelsData.add(createParcelsMap(pkg));
         }
-        return packagesData;
+        return parcelsData;
     }
 
-    private Map<String, Object> createPackageMap(ParcelDto pkg) {
-        Map<String, Object> packageMap = new LinkedHashMap<>();
-        packageMap.put("id", pkg.getId());
-        packageMap.put("type", pkg.getType().name());
+    private Map<String, Object> createParcelsMap(ParcelDto pkg) {
+        Map<String, Object> parcelsMap = new LinkedHashMap<>();
+        parcelsMap.put("id", pkg.getId());
+        parcelsMap.put("type", pkg.getType().name());
 
         ParcelPositionDto position = pkg.getParcelPositionDto();
         if (position != null) {
-            packageMap.put("position", Map.of("x", position.getX() + 1, "y", position.getY() + 1));
+            parcelsMap.put("position", Map.of("x", position.getX() + 1, "y", position.getY() + 1));
         } else {
             log.warn("У упаковки с ID {} отсутствует стартовая позиция", pkg.getId());
         }
 
-        return packageMap;
+        return parcelsMap;
     }
 
     private void writeJsonToFile(File outputFile, List<Map<String, Object>> trucksData) {
@@ -101,7 +101,7 @@ public class JsonProcessingService {
         Map<String, Object> jsonData = readJsonFile(jsonFile);
         validateJsonStructure(jsonData);
 
-        return extractPackagesFromJson(jsonData);
+        return extractParcelsFromJson(jsonData);
     }
 
     private Map<String, Object> readJsonFile(File jsonFile) throws IOException {
@@ -115,18 +115,18 @@ public class JsonProcessingService {
         }
     }
 
-    private List<String> extractPackagesFromJson(Map<String, Object> jsonData) {
-        List<String> packagesOutput = new ArrayList<>();
+    private List<String> extractParcelsFromJson(Map<String, Object> jsonData) {
+        List<String> parcelsOutput = new ArrayList<>();
         List<Map<String, Object>> trucks = (List<Map<String, Object>>) jsonData.get("trucks");
         for (Map<String, Object> truck : trucks) {
-            List<Map<String, Object>> packages = (List<Map<String, Object>>) truck.get("packages");
-            for (Map<String, Object> pkg : packages) {
+            List<Map<String, Object>> parcels = (List<Map<String, Object>>) truck.get("parcels");
+            for (Map<String, Object> pkg : parcels) {
                 String type = (String) pkg.get("type");
                 List<String> shape = ParcelType.valueOf(type).getShape();
-                packagesOutput.addAll(shape);
-                packagesOutput.add(""); // Добавляем пустую строку для разделения пакетов
+                parcelsOutput.addAll(shape);
+                parcelsOutput.add(""); // Добавляем пустую строку для разделения пакетов
             }
         }
-        return packagesOutput;
+        return parcelsOutput;
     }
 }

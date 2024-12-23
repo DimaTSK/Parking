@@ -8,8 +8,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.MockitoAnnotations;
 
-import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ParcelServiceTest {
@@ -30,31 +28,31 @@ public class ParcelServiceTest {
     }
 
     @Test
-    public void testCanAddPackage_Success() {
-        assertTrue(parcelService.canAddPackage(truckDto, parcelDto, 0, 0));
+    public void testCanAddParcel_Success() {
+        assertTrue(parcelService.canAddParcel(truckDto, parcelDto, 0, 0));
     }
 
     @Test
-    public void testCanAddPackage_OutsideBounds() {
-        assertFalse(parcelService.canAddPackage(truckDto, parcelDto, 5, 5));
+    public void testCanAddParcel_OutsideBounds() {
+        assertFalse(parcelService.canAddParcel(truckDto, parcelDto, 5, 5));
     }
 
     @Test
-    public void testCanAddPackage_Overlapping() {
+    public void testCanAddParcel_Overlapping() {
         truckDto.getGrid()[0][0] = '2';
-        assertFalse(parcelService.canAddPackage(truckDto, parcelDto, 0, 0));
+        assertFalse(parcelService.canAddParcel(truckDto, parcelDto, 0, 0));
     }
 
     @Test
-    public void testAddPackage_Success() {
-        assertTrue(parcelService.addPackage(truckDto, parcelDto));
+    public void testAddParcels_Success() {
+        assertTrue(parcelService.addParcels(truckDto, parcelDto));
         assertEquals(1, truckDto.getParcelDtos().size());
     }
 
 
     @Test
-    public void testPlacePackage() {
-        parcelService.placePackage(truckDto, parcelDto, 0, 0);
+    public void testPlaceParcels() {
+        parcelService.placeParcels(truckDto, parcelDto, 0, 0);
         assertEquals('2', truckDto.getGrid()[0][0]);
         assertEquals('2', truckDto.getGrid()[0][1]);
     }

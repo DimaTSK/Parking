@@ -57,8 +57,8 @@ public class ConsoleCommandProcessor implements CommandProcessor {
         if (command.startsWith("import_json ")) {
             String jsonFilePath = command.replace("import_json ", "").trim();
             try {
-                List<String> packageTypes = jsonProcessingService.importJson(jsonFilePath);
-                FileSaving.savePackagesToFile(packageTypes, OUTPUT_TXT);
+                List<String> parcelsTypes = jsonProcessingService.importJson(jsonFilePath);
+                FileSaving.saveParcelsToFile(parcelsTypes, OUTPUT_TXT);
             } catch (IOException e) {
                 log.error("Ошибка при обработке команды json: {}", e.getMessage(), e);
             }

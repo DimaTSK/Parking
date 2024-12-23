@@ -21,10 +21,10 @@ public class ParcelValidator {
         return true;
     }
 
-    public boolean isValidPackages(List<ParcelDto> parcelDtos) {
+    public boolean isValidParcels(List<ParcelDto> parcelDtos) {
         List<ParcelDto> invalidParcelDtos = new ArrayList<>();
         for (ParcelDto pkg : parcelDtos) {
-            if (!isValidPackage(pkg)) {
+            if (!isValidParcel(pkg)) {
                 invalidParcelDtos.add(pkg);
             }
         }
@@ -40,7 +40,7 @@ public class ParcelValidator {
         return true;
     }
 
-    private boolean isValidPackage(ParcelDto pkg) {
+    private boolean isValidParcel(ParcelDto pkg) {
         ParcelType type = pkg.getType();
         List<String> shape = type.getShape();
 
@@ -70,9 +70,9 @@ public class ParcelValidator {
 
         List<Map<String, Object>> trucks = (List<Map<String, Object>>) jsonData.get("trucks");
         for (Map<String, Object> truck : trucks) {
-            if (!truck.containsKey("packages")) continue;
-            List<Map<String, Object>> packages = (List<Map<String, Object>>) truck.get("packages");
-            for (Map<String, Object> pkg : packages) {
+            if (!truck.containsKey("parcels")) continue;
+            List<Map<String, Object>> parcels = (List<Map<String, Object>>) truck.get("parcels");
+            for (Map<String, Object> pkg : parcels) {
                 if (!pkg.containsKey("type")) {
                     log.error("У одной из посылок отсутствует ключ 'type'");
                     return false;

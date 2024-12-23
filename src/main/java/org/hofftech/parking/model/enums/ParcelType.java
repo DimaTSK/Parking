@@ -45,7 +45,7 @@ public enum ParcelType {
     public static ParcelType fromShape(List<String> shape) {
         ParcelType type = SHAPE_MAP.get(shape);
         if (type == null) {
-            throw new IllegalArgumentException("Нет соответствующего PackageType для формы: " + shape);
+            throw new IllegalArgumentException("Нет соответствующего ParcelType для формы: " + shape);
         }
         return type;
     }

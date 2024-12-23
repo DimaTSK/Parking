@@ -31,8 +31,8 @@ public class FileProcessingService {
         List<String> lines = readFile(filePath);
         validateFile(filePath, lines);
         List<ParcelDto> parcelDtos = parseFileLines(filePath, lines);
-        validatePackages(parcelDtos);
-        List<TruckDto> truckDtos = addPackages(useEasyAlgorithm, parcelDtos, maxTrucks, lazyAlg);
+        validateParcels(parcelDtos);
+        List<TruckDto> truckDtos = addParcels(useEasyAlgorithm, parcelDtos, maxTrucks, lazyAlg);
 
         if (saveToFile) {
             saveTrucksToFile(truckDtos);
@@ -63,18 +63,18 @@ public class FileProcessingService {
         truckService.printTrucks(truckDtos);
     }
 
-    protected List<TruckDto> addPackages(boolean useEasyAlgorithm, List<ParcelDto> parcelDtos, int maxTrucks, Boolean lazyAlg) {
+    protected List<TruckDto> addParcels(boolean useEasyAlgorithm, List<ParcelDto> parcelDtos, int maxTrucks, Boolean lazyAlg) {
         List<TruckDto> truckDtos;
         if (useEasyAlgorithm) {
-            truckDtos = truckService.addPackagesToIndividualTrucks(parcelDtos);
+            truckDtos = truckService.addParcelsToIndividualTrucks(parcelDtos);
         } else {
-            truckDtos = truckService.addPackagesToMultipleTrucks(parcelDtos, maxTrucks, lazyAlg);
+            truckDtos = truckService.addParcelsToMultipleTrucks(parcelDtos, maxTrucks, lazyAlg);
         }
         return truckDtos;
     }
 
-    private void validatePackages(List<ParcelDto> parcelDtos) {
-        if (!parcelValidator.isValidPackages(parcelDtos)) {
+    private void validateParcels(List<ParcelDto> parcelDtos) {
+        if (!parcelValidator.isValidParcels(parcelDtos)) {
             log.warn("Некоторые упаковки не прошли валидацию.");
         } else {
             log.info("Все упаковки успешно прошли валидацию.");
@@ -82,7 +82,7 @@ public class FileProcessingService {
     }
 
     protected List<ParcelDto> parseFileLines(Path filePath, List<String> lines) {
-        List<ParcelDto> parcelDtos = fileParser.parsePackages(lines);
+        List<ParcelDto> parcelDtos = fileParser.parseParcels(lines);
         if (parcelDtos.isEmpty()) {
             log.warn("Не удалось распарсить ни одной упаковки из файла: {}", filePath);
         } else {

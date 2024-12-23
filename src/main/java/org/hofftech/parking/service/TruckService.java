@@ -5,8 +5,6 @@ import org.hofftech.parking.model.dto.TruckDto;
 import org.hofftech.parking.model.dto.ParcelDto;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 @Slf4j
@@ -17,56 +15,56 @@ public class TruckService {
         this.parcelService = parcelService;
     }
 
-    public List<TruckDto> addPackagesToMultipleTrucks(List<ParcelDto> parcelDtoList, int maxTrucks, Boolean evenAlg) {
+    public List<TruckDto> addParcelsToMultipleTrucks(List<ParcelDto> parcelDtoList, int maxTrucks, Boolean evenAlg) {
         log.info("Начало размещения упаковок. Всего упаковок: {}", parcelDtoList.size());
 
-        sortPackages(parcelDtoList);
+        sortParcels(parcelDtoList);
         List<TruckDto> truckDtos;
 
         if (!evenAlg) {
             truckDtos = createTruck(1);
-            placePackages(parcelDtoList, truckDtos, maxTrucks);
+            placeParcels(parcelDtoList, truckDtos, maxTrucks);
         } else {
             truckDtos = createTruck(maxTrucks);
-            distributePackagesEvenly(parcelDtoList, truckDtos);
+            distributeParcelsEvenly(parcelDtoList, truckDtos);
         }
 
         log.info("Размещение завершено. Всего грузовиков: {}", truckDtos.size());
         return truckDtos;
     }
 
-    public void distributePackagesEvenly(List<ParcelDto> parcelDtos, List<TruckDto> truckDtos) {
+    public void distributeParcelsEvenly(List<ParcelDto> parcelDtos, List<TruckDto> truckDtos) {
         if (truckDtos.isEmpty()) {
             log.error("Количество грузовиков не может быть равно 0.");
             throw new IllegalArgumentException("Невозможно распределить посылки: нет грузовиков.");
         }
 
-        int totalPackages = parcelDtos.size();
+        int totalParcels = parcelDtos.size();
         int numberOfTrucks = truckDtos.size();
-        int minPackagesPerTruck = totalPackages / numberOfTrucks;
-        int extraPackages = totalPackages % numberOfTrucks;
+        int minParcelsPerTruck = totalParcels / numberOfTrucks;
+        int extraParcels = totalParcels % numberOfTrucks;
 
         log.info("Распределяем {} посылок на {} грузовиков. Минимум в грузовике: {}, дополнительные посылки: {}",
-                totalPackages, numberOfTrucks, minPackagesPerTruck, extraPackages);
+                totalParcels, numberOfTrucks, minParcelsPerTruck, extraParcels);
 
-        List<List<ParcelDto>> truckPackages = new ArrayList<>();
+        List<List<ParcelDto>> truckParcels = new ArrayList<>();
         for (int i = 0; i < numberOfTrucks; i++) {
-            truckPackages.add(new ArrayList<>());
+            truckParcels.add(new ArrayList<>());
         }
 
         int currentTruckIndex = 0;
         for (ParcelDto pkg : parcelDtos) {
-            truckPackages.get(currentTruckIndex).add(pkg);
+            truckParcels.get(currentTruckIndex).add(pkg);
             currentTruckIndex = (currentTruckIndex + 1) % numberOfTrucks;
         }
 
         for (int i = 0; i < numberOfTrucks; i++) {
             TruckDto truckDto = truckDtos.get(i);
-            List<ParcelDto> group = truckPackages.get(i);
+            List<ParcelDto> group = truckParcels.get(i);
 
             log.info("заполняем грузовик {} из пачки {} посылок.", i + 1, group.size());
             for (ParcelDto pkg : group) {
-                if (!parcelService.addPackage(truckDto, pkg)) {
+                if (!parcelService.addParcels(truckDto, pkg)) {
                     log.error("Не получилось определить посылку {} в грузовик {}.", pkg.getType(), i + 1);
                     throw new RuntimeException("Не хватает кол-ва грузовиков для определения!");
                 }
@@ -76,12 +74,12 @@ public class TruckService {
         log.info("Посылки распределены по грузовикам.");
     }
 
-    private void placePackages(List<ParcelDto> parcelDtoList, List<TruckDto> truckDtos, int maxTrucks) {
+    private void placeParcels(List<ParcelDto> parcelDtoList, List<TruckDto> truckDtos, int maxTrucks) {
         for (ParcelDto pkg : parcelDtoList) {
             log.info("Пытаемся разместить упаковку {} с ID {}", pkg.getType(), pkg.getId());
             boolean placed = false;
             for (TruckDto truckDto : truckDtos) {
-                if (parcelService.addPackage(truckDto, pkg)) {
+                if (parcelService.addParcels(truckDto, pkg)) {
                     log.info("Упаковка {} с ID {} успешно размещена в существующем грузовике.", pkg.getType(), pkg.getId());
                     placed = true;
                     break;
@@ -92,7 +90,7 @@ public class TruckService {
                 log.info("Упаковка {} с ID {} не поместилась. Создаём новый грузовик.", pkg.getType(), pkg.getId());
                 if (truckDtos.size() < maxTrucks) {
                     TruckDto newTruckDto = new TruckDto();
-                    if (parcelService.addPackage(newTruckDto, pkg)) {
+                    if (parcelService.addParcels(newTruckDto, pkg)) {
                         truckDtos.add(newTruckDto);
                         log.info("Упаковка {} с ID {} размещена в новом грузовике.", pkg.getType(), pkg.getId());
                     } else {
@@ -119,7 +117,7 @@ public class TruckService {
         return truckDtos;
     }
 
-    private static void sortPackages(List<ParcelDto> parcelDtoList) {
+    private static void sortParcels(List<ParcelDto> parcelDtoList) {
         parcelDtoList.sort((a, b) -> {
             int heightDiff = Integer.compare(b.getType().getHeight(), a.getType().getHeight());
             if (heightDiff == 0) {
@@ -152,11 +150,11 @@ public class TruckService {
         System.out.println("++++++++" + "\n");
     }
 
-    public List<TruckDto> addPackagesToIndividualTrucks(List<ParcelDto> parcelDtos) {
+    public List<TruckDto> addParcelsToIndividualTrucks(List<ParcelDto> parcelDtos) {
         List<TruckDto> truckDtos = new ArrayList<>();
         for (ParcelDto pkg : parcelDtos) {
             TruckDto truckDto = new TruckDto();
-            parcelService.addPackage(truckDto, pkg);
+            parcelService.addParcels(truckDto, pkg);
             truckDtos.add(truckDto);
             log.info("Упаковка {} добавлена в новый грузовик.", pkg.getId());
         }
