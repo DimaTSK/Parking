@@ -26,14 +26,10 @@ public class JsonReader {
             throw new IOException("Файл не найден: " + jsonFilePath);
         }
 
-        Map<String, Object> jsonData = readJsonFile(jsonFile);
+        Map<String, Object> jsonData = objectMapper.readValue(jsonFile, Map.class);
         parcelValidator.validateJsonStructure(jsonData);
 
         return extractParcelsFromJson(jsonData);
-    }
-
-    private Map<String, Object> readJsonFile(File jsonFile) throws IOException {
-        return objectMapper.readValue(jsonFile, Map.class);
     }
 
     private List<String> extractParcelsFromJson(Map<String, Object> jsonData) {
