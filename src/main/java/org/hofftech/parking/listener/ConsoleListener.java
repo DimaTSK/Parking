@@ -16,7 +16,6 @@ public class ConsoleListener {
     public void listen() {
         Scanner scanner = new Scanner(System.in);
         log.info("Ждем команду пользователя");
-        //import путь_к_файлу, save путь_к_файлу, importjson количество грузовиков путь_к_файлу, exit
         System.out.print("Введите путь к файлу:");
 
         while (scanner.hasNextLine()) {

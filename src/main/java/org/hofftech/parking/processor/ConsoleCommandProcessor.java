@@ -1,6 +1,7 @@
 package org.hofftech.parking.processor;
 
 import lombok.extern.slf4j.Slf4j;
+import org.hofftech.parking.model.enums.CommandConstants;
 import org.hofftech.parking.service.FileProcessingService;
 import org.hofftech.parking.service.JsonProcessingService;
 import org.hofftech.parking.utill.FileSaving;
@@ -11,8 +12,6 @@ import java.util.List;
 
 @Slf4j
 public class ConsoleCommandProcessor implements CommandProcessor {
-    private static final String EXIT_COMMAND = "exit";
-    private static final String OUTPUT_TXT = "out/input.txt";
     private int maxTrucks;
     private String filePath;
     private String algorithm;
@@ -30,7 +29,7 @@ public class ConsoleCommandProcessor implements CommandProcessor {
 
     @Override
     public void handle(String command) {
-        if (EXIT_COMMAND.equalsIgnoreCase(command)) {
+        if (CommandConstants.EXIT_COMMAND.getValue().equalsIgnoreCase(command)) {
             log.info("Приложение завершает работу по команде пользователя.");
             return;
         }
@@ -58,7 +57,7 @@ public class ConsoleCommandProcessor implements CommandProcessor {
             String jsonFilePath = command.replace("import_json ", "").trim();
             try {
                 List<String> parcelsTypes = jsonProcessingService.importJson(jsonFilePath);
-                FileSaving.saveParcelsToFile(parcelsTypes, OUTPUT_TXT);
+                FileSaving.saveParcelsToFile(parcelsTypes, CommandConstants.OUTPUT_TXT.getValue());
             } catch (IOException e) {
                 log.error("Ошибка при обработке команды json: {}", e.getMessage(), e);
             }
