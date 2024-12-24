@@ -10,6 +10,8 @@ import org.hofftech.parking.model.dto.ParcelDto;
 import org.hofftech.parking.model.dto.ParcelPosition;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import org.hofftech.parking.utill.JsonReader;
+import org.hofftech.parking.utill.JsonWriter;
 import org.hofftech.parking.utill.ParcelValidator;
 
 import java.io.File;
@@ -21,19 +23,17 @@ import java.util.Map;
 
 @Slf4j
 public class JsonProcessingService {
-    private static final String OUTPUT_DIRECTORY = "out";
     private static final String FILE_NAME = "parcels.json";
-    private final ObjectMapper objectMapper;
-    private final ParcelValidator parcelValidator;
+    private final JsonWriter jsonWriter;
+    private final JsonReader jsonReader;
 
     public JsonProcessingService(ParcelValidator parcelValidator) {
-        this.parcelValidator = parcelValidator;
-        this.objectMapper = new ObjectMapper();
-        this.objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+        this.jsonWriter = new JsonWriter();
+        this.jsonReader = new JsonReader(parcelValidator);
     }
 
     public void saveToJson(List<TruckDto> truckDtos) {
-        File outputFile = createOutputDirectory();
+        File outputFile = createOutputFile();
         if (outputFile == null) {
             return;
         }
@@ -43,15 +43,20 @@ public class JsonProcessingService {
             trucksData.add(createTruckMap(truckDtos.get(i), i + 1));
         }
 
-        writeJsonToFile(outputFile, trucksData);
+        jsonWriter.writeToJsonFile(outputFile, trucksData);
     }
 
-    private File createOutputDirectory() {
+    public List<String> importJson(String jsonFilePath) throws IOException {
+        return jsonReader.importJson(jsonFilePath);
+    }
+
+    private File createOutputFile() {
         File outputDir = new File(CommandConstants.OUTPUT_DIRECTORY.getValue());
         if (!outputDir.exists() && !outputDir.mkdirs()) {
             throw new DirectoryCreationException("Не удалось создать папку для вывода JSON: " + CommandConstants.OUTPUT_DIRECTORY.getValue());
         }
-        return new File(outputDir, FILE_NAME);}
+        return new File(outputDir, FILE_NAME);
+    }
 
     private Map<String, Object> createTruckMap(TruckDto truckDto, int truckId) {
         Map<String, Object> truckMap = new LinkedHashMap<>();
@@ -80,45 +85,7 @@ public class JsonProcessingService {
             throw new MissingParcelPositionException("У упаковки с ID " + pkg.getId() + " отсутствует стартовая позиция");
         }
 
-        return parcelsMap;}
-
-    private void writeJsonToFile(File outputFile, List<Map<String, Object>> trucksData) {
-        try {
-            objectMapper.writeValue(outputFile, Map.of("trucks", trucksData));
-            log.info("Файл JSON создан: {}", outputFile.getAbsolutePath());
-        } catch (IOException e) {
-            log.error("Ошибка при записи JSON файла: {}", e.getMessage());
-        }
-    }
-
-    public List<String> importJson(String jsonFilePath) throws IOException {
-        File jsonFile = new File(jsonFilePath);
-        if (!parcelValidator.isFileExists(jsonFile)) {
-            throw new IOException("Файл не найден: " + jsonFilePath);
-        }
-
-        Map<String, Object> jsonData = readJsonFile(jsonFile);
-        parcelValidator.validateJsonStructure(jsonData);
-
-        return extractParcelsFromJson(jsonData);
-    }
-
-    private Map<String, Object> readJsonFile(File jsonFile) throws IOException {
-        return objectMapper.readValue(jsonFile, Map.class);
-    }
-
-    private List<String> extractParcelsFromJson(Map<String, Object> jsonData) {
-        List<String> parcelsOutput = new ArrayList<>();
-        List<Map<String, Object>> trucks = (List<Map<String, Object>>) jsonData.get("trucks");
-        for (Map<String, Object> truck : trucks) {
-            List<Map<String, Object>> parcels = (List<Map<String, Object>>) truck.get("parcels");
-            for (Map<String, Object> pkg : parcels) {
-                String type = (String) pkg.get("type");
-                List<String> shape = ParcelType.valueOf(type).getShape();
-                parcelsOutput.addAll(shape);
-                parcelsOutput.add("");
-            }
-        }
-        return parcelsOutput;
+        return parcelsMap;
     }
 }
+
