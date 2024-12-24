@@ -9,7 +9,7 @@ import lombok.ToString;
 @Setter
 @ToString
 @AllArgsConstructor
-public class ParcelPositionDto {
+public class ParcelPosition {
     int x;
     int y;
 }

@@ -1,10 +1,11 @@
 package org.hofftech.parking.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.hofftech.parking.exception.MissingParcelPositionException;
 import org.hofftech.parking.model.enums.ParcelType;
 import org.hofftech.parking.model.dto.TruckDto;
 import org.hofftech.parking.model.dto.ParcelDto;
-import org.hofftech.parking.model.dto.ParcelPositionDto;
+import org.hofftech.parking.model.dto.ParcelPosition;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import org.hofftech.parking.utill.ParcelValidator;
@@ -72,15 +73,14 @@ public class JsonProcessingService {
         parcelsMap.put("id", pkg.getId());
         parcelsMap.put("type", pkg.getType().name());
 
-        ParcelPositionDto position = pkg.getParcelPositionDto();
+        ParcelPosition position = pkg.getParcelPosition();
         if (position != null) {
             parcelsMap.put("position", Map.of("x", position.getX() + 1, "y", position.getY() + 1));
         } else {
-            log.warn("У упаковки с ID {} отсутствует стартовая позиция", pkg.getId());
+            throw new MissingParcelPositionException("У упаковки с ID " + pkg.getId() + " отсутствует стартовая позиция");
         }
 
-        return parcelsMap;
-    }
+        return parcelsMap;}
 
     private void writeJsonToFile(File outputFile, List<Map<String, Object>> trucksData) {
         try {
@@ -116,7 +116,7 @@ public class JsonProcessingService {
                 String type = (String) pkg.get("type");
                 List<String> shape = ParcelType.valueOf(type).getShape();
                 parcelsOutput.addAll(shape);
-                parcelsOutput.add(""); // Добавляем пустую строку для разделения пакетов
+                parcelsOutput.add("");
             }
         }
         return parcelsOutput;

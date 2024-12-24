@@ -13,5 +13,5 @@ import org.hofftech.parking.model.enums.ParcelType;
 public class ParcelDto {
     private final ParcelType type;
     private final int id;
-    private ParcelPositionDto parcelPositionDto;
+    private ParcelPosition parcelPosition;
 }

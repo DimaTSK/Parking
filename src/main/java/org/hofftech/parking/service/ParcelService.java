@@ -1,7 +1,7 @@
 package org.hofftech.parking.service;
 
 import lombok.extern.slf4j.Slf4j;
-import org.hofftech.parking.model.dto.ParcelPositionDto;
+import org.hofftech.parking.model.dto.ParcelPosition;
 import org.hofftech.parking.model.dto.TruckDto;
 import org.hofftech.parking.model.dto.ParcelDto;
 
@@ -77,7 +77,7 @@ public class ParcelService {
                 }
             }
         }
-        pkg.setParcelPositionDto(new ParcelPositionDto(startX, startY));
+        pkg.setParcelPosition(new ParcelPosition(startX, startY));
         truckDto.getParcelDtos().add(pkg);
         log.info("Упаковка {} размещена на грузовике", pkg.getType());
     }
