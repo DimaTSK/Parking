@@ -94,7 +94,6 @@ public class JsonProcessingService {
     public List<String> importJson(String jsonFilePath) throws IOException {
         File jsonFile = new File(jsonFilePath);
         if (!parcelValidator.isFileExists(jsonFile)) {
-            log.error("Файл не найден: {}", jsonFile.getAbsolutePath());
             throw new IOException("Файл не найден: " + jsonFilePath);
         }
 
@@ -110,7 +109,6 @@ public class JsonProcessingService {
 
     private void validateJsonStructure(Map<String, Object> jsonData) throws IOException {
         if (!parcelValidator.isValidJsonStructure(jsonData)) {
-            log.error("Структура Json некорректа!");
             throw new IOException("Структура Json некорректа!");
         }
     }
