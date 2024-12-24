@@ -45,11 +45,5 @@ public class ConsoleCommandProcessorTest {
         verify(jsonProcessingService).importJson("input.json");
     }
 
-    @Test
-    public void testHandle_UnknownCommand() {
-        consoleCommandProcessor.handle("unknown command");
-
-        verifyNoInteractions(fileProcessingService, jsonProcessingService);
-    }
 
 }

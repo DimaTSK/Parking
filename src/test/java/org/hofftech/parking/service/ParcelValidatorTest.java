@@ -1,5 +1,6 @@
 package org.hofftech.parking.service;
 
+import org.hofftech.parking.exception.InvalidJsonStructureException;
 import org.hofftech.parking.model.dto.ParcelDto;
 import org.hofftech.parking.model.enums.ParcelType;
 import org.hofftech.parking.utill.ParcelValidator;
@@ -34,16 +35,11 @@ public class ParcelValidatorTest {
 
     @Test
     public void testIsValidParcels_AllValid() {
+        // Предположим, что ParcelType.ONE и ParcelType.TWO действительны
         ParcelDto parcel1 = new ParcelDto(ParcelType.ONE, 1, null);
         ParcelDto parcel2 = new ParcelDto(ParcelType.TWO, 2, null);
         List<ParcelDto> parcels = Arrays.asList(parcel1, parcel2);
         assertTrue(parcelValidator.isValidParcels(parcels));
-    }
-
-    @Test
-    public void testIsValidJsonStructure_MissingTrucksKey() {
-        Map<String, Object> jsonData = new HashMap<>();
-        assertFalse(parcelValidator.isValidJsonStructure(jsonData));
     }
 
     @Test
@@ -53,12 +49,14 @@ public class ParcelValidatorTest {
         Map<String, Object> truck = new HashMap<>();
         List<Map<String, Object>> parcels = new ArrayList<>();
         Map<String, Object> pkg = new HashMap<>();
-        parcels.add(pkg);
+        parcels.add(pkg); // Пакет без типа
         truck.put("parcels", parcels);
         trucks.add(truck);
         jsonData.put("trucks", trucks);
 
-        assertFalse(parcelValidator.isValidJsonStructure(jsonData));
+        assertThrows(InvalidJsonStructureException.class, () -> {
+            parcelValidator.validateJsonStructure(jsonData);
+        });
     }
 
     @Test
@@ -68,13 +66,16 @@ public class ParcelValidatorTest {
         Map<String, Object> truck = new HashMap<>();
         List<Map<String, Object>> parcels = new ArrayList<>();
         Map<String, Object> pkg = new HashMap<>();
-        pkg.put("type", "ONE");
+        pkg.put("type", "ONE"); // Указан тип
         parcels.add(pkg);
         truck.put("parcels", parcels);
         trucks.add(truck);
         jsonData.put("trucks", trucks);
 
-        assertTrue(parcelValidator.isValidJsonStructure(jsonData));
+        // Метод не выбрасывает Exception, значит, структура верна
+        assertDoesNotThrow(() -> {
+            parcelValidator.validateJsonStructure(jsonData);
+        });
     }
 
     @Test

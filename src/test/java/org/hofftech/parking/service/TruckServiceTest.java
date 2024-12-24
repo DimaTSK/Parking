@@ -64,14 +64,13 @@ public class TruckServiceTest {
             when(parcel.getId()).thenReturn(i);
             parcels.add(parcel);
         }
-        return parcels;
-    }
+        return parcels;}
 
     private List<TruckEntity> createTruckList(int count) {
         List<TruckEntity> trucks = new ArrayList<>();
         for (int i = 0; i < count; i++) {
-            trucks.add(new TruckEntity());
+            TruckEntity truck = mock(TruckEntity.class);
+            trucks.add(truck);
         }
-        return trucks;
-    }
+        return trucks;}
 }
