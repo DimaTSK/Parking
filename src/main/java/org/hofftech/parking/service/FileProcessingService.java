@@ -38,7 +38,7 @@ public class FileProcessingService {
         if (isSaveToFile) {
             saveTrucksToFile(truckEntities);
         } else {
-            printTrucks(truckEntities);
+            truckService.printTrucks(truckEntities);
         }
     }
 
@@ -60,11 +60,7 @@ public class FileProcessingService {
         }
     }
 
-    private void printTrucks(List<TruckEntity> truckEntities) {
-        truckService.printTrucks(truckEntities);
-    }
-
-    protected List<TruckEntity> addParcels(boolean useEasyAlgorithm, List<ParcelDto> parcelDtos, int maxTrucks, Boolean lazyAlg) {
+    public List<TruckEntity> addParcels(boolean useEasyAlgorithm, List<ParcelDto> parcelDtos, int maxTrucks, Boolean lazyAlg) {
         List<TruckEntity> truckEntities;
         if (useEasyAlgorithm) {
             truckEntities = truckService.addParcelsToIndividualTrucks(parcelDtos);

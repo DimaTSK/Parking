@@ -62,7 +62,7 @@ public class TruckService {
             TruckEntity truckEntity = truckEntities.get(i);
             List<ParcelDto> group = truckParcels.get(i);
 
-            log.info("заполняем грузовик {} из пачки {} посылок.", i + 1, group.size());
+            log.info("Заполняем грузовик {} из пачки {} посылок.", i + 1, group.size());
             for (ParcelDto pkg : group) {
                 if (!parcelService.addParcels(truckEntity, pkg)) {
                     log.error("Не получилось определить посылку {} в грузовик {}.", pkg.getType(), i + 1);
@@ -161,3 +161,4 @@ public class TruckService {
         return truckEntities;
     }
 }
+
