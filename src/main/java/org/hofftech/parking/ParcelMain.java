@@ -11,7 +11,7 @@ import org.hofftech.parking.utill.ParcelValidator;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
-
+import java.util.Scanner;
 
 
 @Slf4j
@@ -23,13 +23,14 @@ public class ParcelMain {
         ParcelService parcelService = new ParcelService();
         TruckService truckService = new TruckService(parcelService);
         ParcelValidator parcelValidator = new ParcelValidator();
+        Scanner scanner = new Scanner(System.in);
         FileReader fileReader = new FileReader();
         FileParser fileParser = new FileParser();
         JsonProcessingService jsonProcessingService = new JsonProcessingService(parcelValidator);
         FileProcessingService fileProcessingService = new FileProcessingService(fileReader, fileParser, parcelValidator, truckService, jsonProcessingService);
         CommandProcessor commandHandler = new ConsoleCommandProcessor(fileProcessingService, jsonProcessingService);
 
-        ConsoleListener consoleListener = new ConsoleListener(commandHandler);
+        ConsoleListener consoleListener = new ConsoleListener(commandHandler, scanner);
         consoleListener.listen();
 
         log.info("Программа завершила работу.");

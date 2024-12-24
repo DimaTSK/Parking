@@ -1,6 +1,7 @@
 package org.hofftech.parking.processor;
 
 import lombok.extern.slf4j.Slf4j;
+import org.hofftech.parking.model.dto.CommandContext;
 import org.hofftech.parking.model.enums.CommandConstants;
 import org.hofftech.parking.service.FileProcessingService;
 import org.hofftech.parking.service.JsonProcessingService;
@@ -12,13 +13,6 @@ import java.util.List;
 
 @Slf4j
 public class ConsoleCommandProcessor implements CommandProcessor {
-    private int maxTrucks;
-    private String filePath;
-    private String algorithm;
-    private boolean useEasyAlgorithm;
-    private boolean useEvenAlgorithm;
-    private boolean saveToFile;
-
     private final FileProcessingService fileProcessingService;
     private final JsonProcessingService jsonProcessingService;
 
@@ -33,26 +27,18 @@ public class ConsoleCommandProcessor implements CommandProcessor {
             log.info("Приложение завершает работу по команде пользователя.");
             return;
         }
-        if (command.startsWith("import ") || command.startsWith("save ") || command.startsWith("import_json ")) {
-            parseCommand(command);
-        } else {
-            log.warn("Неизвестная команда: {}", command);
-            return;
-        }
 
-        if (filePath != null) {
-            try {
-                log.info("Обработка файла: {} с использованием алгоритма: {}. Сохранение в файл: {}", filePath, algorithm, saveToFile);
-                Path path = Path.of(filePath);
-                fileProcessingService.processFile(path, useEasyAlgorithm, saveToFile, maxTrucks, useEvenAlgorithm);
-            } catch (Exception e) {
-                log.error("Ошибка при обработке файла {}: {}", filePath, e.getMessage(), e);
-            }
+        try {
+            CommandContext context = parseCommand(command);
+            processFile(context);
+        } catch (IllegalArgumentException e) {
+            log.warn(e.getMessage());
         }
     }
 
-    private void parseCommand(String command) {
-        resetState();
+    private CommandContext parseCommand(String command) {
+        CommandContext context = new CommandContext();
+
         if (command.startsWith("import_json ")) {
             String jsonFilePath = command.replace("import_json ", "").trim();
             try {
@@ -60,51 +46,59 @@ public class ConsoleCommandProcessor implements CommandProcessor {
                 FileSaving.saveParcelsToFile(parcelsTypes, CommandConstants.OUTPUT_TXT.getValue());
             } catch (IOException e) {
                 log.error("Ошибка при обработке команды json: {}", e.getMessage(), e);
+                throw new IllegalArgumentException("Ошибка обработки JSON файла");
             }
         } else {
-            parseAdvancedCommand(command);
+            parseAdvancedCommand(command, context);
         }
+
+        return context;
     }
 
-    private void parseAdvancedCommand(String command) {
+    private void parseAdvancedCommand(String command, CommandContext context) {
         String commandType = command.startsWith("import ") ? "import " : "save ";
-        saveToFile = !command.startsWith("import ");
-        useEasyAlgorithm = command.contains("easyAlgorithm");
-        algorithm = useEasyAlgorithm ? "easyAlgorithm" : "multipleTrucksAlgorithm";
+        context.setSaveToFile(!command.startsWith("import "));
+        context.setUseEasyAlgorithm(command.contains("easyAlgorithm"));
+        context.setAlgorithm(context.isUseEasyAlgorithm() ? "easyAlgorithm" : "multipleTrucksAlgorithm");
 
-        if (command.contains("even") && !useEasyAlgorithm) {
-            useEvenAlgorithm = true;
+        if (command.contains("even") && !context.isUseEasyAlgorithm()) {
+            context.setUseEvenAlgorithm(true);
             command = command.replace("even ", "");
-            algorithm += "_even";
+            context.setAlgorithm(context.getAlgorithm() + "_even");
         }
 
         String[] parts = command.split(" ");
-        if (!useEasyAlgorithm && parts.length > 2) {
-            parseDigitInsideCommand(command, parts, commandType);
+        if (!context.isUseEasyAlgorithm() && parts.length > 2) {
+            parseDigitInsideCommand(command, parts, context, commandType);
         } else {
-            if (useEvenAlgorithm) {
-                log.error("Требуется указать количество грузовиков!");
-                throw new RuntimeException("Не указано количество грузовиков");
+            if (context.isUseEvenAlgorithm()) {
+                throw new IllegalArgumentException("Не указано количество грузовиков");
             }
-            filePath = command.replace(commandType.trim(), "").trim();
+            context.setFilePath(command.replace(commandType.trim(), "").trim());
         }
     }
 
-    private void parseDigitInsideCommand(String command, String[] parts, String commandType) {
+    private void parseDigitInsideCommand(String command, String[] parts, CommandContext context, String commandType) {
         try {
-            maxTrucks = Integer.parseInt(parts[1]);
-            filePath = command.replace(commandType + parts[1], "").trim();
+            context.setMaxTrucks(Integer.parseInt(parts[1]));
+            context.setFilePath(command.replace(commandType + parts[1], "").trim());
         } catch (NumberFormatException e) {
             log.error("Некорректный формат количества грузовиков: {}", parts[1]);
+            throw new IllegalArgumentException("Некорректный формат количества грузовиков");
         }
     }
 
-    private void resetState() {
-        maxTrucks = Integer.MAX_VALUE;
-        useEasyAlgorithm = false;
-        useEvenAlgorithm = false;
-        saveToFile = false;
-        filePath = null;
-        algorithm = null;
+    private void processFile(CommandContext context) {
+        if (context.getFilePath() != null) {
+            try {
+                log.info("Обработка файла: {} с использованием алгоритма: {}. Сохранение в файл: {}",
+                        context.getFilePath(), context.getAlgorithm(), context.isSaveToFile());
+                Path path = Path.of(context.getFilePath());
+                fileProcessingService.processFile(path, context.isUseEasyAlgorithm(), context.isSaveToFile(),
+                        context.getMaxTrucks(), context.isUseEvenAlgorithm());
+            } catch (Exception e) {
+                log.error("Ошибка при обработке файла {}: {}", context.getFilePath(), e.getMessage(), e);
+            }
+        }
     }
 }

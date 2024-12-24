@@ -8,13 +8,14 @@ import java.util.Scanner;
 @Slf4j
 public class ConsoleListener {
     private final CommandProcessor commandHandler;
+    private final Scanner scanner;
 
-    public ConsoleListener(CommandProcessor commandHandler) {
+    public ConsoleListener(CommandProcessor commandHandler, Scanner scanner) {
         this.commandHandler = commandHandler;
+        this.scanner = scanner;
     }
 
     public void listen() {
-        Scanner scanner = new Scanner(System.in);
         log.info("Ждем команду пользователя");
         System.out.print("Введите путь к файлу:");
 
@@ -22,6 +23,5 @@ public class ConsoleListener {
             String command = scanner.nextLine();
             commandHandler.handle(command);
         }
-        scanner.close();
     }
 }
