@@ -1,6 +1,7 @@
 package org.hofftech.parking.utill;
 
 import lombok.extern.slf4j.Slf4j;
+import org.hofftech.parking.exception.ParcelCreationException;
 import org.hofftech.parking.model.dto.ParcelPosition;
 import org.hofftech.parking.model.enums.ParcelType;
 import org.hofftech.parking.model.dto.ParcelDto;
@@ -18,9 +19,11 @@ public class ParcelParser {
         for (String line : lines) {
             if (line.trim().isEmpty()) {
                 if (!currentShape.isEmpty()) {
-                    ParcelDto pkg = createParcel(currentShape, parcelId++);
-                    if (pkg != null) {
+                    try {
+                        ParcelDto pkg = createParcel(currentShape, parcelId++);
                         parcelDtos.add(pkg);
+                    } catch (ParcelCreationException e) {
+                        log.error("Не удалось создать упаковку: {}", e.getMessage());
                     }
                     currentShape.clear();
                 }
@@ -30,25 +33,29 @@ public class ParcelParser {
         }
 
         if (!currentShape.isEmpty()) {
-            ParcelDto pkg = createParcel(currentShape, parcelId++);
-            if (pkg != null) {
+            try {
+                ParcelDto pkg = createParcel(currentShape, parcelId);
                 parcelDtos.add(pkg);
+            } catch (ParcelCreationException e) {
+                log.error("Не удалось создать упаковку: {}", e.getMessage());
             }
         }
 
         log.info("Успешно распознано {} упаковок.", parcelDtos.size());
-        return parcelDtos;
-    }
+        return parcelDtos;}
 
-    private ParcelDto createParcel(List<String> shapeLines, int id) {
+    private ParcelDto createParcel(List<String> shapeLines, int id) throws ParcelCreationException {
         try {
             ParcelType parcelType = ParcelType.fromShape(shapeLines);
+
+            // Создаем ParcelPosition с начальными значениями, указывающими, что позиция не установлена
             ParcelPosition initialPosition = new ParcelPosition(-1, -1);
 
             return new ParcelDto(parcelType, id, initialPosition);
         } catch (Exception e) {
-            log.error("Ошибка создания упаковки с ID {}: {}", id, e.getMessage());
-            return null;
+            String errorMessage = String.format("Ошибка создания упаковки с ID %d: %s", id, e.getMessage());
+            log.error(errorMessage);
+            throw new ParcelCreationException(errorMessage, e);
         }
     }
 }
