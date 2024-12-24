@@ -5,7 +5,7 @@ import org.hofftech.parking.processor.CommandProcessor;
 import org.hofftech.parking.processor.ConsoleCommandProcessor;
 import org.hofftech.parking.listener.ConsoleListener;
 import org.hofftech.parking.service.*;
-import org.hofftech.parking.utill.FileParser;
+import org.hofftech.parking.utill.ParcelParser;
 import org.hofftech.parking.utill.FileReader;
 import org.hofftech.parking.utill.ParcelValidator;
 
@@ -25,9 +25,9 @@ public class ParcelMain {
         ParcelValidator parcelValidator = new ParcelValidator();
         Scanner scanner = new Scanner(System.in);
         FileReader fileReader = new FileReader();
-        FileParser fileParser = new FileParser();
+        ParcelParser parcelParser = new ParcelParser();
         JsonProcessingService jsonProcessingService = new JsonProcessingService(parcelValidator);
-        FileProcessingService fileProcessingService = new FileProcessingService(fileReader, fileParser, parcelValidator, truckService, jsonProcessingService);
+        FileProcessingService fileProcessingService = new FileProcessingService(fileReader, parcelParser, parcelValidator, truckService, jsonProcessingService);
         CommandProcessor commandHandler = new ConsoleCommandProcessor(fileProcessingService, jsonProcessingService);
 
         ConsoleListener consoleListener = new ConsoleListener(commandHandler, scanner);

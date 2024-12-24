@@ -1,6 +1,7 @@
 package org.hofftech.parking.utill;
 
 import lombok.extern.slf4j.Slf4j;
+import org.hofftech.parking.model.dto.ParcelPosition;
 import org.hofftech.parking.model.enums.ParcelType;
 import org.hofftech.parking.model.dto.ParcelDto;
 
@@ -8,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
-public class FileParser {
+public class ParcelParser {
     public List<ParcelDto> parseParcels(List<String> lines) {
         List<ParcelDto> parcelDtos = new ArrayList<>();
         List<String> currentShape = new ArrayList<>();
@@ -42,7 +43,9 @@ public class FileParser {
     private ParcelDto createParcel(List<String> shapeLines, int id) {
         try {
             ParcelType parcelType = ParcelType.fromShape(shapeLines);
-            return new ParcelDto(parcelType, id, null);
+            ParcelPosition initialPosition = new ParcelPosition(-1, -1);
+
+            return new ParcelDto(parcelType, id, initialPosition);
         } catch (Exception e) {
             log.error("Ошибка создания упаковки с ID {}: {}", id, e.getMessage());
             return null;

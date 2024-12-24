@@ -1,6 +1,6 @@
 package org.hofftech.parking.service;
 import org.hofftech.parking.model.entity.TruckEntity;
-import org.hofftech.parking.utill.FileParser;
+import org.hofftech.parking.utill.ParcelParser;
 import org.hofftech.parking.utill.ParcelValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,7 +25,7 @@ class FileProcessingServiceTest {
     private FileReader fileReader;
 
     @Mock
-    private FileParser fileParser;
+    private ParcelParser parcelParser;
 
     @Mock
     private ParcelValidator parcelValidator;
@@ -55,7 +55,7 @@ class FileProcessingServiceTest {
 
         verify(fileReader).readAllLines(filePath);
         verify(parcelValidator).isValidFile(any());
-        verifyNoMoreInteractions(fileParser, truckService);
+        verifyNoMoreInteractions(parcelParser, truckService);
     }
 
     @Test

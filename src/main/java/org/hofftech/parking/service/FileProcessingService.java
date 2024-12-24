@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.hofftech.parking.exception.FileProcessingException;
 import org.hofftech.parking.model.dto.ParcelDto;
 import org.hofftech.parking.model.entity.TruckEntity;
-import org.hofftech.parking.utill.FileParser;
+import org.hofftech.parking.utill.ParcelParser;
 import org.hofftech.parking.utill.FileReader;
 import org.hofftech.parking.utill.ParcelValidator;
 
@@ -14,15 +14,15 @@ import java.util.List;
 @Slf4j
 public class FileProcessingService {
     private final FileReader fileReader;
-    private final FileParser fileParser;
+    private final ParcelParser parcelParser;
     private final ParcelValidator parcelValidator;
     private final TruckService truckService;
     private final JsonProcessingService jsonProcessingService;
 
-    public FileProcessingService(FileReader fileReader, FileParser fileParser,
+    public FileProcessingService(FileReader fileReader, ParcelParser parcelParser,
                                  ParcelValidator parcelValidator, TruckService truckService, JsonProcessingService jsonProcessingService) {
         this.fileReader = fileReader;
-        this.fileParser = fileParser;
+        this.parcelParser = parcelParser;
         this.parcelValidator = parcelValidator;
         this.truckService = truckService;
         this.jsonProcessingService = jsonProcessingService;
@@ -79,7 +79,7 @@ public class FileProcessingService {
     }
 
     protected List<ParcelDto> parseFileLines(Path filePath, List<String> lines) {
-        List<ParcelDto> parcelDtos = fileParser.parseParcels(lines);
+        List<ParcelDto> parcelDtos = parcelParser.parseParcels(lines);
         if (parcelDtos.isEmpty()) {
             log.warn("Не удалось распарсить ни одной упаковки из файла: {}", filePath);
         } else {
