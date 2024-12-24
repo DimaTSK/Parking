@@ -2,6 +2,7 @@ package org.hofftech.parking.utill;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.hofftech.parking.exception.InvalidJsonStructureException;
 import org.hofftech.parking.model.dto.ParcelDto;
 import org.hofftech.parking.model.enums.ParcelType;
 
@@ -12,6 +13,7 @@ import java.util.Map;
 
 @Slf4j
 public class ParcelValidator {
+
     public boolean isValidFile(List<String> lines) {
         if (CollectionUtils.isEmpty(lines)) {
             log.error("Файл пустой.");
@@ -62,10 +64,10 @@ public class ParcelValidator {
         return true;
     }
 
-    public boolean isValidJsonStructure(Map<String, Object> jsonData) {
+    public void validateJsonStructure(Map<String, Object> jsonData) {
         if (!jsonData.containsKey("trucks")) {
             log.error("Ошибка: JSON не содержит ключ 'trucks'.");
-            return false;
+            throw new InvalidJsonStructureException("Структура Json некорректа: отсутствует ключ 'trucks'.");
         }
 
         List<Map<String, Object>> trucks = (List<Map<String, Object>>) jsonData.get("trucks");
@@ -75,17 +77,14 @@ public class ParcelValidator {
             for (Map<String, Object> pkg : parcels) {
                 if (!pkg.containsKey("type")) {
                     log.error("У одной из посылок отсутствует ключ 'type'");
-                    return false;
+                    throw new InvalidJsonStructureException("Структура Json некорректа: у одной из посылок отсутствует ключ 'type'.");
                 }
             }
         }
         log.info("JSON успешно проверен.");
-        return true;
     }
 
     public boolean isFileExists(File jsonFile) {
         return jsonFile.exists();
     }
-
-
 }

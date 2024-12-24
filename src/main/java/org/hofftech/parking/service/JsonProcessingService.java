@@ -98,19 +98,13 @@ public class JsonProcessingService {
         }
 
         Map<String, Object> jsonData = readJsonFile(jsonFile);
-        validateJsonStructure(jsonData);
+        parcelValidator.validateJsonStructure(jsonData);
 
         return extractParcelsFromJson(jsonData);
     }
 
     private Map<String, Object> readJsonFile(File jsonFile) throws IOException {
         return objectMapper.readValue(jsonFile, Map.class);
-    }
-
-    private void validateJsonStructure(Map<String, Object> jsonData) throws IOException {
-        if (!parcelValidator.isValidJsonStructure(jsonData)) {
-            throw new IOException("Структура Json некорректа!");
-        }
     }
 
     private List<String> extractParcelsFromJson(Map<String, Object> jsonData) {
