@@ -2,6 +2,7 @@ package org.hofftech.parking.model.enums;
 
 public enum CommandConstants {
     EXIT_COMMAND("exit"),
+    OUTPUT_DIRECTORY ( "out"),
     OUTPUT_TXT("out/input.txt");
 
     private final String value;
@@ -12,4 +13,5 @@ public enum CommandConstants {
 
     public String getValue() {
         return value;
-    }}
+    }
+}

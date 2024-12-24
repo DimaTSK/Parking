@@ -1,7 +1,9 @@
 package org.hofftech.parking.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.hofftech.parking.exception.DirectoryCreationException;
 import org.hofftech.parking.exception.MissingParcelPositionException;
+import org.hofftech.parking.model.enums.CommandConstants;
 import org.hofftech.parking.model.enums.ParcelType;
 import org.hofftech.parking.model.dto.TruckDto;
 import org.hofftech.parking.model.dto.ParcelDto;
@@ -31,7 +33,7 @@ public class JsonProcessingService {
     }
 
     public void saveToJson(List<TruckDto> truckDtos) {
-        File outputFile = createOutputFile();
+        File outputFile = createOutputDirectory();
         if (outputFile == null) {
             return;
         }
@@ -44,14 +46,12 @@ public class JsonProcessingService {
         writeJsonToFile(outputFile, trucksData);
     }
 
-    private File createOutputFile() {
-        File outputDir = new File(OUTPUT_DIRECTORY);
+    private File createOutputDirectory() {
+        File outputDir = new File(CommandConstants.OUTPUT_DIRECTORY.getValue());
         if (!outputDir.exists() && !outputDir.mkdirs()) {
-            log.error("Не удалось создать папку для вывода Json");
-            return null;
+            throw new DirectoryCreationException("Не удалось создать папку для вывода JSON: " + CommandConstants.OUTPUT_DIRECTORY.getValue());
         }
-        return new File(outputDir, FILE_NAME);
-    }
+        return new File(outputDir, FILE_NAME);}
 
     private Map<String, Object> createTruckMap(TruckDto truckDto, int truckId) {
         Map<String, Object> truckMap = new LinkedHashMap<>();
