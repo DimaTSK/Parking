@@ -29,7 +29,7 @@ public class TruckService {
             distributeParcelsEvenly(parcelDtoList, truckDtos);
         }
 
-        log.info("Размещение завершено. Всего грузовиков: {}", truckDtos.size());
+        log.info("Посылки размещены, количество грузовиков: {}", truckDtos.size());
         return truckDtos;
     }
 
@@ -129,14 +129,14 @@ public class TruckService {
     }
 
     public void printTrucks(List<TruckDto> truckDtos) {
-        log.info("Начало вывода состояния всех грузовиков. Всего грузовиков: {}", truckDtos.size());
+        log.info("Всего грузовиков: {}", truckDtos.size());
         int truckNumber = 1;
         for (TruckDto truckDto : truckDtos) {
             System.out.printf("Truck %d%n", truckNumber);
             printTruck(truckDto);
             truckNumber++;
         }
-        log.info("Вывод завершён.");
+        log.info("Вывод завершён-------------");
     }
 
     private void printTruck(TruckDto truckDto) {
