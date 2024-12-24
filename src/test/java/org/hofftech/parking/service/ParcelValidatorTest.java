@@ -77,24 +77,4 @@ public class ParcelValidatorTest {
             parcelValidator.validateJsonStructure(jsonData);
         });
     }
-
-    @Test
-    public void testIsFileExists_FileExists() {
-        File file = new File("existingFile.txt");
-        try {
-            if (file.createNewFile()) {
-                assertTrue(parcelValidator.isFileExists(file));
-            }
-        } catch (Exception e) {
-            fail("Не удалось создать тестовый файл.");
-        } finally {
-            file.delete();
-        }
-    }
-
-    @Test
-    public void testIsFileExists_FileDoesNotExist() {
-        File file = new File("nonExistentFile.txt");
-        assertFalse(parcelValidator.isFileExists(file));
-    }
 }

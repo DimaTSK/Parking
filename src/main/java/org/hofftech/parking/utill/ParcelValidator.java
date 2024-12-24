@@ -83,8 +83,4 @@ public class ParcelValidator {
         }
         log.info("JSON успешно проверен.");
     }
-
-    public boolean isFileExists(File jsonFile) {
-        return jsonFile.exists();
-    }
 }

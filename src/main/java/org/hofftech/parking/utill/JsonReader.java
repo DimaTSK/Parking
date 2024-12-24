@@ -22,7 +22,7 @@ public class JsonReader {
 
     public List<String> importJson(String jsonFilePath) throws IOException {
         File jsonFile = new File(jsonFilePath);
-        if (!parcelValidator.isFileExists(jsonFile)) {
+        if (!jsonFile.exists()) {
             throw new IOException("Файл не найден: " + jsonFilePath);
         }
 
