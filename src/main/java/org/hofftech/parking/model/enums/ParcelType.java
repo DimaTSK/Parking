@@ -3,7 +3,6 @@ package org.hofftech.parking.model.enums;
 import lombok.Getter;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -16,10 +15,10 @@ public enum ParcelType {
     THREE(List.of("333")),
     FOUR(List.of("4444")),
     FIVE(List.of("55555")),
-    SIX(Arrays.asList("666", "666")),
-    SEVEN(Arrays.asList("777", "7777")),
-    EIGHT(Arrays.asList("8888", "8888")),
-    NINE(Arrays.asList("999", "999", "999"));
+    SIX(List.of("666", "666")),
+    SEVEN(List.of("777", "7777")),
+    EIGHT(List.of("8888", "8888")),
+    NINE(List.of("999", "999", "999"));
 
     private static final Map<List<String>, ParcelType> SHAPE_MAP = new HashMap<>();
     private final List<String> shape;
@@ -35,7 +34,7 @@ public enum ParcelType {
     }
 
     public int getWidth() {
-        return shape.getFirst().length();
+        return shape.get(0).length();
     }
 
     public int getHeight() {
@@ -55,8 +54,7 @@ public enum ParcelType {
             List<String> reversedShape = new ArrayList<>(this.shape);
             Collections.reverse(reversedShape);
             return reversedShape;
-        }
-        else {
+        } else {
             return this.shape;
         }
     }

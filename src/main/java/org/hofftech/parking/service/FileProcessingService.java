@@ -1,6 +1,7 @@
 package org.hofftech.parking.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.hofftech.parking.exception.FileProcessingException;
 import org.hofftech.parking.model.dto.ParcelDto;
 import org.hofftech.parking.model.entity.TruckEntity;
 import org.hofftech.parking.utill.FileParser;
@@ -27,14 +28,14 @@ public class FileProcessingService {
         this.jsonProcessingService = jsonProcessingService;
     }
 
-    public void processFile(Path filePath, boolean useEasyAlgorithm, boolean saveToFile, int maxTrucks, boolean lazyAlg) {
+    public void processFile(Path filePath, boolean useEasyAlgorithm, boolean isSaveToFile, int maxTrucks, boolean lazyAlg) {
         List<String> lines = readFile(filePath);
         validateFile(filePath, lines);
         List<ParcelDto> parcelDtos = parseFileLines(filePath, lines);
         validateParcels(parcelDtos);
         List<TruckEntity> truckEntities = addParcels(useEasyAlgorithm, parcelDtos, maxTrucks, lazyAlg);
 
-        if (saveToFile) {
+        if (isSaveToFile) {
             saveTrucksToFile(truckEntities);
         } else {
             printTrucks(truckEntities);
@@ -46,7 +47,7 @@ public class FileProcessingService {
             return fileReader.readAllLines(filePath);
         } catch (Exception e) {
             log.error("Ошибка при чтении файла {}", filePath);
-            throw new RuntimeException("Ошибка чтения файла: " + filePath, e);
+            throw new FileProcessingException("Ошибка чтения файла: " + filePath, e);
         }
     }
 
