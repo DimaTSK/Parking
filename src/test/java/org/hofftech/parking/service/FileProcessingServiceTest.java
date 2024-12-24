@@ -1,5 +1,5 @@
 package org.hofftech.parking.service;
-import org.hofftech.parking.model.dto.TruckDto;
+import org.hofftech.parking.model.entity.TruckEntity;
 import org.hofftech.parking.utill.FileParser;
 import org.hofftech.parking.utill.ParcelValidator;
 import org.junit.jupiter.api.BeforeEach;
@@ -71,12 +71,12 @@ class FileProcessingServiceTest {
 
     @Test
     void testSaveTrucksToFile_Exception() {
-        List<TruckDto> truckDtos = Collections.singletonList(new TruckDto());
+        List<TruckEntity> truckEntities = Collections.singletonList(new TruckEntity());
 
         doThrow(new RuntimeException("Ошибка сохранения")).when(jsonProcessingService).saveToJson(any());
 
-        assertThrows(RuntimeException.class, () -> fileProcessingService.saveTrucksToFile(truckDtos));
+        assertThrows(RuntimeException.class, () -> fileProcessingService.saveTrucksToFile(truckEntities));
 
-        verify(jsonProcessingService).saveToJson(truckDtos);
+        verify(jsonProcessingService).saveToJson(truckEntities);
     }
 }

@@ -2,7 +2,7 @@ package org.hofftech.parking.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.hofftech.parking.model.dto.ParcelPosition;
-import org.hofftech.parking.model.dto.TruckDto;
+import org.hofftech.parking.model.entity.TruckEntity;
 import org.hofftech.parking.model.dto.ParcelDto;
 
 import java.util.List;
@@ -10,26 +10,26 @@ import java.util.List;
 @Slf4j
 public class ParcelService {
 
-    protected boolean canAddParcel(TruckDto truckDto, ParcelDto pkg, int startX, int startY) {
+    protected boolean canAddParcel(TruckEntity truckEntity, ParcelDto pkg, int startX, int startY) {
         log.debug("Проверка возможности добавить упаковку {} в координаты X={}, Y={}", pkg.getType(), startX, startY);
         List<String> shape = pkg.getType().getShape();
         int height = shape.size();
 
-        if (!isWithinTruckBounds(truckDto, shape, startX, startY, height)) {
+        if (!isWithinTruckBounds(truckEntity, shape, startX, startY, height)) {
             return false;
         }
 
-        if (isOverlappingWithExistingParcels(truckDto, shape, startX, startY)) {
+        if (isOverlappingWithExistingParcels(truckEntity, shape, startX, startY)) {
             return false;
         }
 
         return true;
     }
 
-    private boolean isWithinTruckBounds(TruckDto truckDto, List<String> shape, int startX, int startY, int height) {
+    private boolean isWithinTruckBounds(TruckEntity truckEntity, List<String> shape, int startX, int startY, int height) {
         for (int y = 0; y < height; y++) {
             int rowWidth = shape.get(y).length();
-            if (startX + rowWidth > truckDto.getWIDTH() || startY + y >= truckDto.getHEIGHT()) {
+            if (startX + rowWidth > truckEntity.getWIDTH() || startY + y >= truckEntity.getHEIGHT()) {
                 log.debug("Упаковка {} выходит за пределы грузовика", shape);
                 return false;
             }
@@ -37,10 +37,10 @@ public class ParcelService {
         return true;
     }
 
-    private boolean isOverlappingWithExistingParcels(TruckDto truckDto, List<String> shape, int startX, int startY) {
+    private boolean isOverlappingWithExistingParcels(TruckEntity truckEntity, List<String> shape, int startX, int startY) {
         for (int y = 0; y < shape.size(); y++) {
             for (int x = 0; x < shape.get(y).length(); x++) {
-                if (shape.get(y).charAt(x) != ' ' && truckDto.getGrid()[startY + y][startX + x] != ' ') {
+                if (shape.get(y).charAt(x) != ' ' && truckEntity.getGrid()[startY + y][startX + x] != ' ') {
                     log.debug("Упаковка {} пересекается с другой упаковкой", shape);
                     return true;
                 }
@@ -49,15 +49,15 @@ public class ParcelService {
         return false;
     }
 
-    protected boolean addParcels(TruckDto truckDto, ParcelDto pkg) {
+    protected boolean addParcels(TruckEntity truckEntity, ParcelDto pkg) {
         log.info("Пытаемся добавить упаковку {} в грузовик.", pkg.getType());
         List<String> shape = pkg.getType().getShape();
         int height = shape.size();
 
-        for (int startY = 0; startY <= truckDto.getHEIGHT() - height; startY++) {
-            for (int startX = 0; startX <= truckDto.getWIDTH() - shape.get(0).length(); startX++) {
-                if (canAddParcel(truckDto, pkg, startX, startY)) {
-                    placeParcels(truckDto, pkg, startX, startY);
+        for (int startY = 0; startY <= truckEntity.getHEIGHT() - height; startY++) {
+            for (int startX = 0; startX <= truckEntity.getWIDTH() - shape.get(0).length(); startX++) {
+                if (canAddParcel(truckEntity, pkg, startX, startY)) {
+                    placeParcels(truckEntity, pkg, startX, startY);
                     return true;
                 }
             }
@@ -67,18 +67,18 @@ public class ParcelService {
         return false;
     }
 
-    protected void placeParcels(TruckDto truckDto, ParcelDto pkg, int startX, int startY) {
+    protected void placeParcels(TruckEntity truckEntity, ParcelDto pkg, int startX, int startY) {
         List<String> shape = pkg.getType().getShape();
 
         for (int y = 0; y < shape.size(); y++) {
             for (int x = 0; x < shape.get(y).length(); x++) {
                 if (shape.get(y).charAt(x) != ' ') {
-                    truckDto.getGrid()[startY + y][startX + x] = shape.get(y).charAt(x);
+                    truckEntity.getGrid()[startY + y][startX + x] = shape.get(y).charAt(x);
                 }
             }
         }
         pkg.setParcelPosition(new ParcelPosition(startX, startY));
-        truckDto.getParcelDtos().add(pkg);
+        truckEntity.getParcelDtos().add(pkg);
         log.info("Упаковка {} размещена на грузовике", pkg.getType());
     }
 }

@@ -1,7 +1,7 @@
 package org.hofftech.parking.service;
 
 import lombok.extern.slf4j.Slf4j;
-import org.hofftech.parking.model.dto.TruckDto;
+import org.hofftech.parking.model.entity.TruckEntity;
 import org.hofftech.parking.model.dto.ParcelDto;
 
 import java.util.ArrayList;
@@ -15,32 +15,32 @@ public class TruckService {
         this.parcelService = parcelService;
     }
 
-    public List<TruckDto> addParcelsToMultipleTrucks(List<ParcelDto> parcelDtoList, int maxTrucks, Boolean evenAlg) {
+    public List<TruckEntity> addParcelsToMultipleTrucks(List<ParcelDto> parcelDtoList, int maxTrucks, Boolean evenAlg) {
         log.info("Начало размещения упаковок. Всего упаковок: {}", parcelDtoList.size());
 
         sortParcels(parcelDtoList);
-        List<TruckDto> truckDtos;
+        List<TruckEntity> truckEntities;
 
         if (!evenAlg) {
-            truckDtos = createTruck(1);
-            placeParcels(parcelDtoList, truckDtos, maxTrucks);
+            truckEntities = createTruck(1);
+            placeParcels(parcelDtoList, truckEntities, maxTrucks);
         } else {
-            truckDtos = createTruck(maxTrucks);
-            distributeParcelsEvenly(parcelDtoList, truckDtos);
+            truckEntities = createTruck(maxTrucks);
+            distributeParcelsEvenly(parcelDtoList, truckEntities);
         }
 
-        log.info("Посылки размещены, количество грузовиков: {}", truckDtos.size());
-        return truckDtos;
+        log.info("Посылки размещены, количество грузовиков: {}", truckEntities.size());
+        return truckEntities;
     }
 
-    public void distributeParcelsEvenly(List<ParcelDto> parcelDtos, List<TruckDto> truckDtos) {
-        if (truckDtos.isEmpty()) {
+    public void distributeParcelsEvenly(List<ParcelDto> parcelDtos, List<TruckEntity> truckEntities) {
+        if (truckEntities.isEmpty()) {
             log.error("Количество грузовиков не может быть равно 0.");
             throw new IllegalArgumentException("Невозможно распределить посылки: нет грузовиков.");
         }
 
         int totalParcels = parcelDtos.size();
-        int numberOfTrucks = truckDtos.size();
+        int numberOfTrucks = truckEntities.size();
         int minParcelsPerTruck = totalParcels / numberOfTrucks;
         int extraParcels = totalParcels % numberOfTrucks;
 
@@ -59,12 +59,12 @@ public class TruckService {
         }
 
         for (int i = 0; i < numberOfTrucks; i++) {
-            TruckDto truckDto = truckDtos.get(i);
+            TruckEntity truckEntity = truckEntities.get(i);
             List<ParcelDto> group = truckParcels.get(i);
 
             log.info("заполняем грузовик {} из пачки {} посылок.", i + 1, group.size());
             for (ParcelDto pkg : group) {
-                if (!parcelService.addParcels(truckDto, pkg)) {
+                if (!parcelService.addParcels(truckEntity, pkg)) {
                     log.error("Не получилось определить посылку {} в грузовик {}.", pkg.getType(), i + 1);
                     throw new RuntimeException("Не хватает кол-ва грузовиков для определения!");
                 }
@@ -74,12 +74,12 @@ public class TruckService {
         log.info("Посылки распределены по грузовикам.");
     }
 
-    private void placeParcels(List<ParcelDto> parcelDtoList, List<TruckDto> truckDtos, int maxTrucks) {
+    private void placeParcels(List<ParcelDto> parcelDtoList, List<TruckEntity> truckEntities, int maxTrucks) {
         for (ParcelDto pkg : parcelDtoList) {
             log.info("Пытаемся разместить упаковку {} с ID {}", pkg.getType(), pkg.getId());
             boolean placed = false;
-            for (TruckDto truckDto : truckDtos) {
-                if (parcelService.addParcels(truckDto, pkg)) {
+            for (TruckEntity truckEntity : truckEntities) {
+                if (parcelService.addParcels(truckEntity, pkg)) {
                     log.info("Упаковка {} с ID {} успешно размещена в существующем грузовике.", pkg.getType(), pkg.getId());
                     placed = true;
                     break;
@@ -88,10 +88,10 @@ public class TruckService {
 
             if (!placed) {
                 log.info("Упаковка {} с ID {} не поместилась. Создаём новый грузовик.", pkg.getType(), pkg.getId());
-                if (truckDtos.size() < maxTrucks) {
-                    TruckDto newTruckDto = new TruckDto();
-                    if (parcelService.addParcels(newTruckDto, pkg)) {
-                        truckDtos.add(newTruckDto);
+                if (truckEntities.size() < maxTrucks) {
+                    TruckEntity newTruckEntity = new TruckEntity();
+                    if (parcelService.addParcels(newTruckEntity, pkg)) {
+                        truckEntities.add(newTruckEntity);
                         log.info("Упаковка {} с ID {} размещена в новом грузовике.", pkg.getType(), pkg.getId());
                     } else {
                         log.error("Ошибка: упаковка {} с ID {} не может быть размещена даже в новом грузовике.", pkg.getType(), pkg.getId());
@@ -104,17 +104,17 @@ public class TruckService {
         }
     }
 
-    private static List<TruckDto> createTruck(int countOfTrucks) {
-        List<TruckDto> truckDtos = new ArrayList<>();
-        TruckDto currentTruckDto = new TruckDto();
-        truckDtos.add(currentTruckDto);
+    private static List<TruckEntity> createTruck(int countOfTrucks) {
+        List<TruckEntity> truckEntities = new ArrayList<>();
+        TruckEntity currentTruckEntity = new TruckEntity();
+        truckEntities.add(currentTruckEntity);
         if (countOfTrucks > 1) {
-            for (int i = truckDtos.size(); i < countOfTrucks; i++) {
-                truckDtos.add(new TruckDto());
+            for (int i = truckEntities.size(); i < countOfTrucks; i++) {
+                truckEntities.add(new TruckEntity());
             }
         }
         log.info("Создан первый грузовик.");
-        return truckDtos;
+        return truckEntities;
     }
 
     private static void sortParcels(List<ParcelDto> parcelDtoList) {
@@ -128,36 +128,36 @@ public class TruckService {
         log.info("Упаковки отсортированы по высоте и ширине.");
     }
 
-    public void printTrucks(List<TruckDto> truckDtos) {
-        log.info("Всего грузовиков: {}", truckDtos.size());
+    public void printTrucks(List<TruckEntity> truckEntities) {
+        log.info("Всего грузовиков: {}", truckEntities.size());
         int truckNumber = 1;
-        for (TruckDto truckDto : truckDtos) {
+        for (TruckEntity truckEntity : truckEntities) {
             System.out.printf("Truck %d%n", truckNumber);
-            printTruck(truckDto);
+            printTruck(truckEntity);
             truckNumber++;
         }
         log.info("Вывод завершён-------------");
     }
 
-    private void printTruck(TruckDto truckDto) {
-        for (int y = truckDto.getHEIGHT() - 1; y >= 0; y--) {
+    private void printTruck(TruckEntity truckEntity) {
+        for (int y = truckEntity.getHEIGHT() - 1; y >= 0; y--) {
             System.out.print("+");
-            for (int x = 0; x < truckDto.getWIDTH(); x++) {
-                System.out.print(truckDto.getGrid()[y][x]);
+            for (int x = 0; x < truckEntity.getWIDTH(); x++) {
+                System.out.print(truckEntity.getGrid()[y][x]);
             }
             System.out.println("+");
         }
         System.out.println("++++++++" + "\n");
     }
 
-    public List<TruckDto> addParcelsToIndividualTrucks(List<ParcelDto> parcelDtos) {
-        List<TruckDto> truckDtos = new ArrayList<>();
+    public List<TruckEntity> addParcelsToIndividualTrucks(List<ParcelDto> parcelDtos) {
+        List<TruckEntity> truckEntities = new ArrayList<>();
         for (ParcelDto pkg : parcelDtos) {
-            TruckDto truckDto = new TruckDto();
-            parcelService.addParcels(truckDto, pkg);
-            truckDtos.add(truckDto);
+            TruckEntity truckEntity = new TruckEntity();
+            parcelService.addParcels(truckEntity, pkg);
+            truckEntities.add(truckEntity);
             log.info("Упаковка {} добавлена в новый грузовик.", pkg.getId());
         }
-        return truckDtos;
+        return truckEntities;
     }
 }

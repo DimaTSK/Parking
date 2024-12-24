@@ -1,7 +1,7 @@
 package org.hofftech.parking.service;
 
 import org.hofftech.parking.model.dto.ParcelDto;
-import org.hofftech.parking.model.dto.TruckDto;
+import org.hofftech.parking.model.entity.TruckEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -30,7 +30,7 @@ public class TruckServiceTest {
     @Test
     public void testAddParcelsToMultipleTrucks_ExceedMaxTrucks() {
         List<ParcelDto> parcels = createParcelList(20);
-        when(parcelService.addParcels(any(TruckDto.class), any(ParcelDto.class))).thenReturn(false);
+        when(parcelService.addParcels(any(TruckEntity.class), any(ParcelDto.class))).thenReturn(false);
 
         assertThrows(RuntimeException.class, () -> {
             truckService.addParcelsToMultipleTrucks(parcels, 1, false);
@@ -49,12 +49,12 @@ public class TruckServiceTest {
     @Test
     public void testDistributeParcelsEvenly_Success() {
         List<ParcelDto> parcels = createParcelList(10);
-        List<TruckDto> trucks = createTruckList(2);
-        when(parcelService.addParcels(any(TruckDto.class), any(ParcelDto.class))).thenReturn(true);
+        List<TruckEntity> trucks = createTruckList(2);
+        when(parcelService.addParcels(any(TruckEntity.class), any(ParcelDto.class))).thenReturn(true);
 
         truckService.distributeParcelsEvenly(parcels, trucks);
 
-        verify(parcelService, atLeastOnce()).addParcels(any(TruckDto.class), any(ParcelDto.class));
+        verify(parcelService, atLeastOnce()).addParcels(any(TruckEntity.class), any(ParcelDto.class));
     }
 
     private List<ParcelDto> createParcelList(int count) {
@@ -67,10 +67,10 @@ public class TruckServiceTest {
         return parcels;
     }
 
-    private List<TruckDto> createTruckList(int count) {
-        List<TruckDto> trucks = new ArrayList<>();
+    private List<TruckEntity> createTruckList(int count) {
+        List<TruckEntity> trucks = new ArrayList<>();
         for (int i = 0; i < count; i++) {
-            trucks.add(new TruckDto());
+            trucks.add(new TruckEntity());
         }
         return trucks;
     }

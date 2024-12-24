@@ -4,12 +4,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.hofftech.parking.exception.DirectoryCreationException;
 import org.hofftech.parking.exception.MissingParcelPositionException;
 import org.hofftech.parking.model.enums.CommandConstants;
-import org.hofftech.parking.model.enums.ParcelType;
-import org.hofftech.parking.model.dto.TruckDto;
+import org.hofftech.parking.model.entity.TruckEntity;
 import org.hofftech.parking.model.dto.ParcelDto;
 import org.hofftech.parking.model.dto.ParcelPosition;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import org.hofftech.parking.utill.JsonReader;
 import org.hofftech.parking.utill.JsonWriter;
 import org.hofftech.parking.utill.ParcelValidator;
@@ -32,15 +29,15 @@ public class JsonProcessingService {
         this.jsonReader = new JsonReader(parcelValidator);
     }
 
-    public void saveToJson(List<TruckDto> truckDtos) {
+    public void saveToJson(List<TruckEntity> truckEntities) {
         File outputFile = createOutputFile();
         if (outputFile == null) {
             return;
         }
 
         List<Map<String, Object>> trucksData = new ArrayList<>();
-        for (int i = 0; i < truckDtos.size(); i++) {
-            trucksData.add(createTruckMap(truckDtos.get(i), i + 1));
+        for (int i = 0; i < truckEntities.size(); i++) {
+            trucksData.add(createTruckMap(truckEntities.get(i), i + 1));
         }
 
         jsonWriter.writeToJsonFile(outputFile, trucksData);
@@ -58,16 +55,16 @@ public class JsonProcessingService {
         return new File(outputDir, FILE_NAME);
     }
 
-    private Map<String, Object> createTruckMap(TruckDto truckDto, int truckId) {
+    private Map<String, Object> createTruckMap(TruckEntity truckEntity, int truckId) {
         Map<String, Object> truckMap = new LinkedHashMap<>();
         truckMap.put("truck_id", truckId);
-        truckMap.put("parcels", createParcelsData(truckDto));
+        truckMap.put("parcels", createParcelsData(truckEntity));
         return truckMap;
     }
 
-    private List<Map<String, Object>> createParcelsData(TruckDto truckDto) {
+    private List<Map<String, Object>> createParcelsData(TruckEntity truckEntity) {
         List<Map<String, Object>> parcelsData = new ArrayList<>();
-        for (ParcelDto pkg : truckDto.getParcelDtos()) {
+        for (ParcelDto pkg : truckEntity.getParcelDtos()) {
             parcelsData.add(createParcelsMap(pkg));
         }
         return parcelsData;

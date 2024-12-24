@@ -2,7 +2,7 @@ package org.hofftech.parking.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.hofftech.parking.model.dto.ParcelDto;
-import org.hofftech.parking.model.dto.TruckDto;
+import org.hofftech.parking.model.entity.TruckEntity;
 import org.hofftech.parking.utill.FileParser;
 import org.hofftech.parking.utill.FileReader;
 import org.hofftech.parking.utill.ParcelValidator;
@@ -32,12 +32,12 @@ public class FileProcessingService {
         validateFile(filePath, lines);
         List<ParcelDto> parcelDtos = parseFileLines(filePath, lines);
         validateParcels(parcelDtos);
-        List<TruckDto> truckDtos = addParcels(useEasyAlgorithm, parcelDtos, maxTrucks, lazyAlg);
+        List<TruckEntity> truckEntities = addParcels(useEasyAlgorithm, parcelDtos, maxTrucks, lazyAlg);
 
         if (saveToFile) {
-            saveTrucksToFile(truckDtos);
+            saveTrucksToFile(truckEntities);
         } else {
-            printTrucks(truckDtos);
+            printTrucks(truckEntities);
         }
     }
 
@@ -50,27 +50,27 @@ public class FileProcessingService {
         }
     }
 
-    protected void saveTrucksToFile(List<TruckDto> truckDtos) {
+    protected void saveTrucksToFile(List<TruckEntity> truckEntities) {
         try {
             log.info("Сохранение загруженных грузовиков в JSON");
-            jsonProcessingService.saveToJson(truckDtos);
+            jsonProcessingService.saveToJson(truckEntities);
         } catch (Exception e) {
             throw new RuntimeException("Ошибка при сохранении в JSON", e);
         }
     }
 
-    private void printTrucks(List<TruckDto> truckDtos) {
-        truckService.printTrucks(truckDtos);
+    private void printTrucks(List<TruckEntity> truckEntities) {
+        truckService.printTrucks(truckEntities);
     }
 
-    protected List<TruckDto> addParcels(boolean useEasyAlgorithm, List<ParcelDto> parcelDtos, int maxTrucks, Boolean lazyAlg) {
-        List<TruckDto> truckDtos;
+    protected List<TruckEntity> addParcels(boolean useEasyAlgorithm, List<ParcelDto> parcelDtos, int maxTrucks, Boolean lazyAlg) {
+        List<TruckEntity> truckEntities;
         if (useEasyAlgorithm) {
-            truckDtos = truckService.addParcelsToIndividualTrucks(parcelDtos);
+            truckEntities = truckService.addParcelsToIndividualTrucks(parcelDtos);
         } else {
-            truckDtos = truckService.addParcelsToMultipleTrucks(parcelDtos, maxTrucks, lazyAlg);
+            truckEntities = truckService.addParcelsToMultipleTrucks(parcelDtos, maxTrucks, lazyAlg);
         }
-        return truckDtos;
+        return truckEntities;
     }
 
     private void validateParcels(List<ParcelDto> parcelDtos) {
