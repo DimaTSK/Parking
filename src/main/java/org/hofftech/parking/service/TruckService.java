@@ -3,6 +3,7 @@ package org.hofftech.parking.service;
 import lombok.extern.slf4j.Slf4j;
 import org.hofftech.parking.model.entity.TruckEntity;
 import org.hofftech.parking.model.dto.ParcelDto;
+import org.hofftech.parking.utill.TruckFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,10 +23,10 @@ public class TruckService {
         List<TruckEntity> truckEntities;
 
         if (!evenAlg) {
-            truckEntities = createTruck(1);
+            truckEntities = TruckFactory.createTrucks(1);
             placeParcels(parcelDtoList, truckEntities, maxTrucks);
         } else {
-            truckEntities = createTruck(maxTrucks);
+            truckEntities = TruckFactory.createTrucks(maxTrucks);
             distributeParcelsEvenly(parcelDtoList, truckEntities);
         }
 
@@ -118,14 +119,16 @@ public class TruckService {
     }
 
     private static void sortParcels(List<ParcelDto> parcelDtoList) {
-        parcelDtoList.sort((a, b) -> {
-            int heightDiff = Integer.compare(b.getType().getHeight(), a.getType().getHeight());
-            if (heightDiff == 0) {
-                return Integer.compare(b.getType().getWidth(), a.getType().getWidth());
-            }
-            return heightDiff;
-        });
+        parcelDtoList.sort(TruckService::compareParcels);
         log.info("Упаковки отсортированы по высоте и ширине.");
+    }
+
+    private static int compareParcels(ParcelDto a, ParcelDto b) {
+        int heightDiff = Integer.compare(b.getType().getHeight(), a.getType().getHeight());
+        if (heightDiff == 0) {
+            return Integer.compare(b.getType().getWidth(), a.getType().getWidth());
+        }
+        return heightDiff;
     }
 
     public void printTrucks(List<TruckEntity> truckEntities) {

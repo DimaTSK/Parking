@@ -15,15 +15,8 @@ public class ParcelService {
         List<String> shape = pkg.getType().getShape();
         int height = shape.size();
 
-        if (!isWithinTruckBounds(truckEntity, shape, startX, startY, height)) {
-            return false;
-        }
-
-        if (isOverlappingWithExistingParcels(truckEntity, shape, startX, startY)) {
-            return false;
-        }
-
-        return true;
+        return isWithinTruckBounds(truckEntity, shape, startX, startY, height) &&
+                !isOverlappingWithExistingParcels(truckEntity, shape, startX, startY);
     }
 
     private boolean isWithinTruckBounds(TruckEntity truckEntity, List<String> shape, int startX, int startY, int height) {
