@@ -1,7 +1,7 @@
 package org.hofftech.parking.service;
 
 import lombok.extern.slf4j.Slf4j;
-import org.hofftech.parking.model.entity.TruckEntity;
+import org.hofftech.parking.model.entity.Truck;
 import org.hofftech.parking.model.dto.ParcelDto;
 import org.hofftech.parking.utill.TruckFactory;
 
@@ -16,11 +16,11 @@ public class TruckService {
         this.parcelService = parcelService;
     }
 
-    public List<TruckEntity> addParcelsToMultipleTrucks(List<ParcelDto> parcelDtoList, int maxTrucks, Boolean evenAlg) {
+    public List<Truck> addParcelsToMultipleTrucks(List<ParcelDto> parcelDtoList, int maxTrucks, Boolean evenAlg) {
         log.info("Начало размещения упаковок. Всего упаковок: {}", parcelDtoList.size());
 
         sortParcels(parcelDtoList);
-        List<TruckEntity> truckEntities;
+        List<Truck> truckEntities;
 
         if (!evenAlg) {
             truckEntities = TruckFactory.createTrucks(1);
@@ -34,7 +34,7 @@ public class TruckService {
         return truckEntities;
     }
 
-    public void distributeParcelsEvenly(List<ParcelDto> parcelDtos, List<TruckEntity> truckEntities) {
+    public void distributeParcelsEvenly(List<ParcelDto> parcelDtos, List<Truck> truckEntities) {
         if (truckEntities.isEmpty()) {
             log.error("Количество грузовиков не может быть равно 0.");
             throw new IllegalArgumentException("Невозможно распределить посылки: нет грузовиков.");
@@ -60,12 +60,12 @@ public class TruckService {
         }
 
         for (int i = 0; i < numberOfTrucks; i++) {
-            TruckEntity truckEntity = truckEntities.get(i);
+            Truck truck = truckEntities.get(i);
             List<ParcelDto> group = truckParcels.get(i);
 
             log.info("Заполняем грузовик {} из пачки {} посылок.", i + 1, group.size());
             for (ParcelDto pkg : group) {
-                if (!parcelService.addParcels(truckEntity, pkg)) {
+                if (!parcelService.addParcels(truck, pkg)) {
                     log.error("Не получилось определить посылку {} в грузовик {}.", pkg.getType(), i + 1);
                     throw new RuntimeException("Не хватает кол-ва грузовиков для определения!");
                 }
@@ -75,12 +75,12 @@ public class TruckService {
         log.info("Посылки распределены по грузовикам.");
     }
 
-    private void placeParcels(List<ParcelDto> parcelDtoList, List<TruckEntity> truckEntities, int maxTrucks) {
+    private void placeParcels(List<ParcelDto> parcelDtoList, List<Truck> truckEntities, int maxTrucks) {
         for (ParcelDto pkg : parcelDtoList) {
             log.info("Пытаемся разместить упаковку {} с ID {}", pkg.getType(), pkg.getId());
             boolean placed = false;
-            for (TruckEntity truckEntity : truckEntities) {
-                if (parcelService.addParcels(truckEntity, pkg)) {
+            for (Truck truck : truckEntities) {
+                if (parcelService.addParcels(truck, pkg)) {
                     log.info("Упаковка {} с ID {} успешно размещена в существующем грузовике.", pkg.getType(), pkg.getId());
                     placed = true;
                     break;
@@ -90,9 +90,9 @@ public class TruckService {
             if (!placed) {
                 log.info("Упаковка {} с ID {} не поместилась. Создаём новый грузовик.", pkg.getType(), pkg.getId());
                 if (truckEntities.size() < maxTrucks) {
-                    TruckEntity newTruckEntity = new TruckEntity();
-                    if (parcelService.addParcels(newTruckEntity, pkg)) {
-                        truckEntities.add(newTruckEntity);
+                    Truck newTruck = new Truck();
+                    if (parcelService.addParcels(newTruck, pkg)) {
+                        truckEntities.add(newTruck);
                         log.info("Упаковка {} с ID {} размещена в новом грузовике.", pkg.getType(), pkg.getId());
                     } else {
                         log.error("Ошибка: упаковка {} с ID {} не может быть размещена даже в новом грузовике.", pkg.getType(), pkg.getId());
@@ -105,13 +105,13 @@ public class TruckService {
         }
     }
 
-    private static List<TruckEntity> createTruck(int countOfTrucks) {
-        List<TruckEntity> truckEntities = new ArrayList<>();
-        TruckEntity currentTruckEntity = new TruckEntity();
-        truckEntities.add(currentTruckEntity);
+    private static List<Truck> createTruck(int countOfTrucks) {
+        List<Truck> truckEntities = new ArrayList<>();
+        Truck currentTruck = new Truck();
+        truckEntities.add(currentTruck);
         if (countOfTrucks > 1) {
             for (int i = truckEntities.size(); i < countOfTrucks; i++) {
-                truckEntities.add(new TruckEntity());
+                truckEntities.add(new Truck());
             }
         }
         log.info("Создан первый грузовик.");
@@ -131,34 +131,34 @@ public class TruckService {
         return heightDiff;
     }
 
-    public void printTrucks(List<TruckEntity> truckEntities) {
+    public void printTrucks(List<Truck> truckEntities) {
         log.info("Всего грузовиков: {}", truckEntities.size());
         int truckNumber = 1;
-        for (TruckEntity truckEntity : truckEntities) {
+        for (Truck truck : truckEntities) {
             System.out.printf("Truck %d%n", truckNumber);
-            printTruck(truckEntity);
+            printTruck(truck);
             truckNumber++;
         }
         log.info("Вывод завершён-------------");
     }
 
-    private void printTruck(TruckEntity truckEntity) {
-        for (int y = truckEntity.getHEIGHT() - 1; y >= 0; y--) {
+    private void printTruck(Truck truck) {
+        for (int y = truck.getHEIGHT() - 1; y >= 0; y--) {
             System.out.print("+");
-            for (int x = 0; x < truckEntity.getWIDTH(); x++) {
-                System.out.print(truckEntity.getGrid()[y][x]);
+            for (int x = 0; x < truck.getWIDTH(); x++) {
+                System.out.print(truck.getGrid()[y][x]);
             }
             System.out.println("+");
         }
         System.out.println("++++++++" + "\n");
     }
 
-    public List<TruckEntity> addParcelsToIndividualTrucks(List<ParcelDto> parcelDtos) {
-        List<TruckEntity> truckEntities = new ArrayList<>();
+    public List<Truck> addParcelsToIndividualTrucks(List<ParcelDto> parcelDtos) {
+        List<Truck> truckEntities = new ArrayList<>();
         for (ParcelDto pkg : parcelDtos) {
-            TruckEntity truckEntity = new TruckEntity();
-            parcelService.addParcels(truckEntity, pkg);
-            truckEntities.add(truckEntity);
+            Truck truck = new Truck();
+            parcelService.addParcels(truck, pkg);
+            truckEntities.add(truck);
             log.info("Упаковка {} добавлена в новый грузовик.", pkg.getId());
         }
         return truckEntities;

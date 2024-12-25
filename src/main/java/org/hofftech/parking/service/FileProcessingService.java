@@ -3,7 +3,7 @@ package org.hofftech.parking.service;
 import lombok.extern.slf4j.Slf4j;
 import org.hofftech.parking.exception.FileProcessingException;
 import org.hofftech.parking.model.dto.ParcelDto;
-import org.hofftech.parking.model.entity.TruckEntity;
+import org.hofftech.parking.model.entity.Truck;
 import org.hofftech.parking.utill.ParcelParser;
 import org.hofftech.parking.utill.FileReader;
 import org.hofftech.parking.utill.ParcelValidator;
@@ -33,7 +33,7 @@ public class FileProcessingService {
         validateFile(filePath, lines);
         List<ParcelDto> parcelDtos = parseFileLines(filePath, lines);
         validateParcels(parcelDtos);
-        List<TruckEntity> truckEntities = addParcels(useEasyAlgorithm, parcelDtos, maxTrucks, lazyAlg);
+        List<Truck> truckEntities = addParcels(useEasyAlgorithm, parcelDtos, maxTrucks, lazyAlg);
 
         if (isSaveToFile) {
             saveTrucksToFile(truckEntities);
@@ -51,7 +51,7 @@ public class FileProcessingService {
         }
     }
 
-    protected void saveTrucksToFile(List<TruckEntity> truckEntities) {
+    protected void saveTrucksToFile(List<Truck> truckEntities) {
         try {
             log.info("Сохранение загруженных грузовиков в JSON");
             jsonProcessingService.saveToJson(truckEntities);
@@ -60,8 +60,8 @@ public class FileProcessingService {
         }
     }
 
-    public List<TruckEntity> addParcels(boolean useEasyAlgorithm, List<ParcelDto> parcelDtos, int maxTrucks, Boolean lazyAlg) {
-        List<TruckEntity> truckEntities;
+    public List<Truck> addParcels(boolean useEasyAlgorithm, List<ParcelDto> parcelDtos, int maxTrucks, Boolean lazyAlg) {
+        List<Truck> truckEntities;
         if (useEasyAlgorithm) {
             truckEntities = truckService.addParcelsToIndividualTrucks(parcelDtos);
         } else {

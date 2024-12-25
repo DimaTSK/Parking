@@ -1,7 +1,7 @@
 package org.hofftech.parking.service;
 
 import org.hofftech.parking.model.dto.ParcelDto;
-import org.hofftech.parking.model.entity.TruckEntity;
+import org.hofftech.parking.model.entity.Truck;
 import org.hofftech.parking.model.enums.ParcelType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,45 +15,45 @@ public class ParcelServiceTest {
     @InjectMocks
     private ParcelService parcelService;
 
-    private TruckEntity truckEntity;
+    private Truck truck;
     private ParcelDto parcelDto;
 
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
 
-        truckEntity = new TruckEntity();
+        truck = new Truck();
 
         parcelDto = new ParcelDto(ParcelType.TWO, 1, null);
     }
 
     @Test
     public void testCanAddParcel_Success() {
-        assertTrue(parcelService.canAddParcel(truckEntity, parcelDto, 0, 0));
+        assertTrue(parcelService.canAddParcel(truck, parcelDto, 0, 0));
     }
 
     @Test
     public void testCanAddParcel_OutsideBounds() {
-        assertFalse(parcelService.canAddParcel(truckEntity, parcelDto, 5, 5));
+        assertFalse(parcelService.canAddParcel(truck, parcelDto, 5, 5));
     }
 
     @Test
     public void testCanAddParcel_Overlapping() {
-        truckEntity.getGrid()[0][0] = '2';
-        assertFalse(parcelService.canAddParcel(truckEntity, parcelDto, 0, 0));
+        truck.getGrid()[0][0] = '2';
+        assertFalse(parcelService.canAddParcel(truck, parcelDto, 0, 0));
     }
 
     @Test
     public void testAddParcels_Success() {
-        assertTrue(parcelService.addParcels(truckEntity, parcelDto));
-        assertEquals(1, truckEntity.getParcelDtos().size());
+        assertTrue(parcelService.addParcels(truck, parcelDto));
+        assertEquals(1, truck.getParcelDtos().size());
     }
 
 
     @Test
     public void testPlaceParcels() {
-        parcelService.placeParcels(truckEntity, parcelDto, 0, 0);
-        assertEquals('2', truckEntity.getGrid()[0][0]);
-        assertEquals('2', truckEntity.getGrid()[0][1]);
+        parcelService.placeParcels(truck, parcelDto, 0, 0);
+        assertEquals('2', truck.getGrid()[0][0]);
+        assertEquals('2', truck.getGrid()[0][1]);
     }
 }

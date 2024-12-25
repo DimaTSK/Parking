@@ -1,15 +1,15 @@
 package org.hofftech.parking.utill;
 
-import org.hofftech.parking.model.entity.TruckEntity;
+import org.hofftech.parking.model.entity.Truck;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class TruckFactory {
-    public static List<TruckEntity> createTrucks(int countOfTrucks) {
-        List<TruckEntity> truckEntities = new ArrayList<>();
+    public static List<Truck> createTrucks(int countOfTrucks) {
+        List<Truck> truckEntities = new ArrayList<>();
         for (int i = 0; i < countOfTrucks; i++) {
-            truckEntities.add(new TruckEntity());
+            truckEntities.add(new Truck());
         }
         return truckEntities;
     }

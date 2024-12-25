@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.hofftech.parking.exception.DirectoryCreationException;
 import org.hofftech.parking.exception.MissingParcelPositionException;
 import org.hofftech.parking.model.enums.CommandConstants;
-import org.hofftech.parking.model.entity.TruckEntity;
+import org.hofftech.parking.model.entity.Truck;
 import org.hofftech.parking.model.dto.ParcelDto;
 import org.hofftech.parking.model.dto.ParcelPosition;
 import org.hofftech.parking.utill.JsonReader;
@@ -29,11 +29,8 @@ public class JsonProcessingService {
         this.jsonReader = new JsonReader(parcelValidator);
     }
 
-    public void saveToJson(List<TruckEntity> truckEntities) {
+    public void saveToJson(List<Truck> truckEntities) {
         File outputFile = createOutputFile();
-        if (outputFile == null) {
-            return;
-        }
 
         List<Map<String, Object>> trucksData = new ArrayList<>();
         for (int i = 0; i < truckEntities.size(); i++) {
@@ -55,16 +52,16 @@ public class JsonProcessingService {
         return new File(outputDir, FILE_NAME);
     }
 
-    private Map<String, Object> createTruckMap(TruckEntity truckEntity, int truckId) {
+    private Map<String, Object> createTruckMap(Truck truck, int truckId) {
         Map<String, Object> truckMap = new LinkedHashMap<>();
         truckMap.put("truck_id", truckId);
-        truckMap.put("parcels", createParcelsData(truckEntity));
+        truckMap.put("parcels", createParcelsData(truck));
         return truckMap;
     }
 
-    private List<Map<String, Object>> createParcelsData(TruckEntity truckEntity) {
+    private List<Map<String, Object>> createParcelsData(Truck truck) {
         List<Map<String, Object>> parcelsData = new ArrayList<>();
-        for (ParcelDto pkg : truckEntity.getParcelDtos()) {
+        for (ParcelDto pkg : truck.getParcelDtos()) {
             parcelsData.add(createParcelsMap(pkg));
         }
         return parcelsData;
