@@ -1,5 +1,7 @@
 package org.hofftech.parking.processor;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.hofftech.parking.model.enums.CommandConstants;
 import org.hofftech.parking.service.FileProcessingService;
@@ -50,7 +52,15 @@ public class ConsoleCommandProcessor implements CommandProcessor {
         }
     }
 
-    private void processGeneralCommand(String command) {
+    public void processGeneralCommand(String command) {
+        CommandParser params = parseCommandFlags(command);
+        parseCommandArguments(command, params);
+        validateParameters(params);
+        processFile(params.getFilePath(), params.isUseEasyAlgorithm(), params.isSaveToFile(),
+                params.getMaxTrucks(), params.isUseEvenAlgorithm(), params.getAlgorithm());
+    }
+
+    private CommandParser parseCommandFlags(String command) {
         boolean saveToFile = command.startsWith("save ");
         boolean useEasyAlgorithm = command.contains("easyAlgorithm");
         boolean useEvenAlgorithm = command.contains("even") && !useEasyAlgorithm;
@@ -61,16 +71,19 @@ public class ConsoleCommandProcessor implements CommandProcessor {
             command = command.replace("even ", "");
         }
 
-        String[] parts = command.split(" ");
-        int maxTrucks = Integer.MAX_VALUE;
-        String filePath = "";
+        return new CommandParser(saveToFile, useEasyAlgorithm, useEvenAlgorithm, algorithm, command);
+    }
 
+    private void parseCommandArguments(String command, CommandParser params) {
+        String[] parts = params.getCommand().split(" ");
+        int maxTrucks = Integer.MAX_VALUE;
         List<String> filePathParts = new ArrayList<>();
+
         for (int i = 1; i < parts.length; i++) {
             String part = parts[i];
-            if (useEvenAlgorithm && part.equalsIgnoreCase("even")) {
-                useEvenAlgorithm = true;
-                algorithm = "multipleTrucksAlgorithm_even";
+            if (params.isUseEvenAlgorithm() && part.equalsIgnoreCase("even")) {
+                params.setUseEvenAlgorithm(true);
+                params.setAlgorithm("multipleTrucksAlgorithm_even");
             } else {
                 try {
                     int trucks = Integer.parseInt(part);
@@ -81,20 +94,23 @@ public class ConsoleCommandProcessor implements CommandProcessor {
             }
         }
 
-        filePath = String.join(" ", filePathParts).trim();
+        String filePath = String.join(" ", filePathParts).trim();
+        params.setMaxTrucks(maxTrucks);
+        params.setFilePath(filePath);
+    }
 
-        if (useEvenAlgorithm && maxTrucks == Integer.MAX_VALUE) {
+    private void validateParameters(CommandParser params) {
+        if (params.isUseEvenAlgorithm() && params.getMaxTrucks() == Integer.MAX_VALUE) {
             throw new IllegalArgumentException("Не указано количество грузовиков");
         }
 
-        if (filePath.isEmpty()) {
+        if (params.getFilePath().isEmpty()) {
             throw new IllegalArgumentException("Не указан путь к файлу");
         }
-
-        processFile(filePath, useEasyAlgorithm, saveToFile, maxTrucks, useEvenAlgorithm, algorithm);
     }
 
-    private void processFile(String filePath, boolean useEasyAlgorithm, boolean saveToFile, int maxTrucks, boolean useEvenAlgorithm, String algorithm) {
+    private void processFile(String filePath, boolean useEasyAlgorithm, boolean saveToFile,
+                             int maxTrucks, boolean useEvenAlgorithm, String algorithm) {
         try {
             log.info("Обработка файла: {} с использованием алгоритма: {}. Сохранение в файл: {}",
                     filePath, algorithm, saveToFile);
@@ -102,6 +118,26 @@ public class ConsoleCommandProcessor implements CommandProcessor {
             fileProcessingService.processFile(path, useEasyAlgorithm, saveToFile, maxTrucks, useEvenAlgorithm);
         } catch (Exception e) {
             log.error("Ошибка при обработке файла {}: {}", filePath, e.getMessage(), e);
+        }
+    }
+
+    @Getter
+    @Setter
+    private static class CommandParser {
+        private boolean saveToFile;
+        private boolean useEasyAlgorithm;
+        private boolean useEvenAlgorithm;
+        private String algorithm;
+        private String command;
+        private int maxTrucks;
+        private String filePath;
+
+        public CommandParser(boolean saveToFile, boolean useEasyAlgorithm, boolean useEvenAlgorithm, String algorithm, String command) {
+            this.saveToFile = saveToFile;
+            this.useEasyAlgorithm = useEasyAlgorithm;
+            this.useEvenAlgorithm = useEvenAlgorithm;
+            this.algorithm = algorithm;
+            this.command = command;
         }
     }
 }
