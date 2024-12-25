@@ -11,7 +11,7 @@ import java.util.List;
 
 @Slf4j
 public class ParcelParser {
-    public List<ParcelDto> parseParcels(List<String> lines) {
+    public List<ParcelDto> parseParcels(List<String> lines) throws ParcelCreationException {
         List<ParcelDto> parcelDtos = new ArrayList<>();
         List<String> currentShape = new ArrayList<>();
         int parcelId = 1;
@@ -19,12 +19,8 @@ public class ParcelParser {
         for (String line : lines) {
             if (line.trim().isEmpty()) {
                 if (!currentShape.isEmpty()) {
-                    try {
-                        ParcelDto pkg = createParcel(currentShape, parcelId++);
-                        parcelDtos.add(pkg);
-                    } catch (ParcelCreationException e) {
-                        log.error("Не удалось создать упаковку: {}", e.getMessage());
-                    }
+                    ParcelDto pkg = createParcel(currentShape, parcelId++);
+                    parcelDtos.add(pkg);
                     currentShape.clear();
                 }
             } else {
@@ -33,16 +29,13 @@ public class ParcelParser {
         }
 
         if (!currentShape.isEmpty()) {
-            try {
-                ParcelDto pkg = createParcel(currentShape, parcelId);
-                parcelDtos.add(pkg);
-            } catch (ParcelCreationException e) {
-                log.error("Не удалось создать упаковку: {}", e.getMessage());
-            }
+            ParcelDto pkg = createParcel(currentShape, parcelId);
+            parcelDtos.add(pkg);
         }
 
         log.info("Успешно распознано {} упаковок.", parcelDtos.size());
-        return parcelDtos;}
+        return parcelDtos;
+    }
 
     private ParcelDto createParcel(List<String> shapeLines, int id) throws ParcelCreationException {
         try {

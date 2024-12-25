@@ -2,6 +2,7 @@ package org.hofftech.parking.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.hofftech.parking.exception.FileProcessingException;
+import org.hofftech.parking.exception.ParcelCreationException;
 import org.hofftech.parking.model.dto.ParcelDto;
 import org.hofftech.parking.model.entity.Truck;
 import org.hofftech.parking.utill.ParcelParser;
@@ -28,7 +29,7 @@ public class FileProcessingService {
         this.jsonProcessingService = jsonProcessingService;
     }
 
-    public void processFile(Path filePath, boolean useEasyAlgorithm, boolean isSaveToFile, int maxTrucks, boolean lazyAlg) {
+    public void processFile(Path filePath, boolean useEasyAlgorithm, boolean isSaveToFile, int maxTrucks, boolean lazyAlg) throws ParcelCreationException {
         List<String> lines = readFile(filePath);
         validateFile(filePath, lines);
         List<ParcelDto> parcelDtos = parseFileLines(filePath, lines);
@@ -78,7 +79,7 @@ public class FileProcessingService {
         }
     }
 
-    protected List<ParcelDto> parseFileLines(Path filePath, List<String> lines) {
+    protected List<ParcelDto> parseFileLines(Path filePath, List<String> lines) throws ParcelCreationException {
         List<ParcelDto> parcelDtos = parcelParser.parseParcels(lines);
         if (parcelDtos.isEmpty()) {
             log.warn("Не удалось распарсить ни одной упаковки из файла: {}", filePath);
