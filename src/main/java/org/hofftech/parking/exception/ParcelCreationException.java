@@ -1,6 +1,6 @@
 package org.hofftech.parking.exception;
 
-public class ParcelCreationException extends Exception {
+public class ParcelCreationException extends RuntimeException {
     public ParcelCreationException(String message) {
         super(message);
     }
