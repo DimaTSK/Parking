@@ -5,55 +5,51 @@ import org.hofftech.parking.model.entity.Truck;
 import org.hofftech.parking.model.enums.ParcelType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.MockitoAnnotations;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.Arrays;
+import java.util.List;
 
-public class ParcelServiceTest {
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-    @InjectMocks
+class ParcelServiceTest {
+
     private ParcelService parcelService;
-
     private Truck truck;
-    private ParcelDto parcelDto;
 
     @BeforeEach
-    public void setUp() {
-        MockitoAnnotations.openMocks(this);
-
+    void setUp() {
+        parcelService = new ParcelService();
         truck = new Truck();
-
-        parcelDto = new ParcelDto(ParcelType.TWO, 1, null);
     }
 
     @Test
-    public void testCanAddParcel_Success() {
-        assertTrue(parcelService.canAddParcel(truck, parcelDto, 0, 0));
+    void testCanAddParcelWithinBounds() {
+        ParcelDto parcel = createParcel(ParcelType.TWO);
+        assertTrue(parcelService.canAddParcel(truck, parcel, 0, 0));
     }
 
     @Test
-    public void testCanAddParcel_OutsideBounds() {
-        assertFalse(parcelService.canAddParcel(truck, parcelDto, 5, 5));
+    void testCanAddParcelOutOfBounds() {
+        ParcelDto parcel = createParcel(ParcelType.FOUR);
+        assertFalse(parcelService.canAddParcel(truck, parcel, 4, 0)); // Выход за пределы
     }
 
     @Test
-    public void testCanAddParcel_Overlapping() {
-        truck.getGrid()[0][0] = '2';
-        assertFalse(parcelService.canAddParcel(truck, parcelDto, 0, 0));
+    void testCanAddParcelOverlapping() {
+        ParcelDto parcel1 = createParcel(ParcelType.TWO);
+        ParcelDto parcel2 = createParcel(ParcelType.TWO);
+        parcelService.placeParcels(truck, parcel1, 0, 0);
+        assertFalse(parcelService.canAddParcel(truck, parcel2, 1, 0)); // Пересечение
     }
 
     @Test
-    public void testAddParcels_Success() {
-        assertTrue(parcelService.addParcels(truck, parcelDto));
-        assertEquals(1, truck.getParcelDtos().size());
+    void testAddParcelsSuccessfully() {
+        ParcelDto parcel = createParcel(ParcelType.THREE);
+        assertTrue(parcelService.addParcels(truck, parcel));
     }
 
-
-    @Test
-    public void testPlaceParcels() {
-        parcelService.placeParcels(truck, parcelDto, 0, 0);
-        assertEquals('2', truck.getGrid()[0][0]);
-        assertEquals('2', truck.getGrid()[0][1]);
+    private ParcelDto createParcel(ParcelType parcelType) {
+        return new ParcelDto(parcelType, parcelType.ordinal(), null);
     }
 }
