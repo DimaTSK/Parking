@@ -10,12 +10,12 @@ import java.util.List;
 
 @Slf4j
 public class TruckService {
-    private final ParcelDistributor parcelDistributor;
+    private final ParcelLoadingService parcelLoadingService;
     private final TruckFactory truckFactory;
     private final ParcelService parcelService;
 
-    public TruckService(ParcelDistributor parcelDistributor, TruckFactory truckFactory, ParcelService parcelService) {
-        this.parcelDistributor = parcelDistributor;
+    public TruckService(ParcelLoadingService parcelLoadingService, TruckFactory truckFactory, ParcelService parcelService) {
+        this.parcelLoadingService = parcelLoadingService;
         this.truckFactory = truckFactory;
         this.parcelService = parcelService;
     }
@@ -25,7 +25,7 @@ public class TruckService {
 
         List<Truck> truckEntities = evenAlg ? truckFactory.createTrucks(maxTrucks) : truckFactory.createTrucks(1);
         if (evenAlg) {
-            parcelDistributor.distributeParcelsEvenly(parcelDtoList, truckEntities);
+            parcelLoadingService.loadParcelsEvenly(parcelDtoList, truckEntities);
         } else {
             parcelService.placeParcels(parcelDtoList, truckEntities, maxTrucks);
         }

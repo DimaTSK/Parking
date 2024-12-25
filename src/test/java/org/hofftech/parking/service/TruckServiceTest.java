@@ -22,7 +22,7 @@ import static org.mockito.Mockito.when;
 class TruckServiceTest {
 
     @Mock
-    private ParcelDistributor parcelDistributor;
+    private ParcelLoadingService parcelLoadingService;
 
     @Mock
     private TruckFactory truckFactory;
@@ -47,7 +47,7 @@ class TruckServiceTest {
 
         List<Truck> result = truckService.addParcelsToMultipleTrucks(parcels, 3, true);
 
-        verify(parcelDistributor).distributeParcelsEvenly(parcels, trucks);
+        verify(parcelLoadingService).loadParcelsEvenly(parcels, trucks);
         assertEquals(3, result.size());
     }
 

@@ -6,7 +6,7 @@ import org.hofftech.parking.parcer.ParcelJsonParser;
 import org.hofftech.parking.parcer.ParcelParser;
 import org.hofftech.parking.processor.CommandProcessor;
 import org.hofftech.parking.processor.ConsoleCommandProcessor;
-import org.hofftech.parking.listener.ConsoleListener;
+import org.hofftech.parking.controller.ConsoleController;
 import org.hofftech.parking.service.*;
 import org.hofftech.parking.util.*;
 import org.hofftech.parking.mapper.TruckDataMapper;
@@ -26,8 +26,8 @@ public class ParcelMain {
 
             ParcelService parcelService = new ParcelService();
             TruckFactory truckFactory = new TruckFactory();
-            ParcelDistributor parcelDistributor = new ParcelDistributor(parcelService);
-            TruckService truckService = new TruckService(parcelDistributor, truckFactory, parcelService);
+            ParcelLoadingService parcelLoadingService = new ParcelLoadingService(parcelService);
+            TruckService truckService = new TruckService(parcelLoadingService, truckFactory, parcelService);
             ParcelValidator parcelValidator = new ParcelValidator();
             Scanner scanner = new Scanner(System.in);
             FileReader fileReader = new FileReader();
@@ -48,8 +48,8 @@ public class ParcelMain {
 
             CommandProcessor commandProcessor = new ConsoleCommandProcessor(fileProcessingService, jsonFileService);
 
-            ConsoleListener consoleListener = new ConsoleListener(commandProcessor, scanner);
-            consoleListener.listen();
+            ConsoleController consoleController = new ConsoleController(commandProcessor, scanner);
+            consoleController.listen();
 
             log.info("Программа завершила работу.");
         } catch (Exception e) {

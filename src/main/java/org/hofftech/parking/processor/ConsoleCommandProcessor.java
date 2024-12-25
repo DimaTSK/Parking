@@ -7,7 +7,7 @@ import org.hofftech.parking.exception.ParcelCreationException;
 import org.hofftech.parking.model.enums.CommandConstants;
 import org.hofftech.parking.service.FileProcessingService;
 import org.hofftech.parking.service.JsonFileService;
-import org.hofftech.parking.util.ParcelFileSaver;
+import org.hofftech.parking.util.ParcelFileWriter;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -48,7 +48,7 @@ public class ConsoleCommandProcessor implements CommandProcessor {
         String jsonFilePath = command.replace("import_json ", "").trim();
         try {
             List<String> parcelsTypes = jsonFileService.importJson(jsonFilePath);
-            ParcelFileSaver.saveParcelsToFile(parcelsTypes, CommandConstants.OUTPUT_TXT.getValue());
+            ParcelFileWriter.saveParcelsToFile(parcelsTypes, CommandConstants.OUTPUT_TXT.getValue());
         } catch (IOException e) {
             log.error("Ошибка при обработке команды json: {}", e.getMessage(), e);
             throw new IllegalArgumentException("Ошибка обработки JSON файла");

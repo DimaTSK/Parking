@@ -9,14 +9,14 @@ import java.util.List;
 
 
 @Slf4j
-public class ParcelDistributor {
+public class ParcelLoadingService {
     private final ParcelService parcelService;
 
-    public ParcelDistributor(ParcelService parcelService) {
+    public ParcelLoadingService(ParcelService parcelService) {
         this.parcelService = parcelService;
     }
 
-    public void distributeParcelsEvenly(List<ParcelDto> parcelDtos, List<Truck> truckEntities) {
+    public void loadParcelsEvenly(List<ParcelDto> parcelDtos, List<Truck> truckEntities) {
         if (truckEntities.isEmpty()) {
             throw new IllegalArgumentException("Невозможно распределить посылки: нет грузовиков.");
         }
