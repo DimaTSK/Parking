@@ -10,7 +10,7 @@ import java.util.List;
 @Slf4j
 public class ParcelService {
 
-    protected boolean canAddParcel(Truck truck, ParcelDto pkg, int startX, int startY) {
+    public boolean canAddParcel(Truck truck, ParcelDto pkg, int startX, int startY) {
         log.debug("Проверка возможности добавить упаковку {} в координаты X={}, Y={}", pkg.getType(), startX, startY);
         List<String> shape = pkg.getType().getShape();
         int height = shape.size();
@@ -19,7 +19,7 @@ public class ParcelService {
                 !isOverlappingWithExistingParcels(truck, shape, startX, startY);
     }
 
-    private boolean isWithinTruckBounds(Truck truck, List<String> shape, int startX, int startY, int height) {
+    public boolean isWithinTruckBounds(Truck truck, List<String> shape, int startX, int startY, int height) {
         for (int y = 0; y < height; y++) {
             int rowWidth = shape.get(y).length();
             if (startX + rowWidth > truck.getWIDTH() || startY + y >= truck.getHEIGHT()) {
@@ -30,7 +30,7 @@ public class ParcelService {
         return true;
     }
 
-    private boolean isOverlappingWithExistingParcels(Truck truck, List<String> shape, int startX, int startY) {
+    public boolean isOverlappingWithExistingParcels(Truck truck, List<String> shape, int startX, int startY) {
         for (int y = 0; y < shape.size(); y++) {
             for (int x = 0; x < shape.get(y).length(); x++) {
                 if (shape.get(y).charAt(x) != ' ' && truck.getGrid()[startY + y][startX + x] != ' ') {
@@ -42,7 +42,7 @@ public class ParcelService {
         return false;
     }
 
-    protected boolean addParcels(Truck truck, ParcelDto pkg) {
+    public boolean addParcels(Truck truck, ParcelDto pkg) {
         log.info("Пытаемся добавить упаковку {} в грузовик.", pkg.getType());
         List<String> shape = pkg.getType().getShape();
         int height = shape.size();
@@ -60,7 +60,7 @@ public class ParcelService {
         return false;
     }
 
-    protected void placeParcels(Truck truck, ParcelDto pkg, int startX, int startY) {
+    public void placeParcels(Truck truck, ParcelDto pkg, int startX, int startY) {
         List<String> shape = pkg.getType().getShape();
 
         for (int y = 0; y < shape.size(); y++) {

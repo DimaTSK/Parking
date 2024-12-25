@@ -28,9 +28,9 @@ public class ParcelMain {
         ParcelParser parcelParser = new ParcelParser();
         JsonProcessingService jsonProcessingService = new JsonProcessingService(parcelValidator);
         FileProcessingService fileProcessingService = new FileProcessingService(fileReader, parcelParser, parcelValidator, truckService, jsonProcessingService);
-        CommandProcessor commandHandler = new ConsoleCommandProcessor(fileProcessingService, jsonProcessingService);
+        CommandProcessor commandProcessor = new ConsoleCommandProcessor(fileProcessingService, jsonProcessingService);
 
-        ConsoleListener consoleListener = new ConsoleListener(commandHandler, scanner);
+        ConsoleListener consoleListener = new ConsoleListener(commandProcessor, scanner);
         consoleListener.listen();
 
         log.info("Программа завершила работу.");

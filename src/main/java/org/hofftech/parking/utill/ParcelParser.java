@@ -11,6 +11,10 @@ import java.util.List;
 
 @Slf4j
 public class ParcelParser {
+
+    private static final int UNDEFINED_POSITION_X = -1;
+    private static final int UNDEFINED_POSITION_Y = -1;
+
     public List<ParcelDto> parseParcels(List<String> lines) throws ParcelCreationException {
         List<ParcelDto> parcelDtos = new ArrayList<>();
         List<String> currentShape = new ArrayList<>();
@@ -41,8 +45,7 @@ public class ParcelParser {
         try {
             ParcelType parcelType = ParcelType.fromShape(shapeLines);
 
-            // Создаем ParcelPosition с начальными значениями, указывающими, что позиция не установлена
-            ParcelPosition initialPosition = new ParcelPosition(-1, -1);
+            ParcelPosition initialPosition = new ParcelPosition(UNDEFINED_POSITION_X, UNDEFINED_POSITION_Y);
 
             return new ParcelDto(parcelType, id, initialPosition);
         } catch (Exception e) {
