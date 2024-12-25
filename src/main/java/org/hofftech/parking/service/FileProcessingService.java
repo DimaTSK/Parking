@@ -21,8 +21,8 @@ public class FileProcessingService {
     private final ParcelSorter parcelSorter;
 
     public FileProcessingService(FileReader fileReader, ParcelParser parcelParser,
-                                 ParcelValidator parcelValidator, TruckService truckService,
-                                 JsonFileService jsonFileService, TruckPrinter truckPrinter, ParcelSorter parcelSorter) {
+            ParcelValidator parcelValidator, TruckService truckService,
+            JsonFileService jsonFileService, TruckPrinter truckPrinter, ParcelSorter parcelSorter) {
         this.fileReader = fileReader;
         this.parcelParser = parcelParser;
         this.parcelValidator = parcelValidator;
@@ -33,19 +33,38 @@ public class FileProcessingService {
     }
 
     public void processFile(Path filePath, boolean useEasyAlgorithm, boolean isSaveToFile, int maxTrucks, boolean lazyAlg) throws ParcelCreationException {
-        List<String> lines = readFile(filePath);
-        validateFile(filePath, lines);
-        List<ParcelDto> parcelDtos = parseFileLines(filePath, lines);
-        validateParcels(parcelDtos);
+        try {
+            String algorithm = determineAlgorithm(useEasyAlgorithm, lazyAlg);
+            log.info("Обработка файла: {} с использованием алгоритма: {}. Сохранение в файл: {}",
+                    filePath, algorithm, isSaveToFile);
 
-        parcelSorter.sortParcels(parcelDtos);
+            List<String> lines = readFile(filePath);
+            validateFile(filePath, lines);
+            List<ParcelDto> parcelDtos = parseFileLines(filePath, lines);
+            validateParcels(parcelDtos);
 
-        List<Truck> truckEntities = addParcels(useEasyAlgorithm, parcelDtos, maxTrucks, lazyAlg);
+            parcelSorter.sortParcels(parcelDtos);
 
-        if (isSaveToFile) {
-            saveTrucksToFile(truckEntities);
+            List<Truck> truckEntities = addParcels(useEasyAlgorithm, parcelDtos, maxTrucks, lazyAlg);
+
+            if (isSaveToFile) {
+                saveTrucksToFile(truckEntities);
+            } else {
+                truckPrinter.printTrucks(truckEntities);
+            }
+        } catch (Exception e) {
+            log.error("Ошибка при обработке файла {}: {}", filePath, e.getMessage(), e);
+            throw new ParcelCreationException("Ошибка при обработке файла: " + filePath, e);
+        }
+    }
+
+    private String determineAlgorithm(boolean useEasyAlgorithm, boolean lazyAlg) {
+        if (useEasyAlgorithm) {
+            return "easyAlgorithm";
+        } else if (lazyAlg) {
+            return "multipleTrucksAlgorithm_even";
         } else {
-            truckPrinter.printTrucks(truckEntities);
+            return "multipleTrucksAlgorithm";
         }
     }
 
@@ -53,7 +72,7 @@ public class FileProcessingService {
         try {
             return fileReader.readAllLines(filePath);
         } catch (Exception e) {
-            log.error("Ошибка при чтении файла {}", filePath);
+            log.error("Ошибка при чтении файла {}", filePath, e);
             throw new FileProcessingException("Ошибка чтения файла: " + filePath, e);
         }
     }

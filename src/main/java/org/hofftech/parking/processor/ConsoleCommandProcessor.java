@@ -3,6 +3,7 @@ package org.hofftech.parking.processor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.hofftech.parking.exception.ParcelCreationException;
 import org.hofftech.parking.model.enums.CommandConstants;
 import org.hofftech.parking.service.FileProcessingService;
 import org.hofftech.parking.service.JsonFileService;
@@ -38,6 +39,8 @@ public class ConsoleCommandProcessor implements CommandProcessor {
             }
         } catch (IllegalArgumentException e) {
             log.warn(e.getMessage());
+        } catch (ParcelCreationException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -52,12 +55,17 @@ public class ConsoleCommandProcessor implements CommandProcessor {
         }
     }
 
-    public void processGeneralCommand(String command) {
+    public void processGeneralCommand(String command) throws ParcelCreationException {
         CommandParser params = parseCommandFlags(command);
         parseCommandArguments(command, params);
         validateParameters(params);
-        processFile(params.getFilePath(), params.isUseEasyAlgorithm(), params.isSaveToFile(),
-                params.getMaxTrucks(), params.isUseEvenAlgorithm(), params.getAlgorithm());
+        fileProcessingService.processFile(
+                Path.of(params.getFilePath()),
+                params.isUseEasyAlgorithm(),
+                params.isSaveToFile(),
+                params.getMaxTrucks(),
+                params.isUseEvenAlgorithm()
+        );
     }
 
     private CommandParser parseCommandFlags(String command) {
@@ -106,18 +114,6 @@ public class ConsoleCommandProcessor implements CommandProcessor {
 
         if (params.getFilePath().isEmpty()) {
             throw new IllegalArgumentException("Не указан путь к файлу");
-        }
-    }
-
-    private void processFile(String filePath, boolean useEasyAlgorithm, boolean saveToFile,
-                             int maxTrucks, boolean useEvenAlgorithm, String algorithm) {
-        try {
-            log.info("Обработка файла: {} с использованием алгоритма: {}. Сохранение в файл: {}",
-                    filePath, algorithm, saveToFile);
-            Path path = Path.of(filePath);
-            fileProcessingService.processFile(path, useEasyAlgorithm, saveToFile, maxTrucks, useEvenAlgorithm);
-        } catch (Exception e) {
-            log.error("Ошибка при обработке файла {}: {}", filePath, e.getMessage(), e);
         }
     }
 
