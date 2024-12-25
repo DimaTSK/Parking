@@ -22,7 +22,8 @@ public class ParcelMain {
 
             ParcelService parcelService = new ParcelService();
             TruckFactory truckFactory = new TruckFactory();
-            TruckService truckService = new TruckService(parcelService, truckFactory);
+            ParcelDistributor parcelDistributor = new ParcelDistributor(parcelService);
+            TruckService truckService = new TruckService(parcelDistributor, truckFactory, parcelService);
             ParcelValidator parcelValidator = new ParcelValidator();
             Scanner scanner = new Scanner(System.in);
             FileReader fileReader = new FileReader();
@@ -33,7 +34,13 @@ public class ParcelMain {
             TruckDataMapper truckDataMapper = new TruckDataMapper();
             JsonFileService jsonFileService = new JsonFileService(jsonWriter, jsonReader, truckDataMapper);
 
-            FileProcessingService fileProcessingService = new FileProcessingService(fileReader, parcelParser, parcelValidator, truckService, jsonFileService);
+            TruckPrinter truckPrinter = new TruckPrinter();
+            ParcelSorter parcelSorter = new ParcelSorter();
+
+            FileProcessingService fileProcessingService = new FileProcessingService(
+                    fileReader, parcelParser, parcelValidator, truckService, jsonFileService, truckPrinter, parcelSorter
+            );
+
             CommandProcessor commandProcessor = new ConsoleCommandProcessor(fileProcessingService, jsonFileService);
 
             ConsoleListener consoleListener = new ConsoleListener(commandProcessor, scanner);

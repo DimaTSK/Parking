@@ -35,7 +35,6 @@ public class ParcelValidatorTest {
 
     @Test
     public void testIsValidParcels_AllValid() {
-        // Предположим, что ParcelType.ONE и ParcelType.TWO действительны
         ParcelDto parcel1 = new ParcelDto(ParcelType.ONE, 1, null);
         ParcelDto parcel2 = new ParcelDto(ParcelType.TWO, 2, null);
         List<ParcelDto> parcels = Arrays.asList(parcel1, parcel2);
@@ -66,13 +65,12 @@ public class ParcelValidatorTest {
         Map<String, Object> truck = new HashMap<>();
         List<Map<String, Object>> parcels = new ArrayList<>();
         Map<String, Object> pkg = new HashMap<>();
-        pkg.put("type", "ONE"); // Указан тип
+        pkg.put("type", "ONE");
         parcels.add(pkg);
         truck.put("parcels", parcels);
         trucks.add(truck);
         jsonData.put("trucks", trucks);
 
-        // Метод не выбрасывает Exception, значит, структура верна
         assertDoesNotThrow(() -> {
             parcelValidator.validateJsonStructure(jsonData);
         });

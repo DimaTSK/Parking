@@ -5,9 +5,7 @@ import org.hofftech.parking.exception.FileProcessingException;
 import org.hofftech.parking.exception.ParcelCreationException;
 import org.hofftech.parking.model.dto.ParcelDto;
 import org.hofftech.parking.model.entity.Truck;
-import org.hofftech.parking.utill.ParcelParser;
-import org.hofftech.parking.utill.FileReader;
-import org.hofftech.parking.utill.ParcelValidator;
+import org.hofftech.parking.utill.*;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -19,14 +17,19 @@ public class FileProcessingService {
     private final ParcelValidator parcelValidator;
     private final TruckService truckService;
     private final JsonFileService jsonFileService;
+    private final TruckPrinter truckPrinter;
+    private final ParcelSorter parcelSorter;
 
     public FileProcessingService(FileReader fileReader, ParcelParser parcelParser,
-                                 ParcelValidator parcelValidator, TruckService truckService, JsonFileService jsonFileService) {
+                                 ParcelValidator parcelValidator, TruckService truckService,
+                                 JsonFileService jsonFileService, TruckPrinter truckPrinter, ParcelSorter parcelSorter) {
         this.fileReader = fileReader;
         this.parcelParser = parcelParser;
         this.parcelValidator = parcelValidator;
         this.truckService = truckService;
         this.jsonFileService = jsonFileService;
+        this.truckPrinter = truckPrinter;
+        this.parcelSorter = parcelSorter;
     }
 
     public void processFile(Path filePath, boolean useEasyAlgorithm, boolean isSaveToFile, int maxTrucks, boolean lazyAlg) throws ParcelCreationException {
@@ -34,12 +37,15 @@ public class FileProcessingService {
         validateFile(filePath, lines);
         List<ParcelDto> parcelDtos = parseFileLines(filePath, lines);
         validateParcels(parcelDtos);
+
+        parcelSorter.sortParcels(parcelDtos);
+
         List<Truck> truckEntities = addParcels(useEasyAlgorithm, parcelDtos, maxTrucks, lazyAlg);
 
         if (isSaveToFile) {
             saveTrucksToFile(truckEntities);
         } else {
-            truckService.printTrucks(truckEntities);
+            truckPrinter.printTrucks(truckEntities);
         }
     }
 
@@ -55,7 +61,7 @@ public class FileProcessingService {
     protected void saveTrucksToFile(List<Truck> truckEntities) {
         try {
             log.info("Сохранение загруженных грузовиков в JSON");
-            jsonFileService.saveTrucksToJson(truckEntities);  // Использование метода saveTrucksToJson
+            jsonFileService.saveTrucksToJson(truckEntities);
         } catch (Exception e) {
             log.error("Ошибка при сохранении в JSON", e);
             throw new RuntimeException("Ошибка при сохранении в JSON", e);
