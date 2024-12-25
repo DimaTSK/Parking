@@ -1,77 +1,48 @@
 package org.hofftech.parking.service;
 
 import lombok.extern.slf4j.Slf4j;
-import org.hofftech.parking.model.dto.TruckCapacityDto;
+import org.hofftech.parking.model.entity.Truck;
 import org.hofftech.parking.model.dto.ParcelDto;
-import org.hofftech.parking.model.dto.TruckDto;
+import org.hofftech.parking.factory.TruckFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
 public class TruckService {
-    private final TruckCapacityDto capacity;
+    private final ParcelLoadingService parcelLoadingService;
+    private final TruckFactory truckFactory;
+    private final ParcelService parcelService;
 
-    public TruckService(TruckCapacityDto capacity) {
-        this.capacity = capacity;
+    public TruckService(ParcelLoadingService parcelLoadingService, TruckFactory truckFactory, ParcelService parcelService) {
+        this.parcelLoadingService = parcelLoadingService;
+        this.truckFactory = truckFactory;
+        this.parcelService = parcelService;
     }
 
-    public boolean canPlacePackage(ParcelDto pkg, int startRow, int startCol, TruckDto truckDto) {
-        log.debug("Проверка размещения пакета на позиции: ({}, {})", startRow, startCol);
-        return canPlaceParcel(pkg, startRow, startCol, truckDto);
+    public List<Truck> addParcelsToMultipleTrucks(List<ParcelDto> parcelDtoList, int maxTrucks, Boolean evenAlg) {
+        log.info("Начало размещения упаковок. Всего упаковок: {}", parcelDtoList.size());
+
+        List<Truck> truckEntities = evenAlg ? truckFactory.createTrucks(maxTrucks) : truckFactory.createTrucks(1);
+        if (evenAlg) {
+            parcelLoadingService.loadParcelsEvenly(parcelDtoList, truckEntities);
+        } else {
+            parcelService.placeParcels(parcelDtoList, truckEntities, maxTrucks);
+        }
+
+        log.info("Посылки размещены, количество грузовиков: {}", truckEntities.size());
+        return truckEntities;
     }
 
-    public void placePackage(ParcelDto pkg, int startRow, int startCol, TruckDto truckDto) {
-        if (!canPlaceParcel(pkg, startRow, startCol, truckDto)) {
-            throw new IllegalArgumentException("Не удается разместить посылку на указанной позиции.");
-        }
-
-        for (int i = 0; i < pkg.getHeight(); i++) {
-            for (int j = 0; j < pkg.getWidth(); j++) {
-                truckDto.getGrid()[startRow + i][startCol + j] = pkg.getLines()[i].charAt(j);
-            }
-        }
-    }
-
-    public boolean canPlaceParcel(ParcelDto parcel, int startRow, int startCol, TruckDto truckDto) {
-        if (startRow < 0 || startCol < 0
-                || startRow + parcel.getHeight() > truckDto.getGrid().length
-                || startCol + parcel.getWidth() > truckDto.getGrid()[0].length) {
-            return false;
-        }
-
-        for (int i = 0; i < parcel.getHeight(); i++) {
-            for (int j = 0; j < parcel.getWidth(); j++) {
-                if (truckDto.getGrid()[startRow + i][startCol + j] != ' ') {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    public void packPackages(List<ParcelDto> parcelDtos, TruckDto truckDto) {
-        log.info("Началось размещение пакетов. Всего пакетов: {}", parcelDtos.size());
-
+    public List<Truck> addParcelsToIndividualTrucks(List<ParcelDto> parcelDtos) {
+        List<Truck> truckEntities = new ArrayList<>();
         for (ParcelDto pkg : parcelDtos) {
-            boolean placed = false;
-
-            for (int i = 0; i <= capacity.height() - pkg.getHeight(); i++) {
-                if (placed) break;
-                for (int j = 0; j <= capacity.width() - pkg.getWidth(); j++) {
-                    if (canPlacePackage(pkg, i, j, truckDto)) {
-                        placePackage(pkg, i, j, truckDto);
-                        log.debug("Пакет успешно размещён на позиции: ({}, {})", i, j);
-                        placed = true;
-                        break;
-                    }
-                }
-            }
-
-            if (!placed) {
-                log.warn("Не удалось разместить пакет:\n{}", String.join("\n", pkg.getLines()));
-            }
+            Truck truck = new Truck();
+            parcelService.addParcels(truck, pkg);
+            truckEntities.add(truck);
+            log.info("Упаковка {} добавлена в новый грузовик.", pkg.getId());
         }
-
-        log.info("Завершено размещение пакетов.");
+        return truckEntities;
     }
 }
+

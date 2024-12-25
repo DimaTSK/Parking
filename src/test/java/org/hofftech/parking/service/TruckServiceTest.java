@@ -1,75 +1,85 @@
 package org.hofftech.parking.service;
 
 import org.hofftech.parking.model.dto.ParcelDto;
-import org.hofftech.parking.model.dto.TruckCapacityDto;
-import org.hofftech.parking.model.dto.TruckDto;
+import org.hofftech.parking.model.entity.Truck;
+import org.hofftech.parking.model.enums.ParcelType;
+import org.hofftech.parking.factory.TruckFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class TruckServiceTest {
 
+    @Mock
+    private ParcelLoadingService parcelLoadingService;
+
+    @Mock
+    private TruckFactory truckFactory;
+
+    @Mock
+    private ParcelService parcelService;
+
+    @InjectMocks
     private TruckService truckService;
-    private TruckCapacityDto truckCapacity;
 
     @BeforeEach
     void setUp() {
-        truckCapacity = new TruckCapacityDto(5, 5);
-        truckService = new TruckService(truckCapacity);
+        MockitoAnnotations.openMocks(this);
     }
 
     @Test
-    void testCanPlacePackage() {
-        TruckDto truckDto = new TruckDto(truckCapacity.width(), truckCapacity.height());
-        String[] parcelLines = {
-                "XX",
-                "XX"
-        };
-        ParcelDto parcel = new ParcelDto(parcelLines);
+    void testAddParcelsToMultipleTrucksWithEvenDistribution() {
+        List<ParcelDto> parcels = createSampleParcels(10);
+        List<Truck> trucks = createSampleTrucks(3);
 
-        assertTrue(truckService.canPlacePackage(parcel, 0, 0, truckDto));
+        when(truckFactory.createTrucks(3)).thenReturn(trucks);
 
-        truckService.placePackage(parcel, 0, 0, truckDto);
+        List<Truck> result = truckService.addParcelsToMultipleTrucks(parcels, 3, true);
 
-        assertFalse(truckService.canPlacePackage(parcel, 0, 0, truckDto));
-
-        assertFalse(truckService.canPlacePackage(parcel, 1, 1, truckDto));
-
-        assertTrue(truckService.canPlacePackage(parcel, 3, 3, truckDto));
+        verify(parcelLoadingService).loadParcelsEvenly(parcels, trucks);
+        assertEquals(3, result.size());
     }
 
+
     @Test
-    void testPlacePackage() {
-        TruckDto truckDto = new TruckDto(truckCapacity.width(), truckCapacity.height());
-        String[] parcelLines = {
-                "XX",
-                "XX"
-        };
-        ParcelDto parcel = new ParcelDto(parcelLines);
+    void testAddParcelsToIndividualTrucks() {
+        List<ParcelDto> parcels = createSampleParcels(5);
+        List<Truck> trucks = new ArrayList<>();
 
-        truckService.placePackage(parcel, 0, 0, truckDto);
+        when(parcelService.addParcels(any(Truck.class), any(ParcelDto.class))).thenReturn(true);
 
-        char[][] expectedGrid = {
-                {'X', 'X', ' ', ' ', ' '},
-                {'X', 'X', ' ', ' ', ' '},
-                {' ', ' ', ' ', ' ', ' '},
-                {' ', ' ', ' ', ' ', ' '},
-                {' ', ' ', ' ', ' ', ' '}
-        };
+        List<Truck> result = truckService.addParcelsToIndividualTrucks(parcels);
 
-        assertArrayEquals(expectedGrid, truckDto.getGrid());
+        assertEquals(5, result.size());
+        for (ParcelDto parcel : parcels) {
+            verify(parcelService).addParcels(any(Truck.class), eq(parcel));
+        }
     }
 
-    @Test
-    void testCannotPlacePackageExceedingBounds() {
-        TruckDto truckDto = new TruckDto(truckCapacity.width(), truckCapacity.height());
-        String[] parcelLines = {
-                "XXX",
-                "XXX",
-                "XXX"
-        };
-        ParcelDto parcel = new ParcelDto(parcelLines);
-        assertFalse(truckService.canPlacePackage(parcel, 3, 3, truckDto));
+    private List<ParcelDto> createSampleParcels(int count) {
+        List<ParcelDto> parcels = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            parcels.add(new ParcelDto(ParcelType.ONE, i, null));
+        }
+        return parcels;
+    }
+
+    private List<Truck> createSampleTrucks(int count) {
+        List<Truck> trucks = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            trucks.add(new Truck());
+        }
+        return trucks;
     }
 }
