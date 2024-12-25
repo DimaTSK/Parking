@@ -46,37 +46,11 @@ public class ParcelDistributor {
 
             for (ParcelDto pkg : group) {
                 if (!parcelService.addParcels(truck, pkg)) {
-                    throw new RuntimeException("Не хватает количества грузовиков для определения!");
+                    throw new RuntimeException("Не хватает места в грузовике для упаковки: " + pkg.getId());
                 }
             }
         }
 
-        log.info("Посылки распределены по грузовикам.");
-    }
-
-    public void placeParcels(List<ParcelDto> parcelDtoList, List<Truck> truckEntities, int maxTrucks) {
-        for (ParcelDto pkg : parcelDtoList) {
-            boolean placed = false;
-            for (Truck truck : truckEntities) {
-                if (parcelService.addParcels(truck, pkg)) {
-                    placed = true;
-                    break;
-                }
-            }
-
-            if (!placed) {
-                if (truckEntities.size() < maxTrucks) {
-                    Truck newTruck = new Truck();
-                    if (parcelService.addParcels(newTruck, pkg)) {
-                        truckEntities.add(newTruck);
-                    } else {
-                        throw new RuntimeException("Упаковка " + pkg.getType() + " с ID " + pkg.getId() +
-                                " не может быть размещена даже в новом грузовике.");
-                    }
-                } else {
-                    throw new RuntimeException("Превышен лимит грузовиков: " + maxTrucks);
-                }
-            }
-        }
+        log.info("Посылки равномерно распределены по грузовикам.");
     }
 }

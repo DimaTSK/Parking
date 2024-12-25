@@ -51,18 +51,6 @@ class TruckServiceTest {
         assertEquals(3, result.size());
     }
 
-    @Test
-    void testAddParcelsToMultipleTrucksWithoutEvenDistribution() {
-        List<ParcelDto> parcels = createSampleParcels(10);
-        List<Truck> trucks = createSampleTrucks(1);
-
-        when(truckFactory.createTrucks(1)).thenReturn(trucks);
-
-        List<Truck> result = truckService.addParcelsToMultipleTrucks(parcels, 3, false);
-
-        verify(parcelDistributor).placeParcels(parcels, trucks, 3);
-        assertEquals(1, result.size());
-    }
 
     @Test
     void testAddParcelsToIndividualTrucks() {

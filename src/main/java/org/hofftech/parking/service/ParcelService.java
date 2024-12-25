@@ -22,13 +22,14 @@ public class ParcelService {
     public boolean isWithinTruckBounds(Truck truck, List<String> shape, int startX, int startY, int height) {
         for (int y = 0; y < height; y++) {
             int rowWidth = shape.get(y).length();
-            if (startX + rowWidth > Truck.getWIDTH() || startY + y >= Truck.getHEIGHT()) {  // Изменено на Truck.getWIDTH() и Truck.getHEIGHT()
+            if (startX + rowWidth > Truck.getWIDTH() || startY + y >= Truck.getHEIGHT()) {
                 log.debug("Упаковка {} выходит за пределы грузовика", shape);
                 return false;
             }
         }
         return true;
     }
+
 
     public boolean isOverlappingWithExistingParcels(Truck truck, List<String> shape, int startX, int startY) {
         for (int y = 0; y < shape.size(); y++) {
@@ -42,15 +43,16 @@ public class ParcelService {
         return false;
     }
 
+
     public boolean addParcels(Truck truck, ParcelDto pkg) {
         log.info("Пытаемся добавить упаковку {} в грузовик.", pkg.getType());
         List<String> shape = pkg.getType().getShape();
         int height = shape.size();
 
-        for (int startY = 0; startY <= Truck.getHEIGHT() - height; startY++) {  // Изменено на Truck.getHEIGHT()
-            for (int startX = 0; startX <= Truck.getWIDTH() - shape.get(0).length(); startX++) {  // Изменено на Truck.getWIDTH()
+        for (int startY = 0; startY <= Truck.getHEIGHT() - height; startY++) {
+            for (int startX = 0; startX <= Truck.getWIDTH() - shape.get(0).length(); startX++) {
                 if (canAddParcel(truck, pkg, startX, startY)) {
-                    placeParcels(truck, pkg, startX, startY);
+                    placeParcel(truck, pkg, startX, startY);
                     return true;
                 }
             }
@@ -60,7 +62,8 @@ public class ParcelService {
         return false;
     }
 
-    public void placeParcels(Truck truck, ParcelDto pkg, int startX, int startY) {
+
+    private void placeParcel(Truck truck, ParcelDto pkg, int startX, int startY) {
         List<String> shape = pkg.getType().getShape();
 
         for (int y = 0; y < shape.size(); y++) {
@@ -73,5 +76,40 @@ public class ParcelService {
         pkg.setParcelPosition(new ParcelPosition(startX, startY));
         truck.getParcelDtos().add(pkg);
         log.info("Упаковка {} размещена на грузовике", pkg.getType());
+    }
+
+    public void placeParcels(List<ParcelDto> parcelDtoList, List<Truck> truckEntities, int maxTrucks) {
+        for (ParcelDto pkg : parcelDtoList) {
+            boolean placed = false;
+
+            for (Truck truck : truckEntities) {
+                if (addParcels(truck, pkg)) {
+                    placed = true;
+                    log.info("Упаковка {} размещена в существующем грузовике.", pkg.getType());
+                    break;
+                }
+            }
+
+            if (!placed) {
+                if (truckEntities.size() < maxTrucks) {
+                    Truck newTruck = new Truck();
+                    log.info("Создаётся новый грузовик для размещения упаковки {}.", pkg.getType());
+                    if (addParcels(newTruck, pkg)) {
+                        truckEntities.add(newTruck);
+                        placed = true;
+                        log.info("Упаковка {} размещена в новом грузовике.", pkg.getType());
+                    } else {
+                        log.error("Упаковка {} с ID {} не может быть размещена даже в новом грузовике.",
+                                pkg.getType(), pkg.getId());
+                        throw new RuntimeException("Упаковка " + pkg.getType() + " с ID " + pkg.getId() +
+                                " не может быть размещена даже в новом грузовике.");
+                    }
+                } else {
+                    log.error("Превышен лимит грузовиков: {}", maxTrucks);
+                    throw new RuntimeException("Превышен лимит грузовиков: " + maxTrucks);
+                }
+            }
+        }
+        log.info("Все посылки успешно размещены по грузовикам.");
     }
 }

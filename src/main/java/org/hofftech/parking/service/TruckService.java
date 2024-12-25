@@ -27,7 +27,7 @@ public class TruckService {
         if (evenAlg) {
             parcelDistributor.distributeParcelsEvenly(parcelDtoList, truckEntities);
         } else {
-            parcelDistributor.placeParcels(parcelDtoList, truckEntities, maxTrucks);
+            parcelService.placeParcels(parcelDtoList, truckEntities, maxTrucks);
         }
 
         log.info("Посылки размещены, количество грузовиков: {}", truckEntities.size());
