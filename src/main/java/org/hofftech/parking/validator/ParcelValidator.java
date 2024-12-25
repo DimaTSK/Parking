@@ -1,6 +1,7 @@
 package org.hofftech.parking.validator;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.hofftech.parking.exception.InvalidJsonStructureException;
 import org.hofftech.parking.model.dto.ParcelDto;
 import org.hofftech.parking.model.enums.ParcelType;
@@ -8,26 +9,33 @@ import org.hofftech.parking.model.enums.ParcelType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class ParcelValidator {
 
-    public boolean isValidParcels(List<ParcelDto> parcelDtos) {
-        List<ParcelDto> invalidParcelDtos = new ArrayList<>();
-        for (ParcelDto pkg : parcelDtos) {
-            if (!isValidParcel(pkg)) {
-                invalidParcelDtos.add(pkg);
-            }
+    public boolean isValidFile(List<String> lines) {
+        if (CollectionUtils.isEmpty(lines)) {
+            log.error("Файл пустой.");
+            return false;
         }
+        log.info("Файл проверен, количество строк: {}", lines.size());
+        return true;
+    }
+
+    public boolean isValidParcels(List<ParcelDto> parcelDtos) {
+        List<ParcelDto> invalidParcelDtos = parcelDtos.stream()
+                .filter(pkg -> !isValidParcel(pkg))
+                .collect(Collectors.toList());
+
         if (!invalidParcelDtos.isEmpty()) {
-            for (ParcelDto invalidPkg : invalidParcelDtos) {
-                log.error("Упаковка с ID {} имеет некорректную форму: {}",
-                        invalidPkg.getId(), invalidPkg.getType().getShape());
-            }
+            invalidParcelDtos.forEach(invalidPkg -> log.error(
+                    "Посылка с ID {} имеет некорректную форму: {}",
+                    invalidPkg.getId(), invalidPkg.getType().getShape()));
             return false;
         }
 
-        log.info("Все упаковки успешно.");
+        log.info("Все посылки успешно валидированы.");
         return true;
     }
 
@@ -35,28 +43,25 @@ public class ParcelValidator {
         ParcelType type = pkg.getType();
         List<String> shape = type.getShape();
 
-        int maxWidth = 0;
-        for (String row : shape) {
-            maxWidth = Math.max(maxWidth, row.length());
+        if (shape.isEmpty()) {
+            log.error("Посылка с ID {} имеет пустую форму.", pkg.getId());
+            return false;
         }
 
+        int expectedLength = shape.get(0).length();
         for (String row : shape) {
-            if (row.length() < maxWidth) {
-                for (int x = row.length(); x < maxWidth; x++) {
-                    if (row.length() > x) {
-                        return false;
-                    }
-                }
+            if (row.length() != expectedLength) {
+                log.error("Посылка с ID {} имеет строки различной длины.", pkg.getId());
+                return false;
             }
         }
-
         return true;
     }
 
     public void validateJsonStructure(Map<String, Object> jsonData) {
         if (!jsonData.containsKey("trucks")) {
             log.error("Ошибка: JSON не содержит ключ 'trucks'.");
-            throw new InvalidJsonStructureException("Структура Json некорректа: отсутствует ключ 'trucks'.");
+            throw new InvalidJsonStructureException("Структура JSON некорректна: отсутствует ключ 'trucks'.");
         }
 
         List<Map<String, Object>> trucks = (List<Map<String, Object>>) jsonData.get("trucks");
@@ -65,8 +70,8 @@ public class ParcelValidator {
             List<Map<String, Object>> parcels = (List<Map<String, Object>>) truck.get("parcels");
             for (Map<String, Object> pkg : parcels) {
                 if (!pkg.containsKey("type")) {
-                    log.error("У одной из посылок отсутствует ключ 'type'");
-                    throw new InvalidJsonStructureException("Структура Json некорректа: у одной из посылок отсутствует ключ 'type'.");
+                    log.error("У одной из посылок отсутствует ключ 'type'.");
+                    throw new InvalidJsonStructureException("Структура JSON некорректна: у одной из посылок отсутствует ключ 'type'.");
                 }
             }
         }

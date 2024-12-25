@@ -118,7 +118,7 @@ public class FileProcessingService {
     }
 
     protected void validateFile(Path filePath, List<String> lines) {
-        if (!fileReader.isValidFile(lines)) {
+        if (!parcelValidator.isValidFile(lines)) {
             log.error("Файл не прошел валидацию: {}", filePath);
             throw new RuntimeException("Файл не прошел валидацию: " + filePath);
         }
