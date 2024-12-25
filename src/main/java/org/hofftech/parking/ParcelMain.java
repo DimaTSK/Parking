@@ -2,6 +2,7 @@ package org.hofftech.parking;
 
 import lombok.extern.slf4j.Slf4j;
 import org.hofftech.parking.factory.TruckFactory;
+import org.hofftech.parking.parcer.ParcelJsonParser;
 import org.hofftech.parking.parcer.ParcelParser;
 import org.hofftech.parking.processor.CommandProcessor;
 import org.hofftech.parking.processor.ConsoleCommandProcessor;
@@ -33,7 +34,8 @@ public class ParcelMain {
             ParcelParser parcelParser = new ParcelParser();
 
             JsonWriter jsonWriter = new JsonWriter();
-            JsonReader jsonReader = new JsonReader(parcelValidator);
+            ParcelJsonParser parcelJsonParser = new ParcelJsonParser();
+            JsonReader jsonReader = new JsonReader(parcelValidator, parcelJsonParser);
             TruckDataMapper truckDataMapper = new TruckDataMapper();
             JsonFileService jsonFileService = new JsonFileService(jsonWriter, jsonReader, truckDataMapper);
 

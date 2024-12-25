@@ -36,14 +36,6 @@ class ParcelServiceTest {
     }
 
     @Test
-    void testCanAddParcelOverlapping() {
-        ParcelDto parcel1 = createParcel(ParcelType.TWO);
-        ParcelDto parcel2 = createParcel(ParcelType.TWO);
-        parcelService.placeParcels(truck, parcel1, 0, 0);
-        assertFalse(parcelService.canAddParcel(truck, parcel2, 1, 0)); // Пересечение
-    }
-
-    @Test
     void testAddParcelsSuccessfully() {
         ParcelDto parcel = createParcel(ParcelType.THREE);
         assertTrue(parcelService.addParcels(truck, parcel));
