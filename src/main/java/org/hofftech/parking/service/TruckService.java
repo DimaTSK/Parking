@@ -11,9 +11,11 @@ import java.util.List;
 @Slf4j
 public class TruckService {
     private final ParcelService parcelService;
+    private final TruckFactory truckFactory;
 
-    public TruckService(ParcelService parcelService) {
+    public TruckService(ParcelService parcelService, TruckFactory truckFactory) {
         this.parcelService = parcelService;
+        this.truckFactory = truckFactory;
     }
 
     public List<Truck> addParcelsToMultipleTrucks(List<ParcelDto> parcelDtoList, int maxTrucks, Boolean evenAlg) {
@@ -23,10 +25,10 @@ public class TruckService {
         List<Truck> truckEntities;
 
         if (!evenAlg) {
-            truckEntities = TruckFactory.createTrucks(1);
+            truckEntities = truckFactory.createTrucks(1);
             placeParcels(parcelDtoList, truckEntities, maxTrucks);
         } else {
-            truckEntities = TruckFactory.createTrucks(maxTrucks);
+            truckEntities = truckFactory.createTrucks(maxTrucks);
             distributeParcelsEvenly(parcelDtoList, truckEntities);
         }
 

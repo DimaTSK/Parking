@@ -8,6 +8,7 @@ import org.hofftech.parking.service.*;
 import org.hofftech.parking.utill.ParcelParser;
 import org.hofftech.parking.utill.FileReader;
 import org.hofftech.parking.utill.ParcelValidator;
+import org.hofftech.parking.utill.TruckFactory;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
@@ -21,7 +22,8 @@ public class ParcelMain {
         log.info("Программа начала работу.");
 
         ParcelService parcelService = new ParcelService();
-        TruckService truckService = new TruckService(parcelService);
+        TruckFactory truckFactory = new TruckFactory();
+        TruckService truckService = new TruckService(parcelService, truckFactory);
         ParcelValidator parcelValidator = new ParcelValidator();
         Scanner scanner = new Scanner(System.in);
         FileReader fileReader = new FileReader();

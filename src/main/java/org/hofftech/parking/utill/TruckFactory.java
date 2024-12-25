@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TruckFactory {
-    public static List<Truck> createTrucks(int countOfTrucks) {
+    public List<Truck> createTrucks(int countOfTrucks) {
         List<Truck> truckEntities = new ArrayList<>();
         for (int i = 0; i < countOfTrucks; i++) {
             truckEntities.add(new Truck());
