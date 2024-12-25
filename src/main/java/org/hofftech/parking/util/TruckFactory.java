@@ -1,4 +1,4 @@
-package org.hofftech.parking.utill;
+package org.hofftech.parking.util;
 
 import org.hofftech.parking.model.entity.Truck;
 

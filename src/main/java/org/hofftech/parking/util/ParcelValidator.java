@@ -1,4 +1,4 @@
-package org.hofftech.parking.utill;
+package org.hofftech.parking.util;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -6,7 +6,6 @@ import org.hofftech.parking.exception.InvalidJsonStructureException;
 import org.hofftech.parking.model.dto.ParcelDto;
 import org.hofftech.parking.model.enums.ParcelType;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;

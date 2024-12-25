@@ -5,7 +5,7 @@ import org.hofftech.parking.exception.FileProcessingException;
 import org.hofftech.parking.exception.ParcelCreationException;
 import org.hofftech.parking.model.dto.ParcelDto;
 import org.hofftech.parking.model.entity.Truck;
-import org.hofftech.parking.utill.*;
+import org.hofftech.parking.util.*;
 
 import java.nio.file.Path;
 import java.util.List;

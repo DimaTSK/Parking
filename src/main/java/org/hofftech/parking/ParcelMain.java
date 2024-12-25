@@ -5,8 +5,8 @@ import org.hofftech.parking.processor.CommandProcessor;
 import org.hofftech.parking.processor.ConsoleCommandProcessor;
 import org.hofftech.parking.listener.ConsoleListener;
 import org.hofftech.parking.service.*;
-import org.hofftech.parking.utill.*;
-import org.hofftech.parking.utill.mapper.TruckDataMapper;
+import org.hofftech.parking.util.*;
+import org.hofftech.parking.util.mapper.TruckDataMapper;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;

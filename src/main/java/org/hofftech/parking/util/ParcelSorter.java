@@ -1,4 +1,4 @@
-package org.hofftech.parking.utill;
+package org.hofftech.parking.util;
 
 import lombok.extern.slf4j.Slf4j;
 import org.hofftech.parking.model.dto.ParcelDto;

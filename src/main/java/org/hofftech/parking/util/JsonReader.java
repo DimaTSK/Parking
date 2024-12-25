@@ -1,4 +1,4 @@
-package org.hofftech.parking.utill;
+package org.hofftech.parking.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;

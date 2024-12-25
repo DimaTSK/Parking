@@ -2,20 +2,14 @@ package org.hofftech.parking.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.hofftech.parking.exception.DirectoryCreationException;
-import org.hofftech.parking.exception.MissingParcelPositionException;
 import org.hofftech.parking.model.enums.CommandConstants;
 import org.hofftech.parking.model.entity.Truck;
-import org.hofftech.parking.model.dto.ParcelDto;
-import org.hofftech.parking.model.dto.ParcelPosition;
-import org.hofftech.parking.utill.JsonReader;
-import org.hofftech.parking.utill.JsonWriter;
-import org.hofftech.parking.utill.ParcelValidator;
-import org.hofftech.parking.utill.mapper.TruckDataMapper;
+import org.hofftech.parking.util.JsonReader;
+import org.hofftech.parking.util.JsonWriter;
+import org.hofftech.parking.util.mapper.TruckDataMapper;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 

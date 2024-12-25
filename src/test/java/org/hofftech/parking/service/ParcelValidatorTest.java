@@ -3,11 +3,10 @@ package org.hofftech.parking.service;
 import org.hofftech.parking.exception.InvalidJsonStructureException;
 import org.hofftech.parking.model.dto.ParcelDto;
 import org.hofftech.parking.model.enums.ParcelType;
-import org.hofftech.parking.utill.ParcelValidator;
+import org.hofftech.parking.util.ParcelValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;

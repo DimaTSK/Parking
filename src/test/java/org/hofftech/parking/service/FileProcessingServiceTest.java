@@ -1,14 +1,14 @@
 package org.hofftech.parking.service;
 import org.hofftech.parking.model.entity.Truck;
-import org.hofftech.parking.utill.ParcelParser;
-import org.hofftech.parking.utill.ParcelValidator;
+import org.hofftech.parking.util.ParcelParser;
+import org.hofftech.parking.util.ParcelValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import org.hofftech.parking.utill.FileReader;
+import org.hofftech.parking.util.FileReader;
 
 import java.io.IOException;
 import java.nio.file.Path;
