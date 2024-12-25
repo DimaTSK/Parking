@@ -17,9 +17,7 @@ public class FileSaving {
                 writer.write(line);
                 writer.newLine();
             }
-        } catch (IOException e) {
-            log.error("Ошибка при сохранении посылок в файл: {}", e.getMessage());
-            throw e;
+            log.info("Посылки сохранены в файл: {}", outputFile.getAbsolutePath());
         }
-        log.info("Посылки сохранены в файл: {}", outputFile.getAbsolutePath());
-    }}
+    }
+}

@@ -105,19 +105,6 @@ public class TruckService {
         }
     }
 
-    private static List<Truck> createTruck(int countOfTrucks) {
-        List<Truck> truckEntities = new ArrayList<>();
-        Truck currentTruck = new Truck();
-        truckEntities.add(currentTruck);
-        if (countOfTrucks > 1) {
-            for (int i = truckEntities.size(); i < countOfTrucks; i++) {
-                truckEntities.add(new Truck());
-            }
-        }
-        log.info("Создан первый грузовик.");
-        return truckEntities;
-    }
-
     private static void sortParcels(List<ParcelDto> parcelDtoList) {
         parcelDtoList.sort(TruckService::compareParcels);
         log.info("Упаковки отсортированы по высоте и ширине.");

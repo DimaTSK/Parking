@@ -11,11 +11,9 @@ import java.util.List;
 public class FileReader {
     public List<String> readAllLines(Path filePath) throws IOException {
         if (!Files.exists(filePath)) {
-            log.error("Файла не существует: {}", filePath);
             throw new IOException("Файла не существует: " + filePath);
         }
         if (!Files.isReadable(filePath)) {
-            log.error("Файл недоступен на чтения: {}", filePath);
             throw new IOException("Файл недоступен на чтения: " + filePath);
         }
         log.info("Чтение из файла: {}", filePath);
