@@ -22,7 +22,7 @@ public class ParcelService {
     public boolean isWithinTruckBounds(Truck truck, List<String> shape, int startX, int startY, int height) {
         for (int y = 0; y < height; y++) {
             int rowWidth = shape.get(y).length();
-            if (startX + rowWidth > truck.getWIDTH() || startY + y >= truck.getHEIGHT()) {
+            if (startX + rowWidth > Truck.getWIDTH() || startY + y >= Truck.getHEIGHT()) {  // Изменено на Truck.getWIDTH() и Truck.getHEIGHT()
                 log.debug("Упаковка {} выходит за пределы грузовика", shape);
                 return false;
             }
@@ -47,8 +47,8 @@ public class ParcelService {
         List<String> shape = pkg.getType().getShape();
         int height = shape.size();
 
-        for (int startY = 0; startY <= truck.getHEIGHT() - height; startY++) {
-            for (int startX = 0; startX <= truck.getWIDTH() - shape.get(0).length(); startX++) {
+        for (int startY = 0; startY <= Truck.getHEIGHT() - height; startY++) {  // Изменено на Truck.getHEIGHT()
+            for (int startX = 0; startX <= Truck.getWIDTH() - shape.get(0).length(); startX++) {  // Изменено на Truck.getWIDTH()
                 if (canAddParcel(truck, pkg, startX, startY)) {
                     placeParcels(truck, pkg, startX, startY);
                     return true;

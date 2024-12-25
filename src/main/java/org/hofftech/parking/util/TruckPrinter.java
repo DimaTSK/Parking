@@ -17,15 +17,23 @@ public class TruckPrinter {
         }
         log.info("Вывод завершён-------------");
     }
-
     private void printTruck(Truck truck) {
-        for (int y = truck.getHEIGHT() - 1; y >= 0; y--) {
+        char[][] grid = truck.getGrid();
+        if (grid == null || grid.length == 0) {
+            log.warn("Сетка грузовика пуста.");
+            return;
+        }
+
+        int height = grid.length;
+        int width = grid[0].length;
+
+        for (int y = height - 1; y >= 0; y--) {
             System.out.print("+");
-            for (int x = 0; x < truck.getWIDTH(); x++) {
-                System.out.print(truck.getGrid()[y][x]);
+            for (int x = 0; x < width; x++) {
+                System.out.print(grid[y][x]);
             }
             System.out.println("+");
         }
-        System.out.println("++++++++" + "\n");
+        System.out.println("+" + "-".repeat(width) + "+" + "\n");
     }
 }
