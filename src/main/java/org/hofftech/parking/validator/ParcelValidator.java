@@ -1,7 +1,6 @@
-package org.hofftech.parking.util;
+package org.hofftech.parking.validator;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
 import org.hofftech.parking.exception.InvalidJsonStructureException;
 import org.hofftech.parking.model.dto.ParcelDto;
 import org.hofftech.parking.model.enums.ParcelType;

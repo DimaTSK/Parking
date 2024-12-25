@@ -3,7 +3,7 @@ package org.hofftech.parking.service;
 import lombok.extern.slf4j.Slf4j;
 import org.hofftech.parking.model.entity.Truck;
 import org.hofftech.parking.model.dto.ParcelDto;
-import org.hofftech.parking.util.TruckFactory;
+import org.hofftech.parking.factory.TruckFactory;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -3,7 +3,7 @@ package org.hofftech.parking.service;
 import org.hofftech.parking.model.dto.ParcelDto;
 import org.hofftech.parking.model.entity.Truck;
 import org.hofftech.parking.model.enums.ParcelType;
-import org.hofftech.parking.util.TruckFactory;
+import org.hofftech.parking.factory.TruckFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

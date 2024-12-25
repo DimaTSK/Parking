@@ -3,6 +3,7 @@ package org.hofftech.parking.util;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.hofftech.parking.model.enums.ParcelType;
+import org.hofftech.parking.validator.ParcelValidator;
 
 import java.io.File;
 import java.io.IOException;

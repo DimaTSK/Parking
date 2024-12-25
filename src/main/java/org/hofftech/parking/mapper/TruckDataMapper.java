@@ -1,4 +1,4 @@
-package org.hofftech.parking.util.mapper;
+package org.hofftech.parking.mapper;
 
 import org.hofftech.parking.exception.MissingParcelPositionException;
 import org.hofftech.parking.model.dto.ParcelDto;

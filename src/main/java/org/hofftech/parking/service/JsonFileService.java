@@ -6,7 +6,7 @@ import org.hofftech.parking.model.enums.CommandConstants;
 import org.hofftech.parking.model.entity.Truck;
 import org.hofftech.parking.util.JsonReader;
 import org.hofftech.parking.util.JsonWriter;
-import org.hofftech.parking.util.mapper.TruckDataMapper;
+import org.hofftech.parking.mapper.TruckDataMapper;
 
 import java.io.File;
 import java.io.IOException;

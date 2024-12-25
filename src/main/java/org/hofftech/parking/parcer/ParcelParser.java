@@ -1,4 +1,4 @@
-package org.hofftech.parking.util;
+package org.hofftech.parking.parcer;
 
 import lombok.extern.slf4j.Slf4j;
 import org.hofftech.parking.exception.ParcelCreationException;
