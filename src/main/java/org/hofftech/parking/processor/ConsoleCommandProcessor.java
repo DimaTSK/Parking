@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.hofftech.parking.model.dto.CommandContext;
 import org.hofftech.parking.model.enums.CommandConstants;
 import org.hofftech.parking.service.FileProcessingService;
-import org.hofftech.parking.service.JsonProcessingService;
+import org.hofftech.parking.service.JsonFileService;
 import org.hofftech.parking.utill.FileSaving;
 
 import java.io.IOException;
@@ -14,11 +14,11 @@ import java.util.List;
 @Slf4j
 public class ConsoleCommandProcessor implements CommandProcessor {
     private final FileProcessingService fileProcessingService;
-    private final JsonProcessingService jsonProcessingService;
+    private final JsonFileService jsonFileService;
 
-    public ConsoleCommandProcessor(FileProcessingService fileProcessingService, JsonProcessingService jsonProcessingService) {
+    public ConsoleCommandProcessor(FileProcessingService fileProcessingService, JsonFileService jsonFileService) {
         this.fileProcessingService = fileProcessingService;
-        this.jsonProcessingService = jsonProcessingService;
+        this.jsonFileService = jsonFileService;
     }
 
     @Override
@@ -42,7 +42,7 @@ public class ConsoleCommandProcessor implements CommandProcessor {
         if (command.startsWith("import_json ")) {
             String jsonFilePath = command.replace("import_json ", "").trim();
             try {
-                List<String> parcelsTypes = jsonProcessingService.importJson(jsonFilePath);
+                List<String> parcelsTypes = jsonFileService.importJson(jsonFilePath);
                 FileSaving.saveParcelsToFile(parcelsTypes, CommandConstants.OUTPUT_TXT.getValue());
             } catch (IOException e) {
                 log.error("Ошибка при обработке команды json: {}", e.getMessage(), e);

@@ -18,15 +18,15 @@ public class FileProcessingService {
     private final ParcelParser parcelParser;
     private final ParcelValidator parcelValidator;
     private final TruckService truckService;
-    private final JsonProcessingService jsonProcessingService;
+    private final JsonFileService jsonFileService;
 
     public FileProcessingService(FileReader fileReader, ParcelParser parcelParser,
-                                 ParcelValidator parcelValidator, TruckService truckService, JsonProcessingService jsonProcessingService) {
+                                 ParcelValidator parcelValidator, TruckService truckService, JsonFileService jsonFileService) {
         this.fileReader = fileReader;
         this.parcelParser = parcelParser;
         this.parcelValidator = parcelValidator;
         this.truckService = truckService;
-        this.jsonProcessingService = jsonProcessingService;
+        this.jsonFileService = jsonFileService;
     }
 
     public void processFile(Path filePath, boolean useEasyAlgorithm, boolean isSaveToFile, int maxTrucks, boolean lazyAlg) throws ParcelCreationException {
@@ -55,8 +55,9 @@ public class FileProcessingService {
     protected void saveTrucksToFile(List<Truck> truckEntities) {
         try {
             log.info("Сохранение загруженных грузовиков в JSON");
-            jsonProcessingService.saveToJson(truckEntities);
+            jsonFileService.saveTrucksToJson(truckEntities);  // Использование метода saveTrucksToJson
         } catch (Exception e) {
+            log.error("Ошибка при сохранении в JSON", e);
             throw new RuntimeException("Ошибка при сохранении в JSON", e);
         }
     }

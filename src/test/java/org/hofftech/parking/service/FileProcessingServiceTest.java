@@ -34,7 +34,7 @@ class FileProcessingServiceTest {
     private TruckService truckService;
 
     @Mock
-    private JsonProcessingService jsonProcessingService;
+    private JsonFileService jsonFileService;
 
     @InjectMocks
     private FileProcessingService fileProcessingService;
@@ -73,10 +73,10 @@ class FileProcessingServiceTest {
     void testSaveTrucksToFile_Exception() {
         List<Truck> truckEntities = Collections.singletonList(new Truck());
 
-        doThrow(new RuntimeException("Ошибка сохранения")).when(jsonProcessingService).saveToJson(any());
+        doThrow(new RuntimeException("Ошибка сохранения")).when(jsonFileService).saveToJson(any());
 
         assertThrows(RuntimeException.class, () -> fileProcessingService.saveTrucksToFile(truckEntities));
 
-        verify(jsonProcessingService).saveToJson(truckEntities);
+        verify(jsonFileService).saveToJson(truckEntities);
     }
 }

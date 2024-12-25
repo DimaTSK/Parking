@@ -1,7 +1,7 @@
 package org.hofftech.parking.processor;
 
 import org.hofftech.parking.service.FileProcessingService;
-import org.hofftech.parking.service.JsonProcessingService;
+import org.hofftech.parking.service.JsonFileService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -20,7 +20,7 @@ public class ConsoleCommandProcessorTest {
     private FileProcessingService fileProcessingService;
 
     @Mock
-    private JsonProcessingService jsonProcessingService;
+    private JsonFileService jsonFileService;
 
     @InjectMocks
     private ConsoleCommandProcessor consoleCommandProcessor;
@@ -33,16 +33,16 @@ public class ConsoleCommandProcessorTest {
     @Test
     public void testHandle_ExitCommand() {
         consoleCommandProcessor.handle("exit");
-        verifyNoInteractions(fileProcessingService, jsonProcessingService);
+        verifyNoInteractions(fileProcessingService, jsonFileService);
     }
 
     @Test
     public void testHandle_ImportJsonCommand() throws IOException {
-        when(jsonProcessingService.importJson("input.json")).thenReturn(List.of("ONE", "TWO"));
+        when(jsonFileService.importJson("input.json")).thenReturn(List.of("ONE", "TWO"));
 
         consoleCommandProcessor.handle("import_json input.json");
 
-        verify(jsonProcessingService).importJson("input.json");
+        verify(jsonFileService).importJson("input.json");
     }
 
 
