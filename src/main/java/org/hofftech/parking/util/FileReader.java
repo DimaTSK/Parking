@@ -1,6 +1,7 @@
 package org.hofftech.parking.util;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -18,5 +19,13 @@ public class FileReader {
         }
         log.info("Чтение из файла: {}", filePath);
         return Files.readAllLines(filePath);
+    }
+    public boolean isValidFile(List<String> lines) {
+        if (CollectionUtils.isEmpty(lines)) {
+            log.error("Файл пустой.");
+            return false;
+        }
+        log.info("Файл проверен, количество строк: {}", lines.size());
+        return true;
     }
 }

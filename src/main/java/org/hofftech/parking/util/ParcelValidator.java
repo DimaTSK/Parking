@@ -13,15 +13,6 @@ import java.util.Map;
 @Slf4j
 public class ParcelValidator {
 
-    public boolean isValidFile(List<String> lines) {
-        if (CollectionUtils.isEmpty(lines)) {
-            log.error("Файл пустой.");
-            return false;
-        }
-        log.info("Файл проверен, количество строк: {}", lines.size());
-        return true;
-    }
-
     public boolean isValidParcels(List<ParcelDto> parcelDtos) {
         List<ParcelDto> invalidParcelDtos = new ArrayList<>();
         for (ParcelDto pkg : parcelDtos) {
