@@ -2,26 +2,44 @@ plugins {
     id 'java'
 }
 
-group = 'org.example'
+group = 'org.hofftech'
 version = '1.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
 }
 
+ext {
+    versions = [
+            commonsCollections: '4.4',
+            jackson: '2.15.2',
+            lombok: '1.18.30',
+            logback: '1.5.16',
+            slf4j: '2.0.9',
+            junitBom: '5.10.0',
+            assertj: '3.23.1',
+            mockito: '5.5.0',
+            telegram: '6.9.7.1'
+    ]
+}
+
 dependencies {
-    implementation 'org.slf4j:slf4j-api:1.7.36'
-    implementation 'ch.qos.logback:logback-classic:1.4.12'
-    implementation 'org.projectlombok:lombok:1.18.30'
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
-    implementation 'org.apache.commons:commons-collections4:4.4'
+    implementation "org.apache.commons:commons-collections4:${versions.commonsCollections}"
+    implementation "com.fasterxml.jackson.core:jackson-databind:${versions.jackson}"
+    implementation "ch.qos.logback:logback-classic:${versions.logback}"
+    implementation "org.slf4j:slf4j-api:${versions.slf4j}"
+    implementation "org.telegram:telegrambots:${versions.telegram}"
 
-    annotationProcessor 'org.projectlombok:lombok:1.18.30'
 
-    testImplementation platform('org.junit:junit-bom:5.10.0')
+    compileOnly "org.projectlombok:lombok:${versions.lombok}"
+    annotationProcessor "org.projectlombok:lombok:${versions.lombok}"
+
+    testCompileOnly "org.projectlombok:lombok:${versions.lombok}"
+    testAnnotationProcessor "org.projectlombok:lombok:${versions.lombok}"
+    testImplementation platform("org.junit:junit-bom:${versions.junitBom}")
     testImplementation 'org.junit.jupiter:junit-jupiter'
-    testImplementation 'org.assertj:assertj-core:3.23.1'
-    testImplementation 'org.mockito:mockito-core:5.5.0'
+    testImplementation "org.assertj:assertj-core:${versions.assertj}"
+    testImplementation "org.mockito:mockito-core:${versions.mockito}"
 }
 
 test {

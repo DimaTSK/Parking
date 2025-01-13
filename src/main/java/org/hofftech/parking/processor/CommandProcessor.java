@@ -1,6 +1,7 @@
 package org.hofftech.parking.processor;
 
-public interface CommandProcessor {
+import org.hofftech.parking.model.ParsedCommand;
 
-    void handle(String command);
+public interface CommandProcessor {
+    void execute(ParsedCommand command);
 }

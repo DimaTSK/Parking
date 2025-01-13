@@ -1,17 +1,19 @@
 package org.hofftech.parking.model.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-import org.hofftech.parking.model.enums.ParcelType;
+import lombok.Data;
 
-@Getter
-@Setter
-@ToString
-@AllArgsConstructor
+import java.util.List;
+
+@Data
 public class ParcelDto {
-    private final ParcelType type;
-    private final int id;
-    private ParcelPosition parcelPosition;
+    private String name;
+    private List<String> shape;
+    private char symbol;
+    private PositionDto startPosition;
+
+    @Data
+    public static class PositionDto {
+        private int x;
+        private int y;
+    }
 }
