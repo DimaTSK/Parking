@@ -1,4 +1,4 @@
-package org.hofftech.parking.service.validator;
+package org.hofftech.parking.validator;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;

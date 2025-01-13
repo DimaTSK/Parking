@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.hofftech.parking.model.Parcel;
 import org.hofftech.parking.model.ParsedCommand;
 import org.hofftech.parking.repository.ParcelRepository;
-import org.hofftech.parking.service.validator.ParcelValidator;
+import org.hofftech.parking.validator.ParcelValidator;
 
 import java.util.List;
 

@@ -6,7 +6,7 @@ import org.hofftech.parking.model.Parcel;
 import org.hofftech.parking.model.Truck;
 import org.hofftech.parking.service.strategy.DefaultPackingStrategy;
 import org.hofftech.parking.service.strategy.PackingStrategyFactory;
-import org.hofftech.parking.service.validator.ParcelValidator;
+import org.hofftech.parking.validator.ParcelValidator;
 import org.hofftech.parking.util.FileReaderUtil;
 
 import java.nio.file.Path;
