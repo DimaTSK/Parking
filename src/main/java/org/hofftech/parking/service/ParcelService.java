@@ -102,6 +102,4 @@ public class ParcelService {
         truck.getParcels().add(parcel);
         log.info("Упаковка {} размещена на грузовике", parcel.getName());
     }
-
-
 }
