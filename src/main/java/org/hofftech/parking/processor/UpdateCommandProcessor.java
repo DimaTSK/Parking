@@ -26,7 +26,6 @@ public class UpdateCommandProcessor implements CommandProcessor {
 
         try {
             String newName = command.getName() != null ? command.getName() : existingParcel.getName();
-            boolean nameChanged = !newName.equals(existingParcel.getName());
 
             if (command.getSymbol() != null) {
                 char newSymbol = command.getSymbol().charAt(0);
@@ -35,19 +34,20 @@ public class UpdateCommandProcessor implements CommandProcessor {
                 }
             }
 
-            List<String> newShape = command.getForm() != null ? ParcelValidator.isAbleToParseForm(command.getForm())
+            List<String> newShape = command.getForm() != null
+                    ? ParcelValidator.isAbleToParseForm(command.getForm())
                     : existingParcel.getShape();
 
             Parcel updatedParcel = new Parcel(newName, newShape, existingParcel.getSymbol(), existingParcel.getParcelStartPosition());
 
-            if (nameChanged) {
+            if (!newName.equals(existingParcel.getName())) {
                 repository.deletePackage(currentName);
                 repository.addPackage(updatedParcel);
+                log.info("Посылка '{}' успешно переименована и обновлена.", currentName);
             } else {
                 repository.editPackage(currentName, updatedParcel);
+                log.info("Посылка '{}' успешно обновлена.", currentName);
             }
-
-            log.info("Посылка '{}' успешно обновлена.", currentName);
 
             StringBuilder output = new StringBuilder();
             output.append("Обновлённая посылка:\n");
