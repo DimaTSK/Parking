@@ -19,14 +19,33 @@ public class Parcel {
     private char symbol;
     private ParcelStartPosition parcelStartPosition;
 
+    /**
+     * Возвращает ширину пакета, основанную на длине первой строки формы.
+     *
+     * @return Ширина пакета.
+     */
     public int getWidth() {
-        return shape.getFirst().length();
+        if (shape == null || shape.isEmpty()) {
+            return 0;
+        }
+        return shape.get(0).length();
     }
 
+    /**
+     * Возвращает высоту пакета, основанную на количестве строк в форме.
+     *
+     * @return Высота пакета.
+     */
     public int getHeight() {
-        return shape.size();
+        return (shape != null) ? shape.size() : 0;
     }
 
+    /**
+     * Обновляет символ, используемый в форме пакета.
+     * Заменяет все вхождения текущего символа на новый символ.
+     *
+     * @param newSymbol Новый символ для использования в форме.
+     */
     public void updateSymbol(char newSymbol) {
         if (shape == null || shape.isEmpty()) {
             return;
@@ -41,11 +60,15 @@ public class Parcel {
         this.symbol = newSymbol;
     }
 
+    /**
+     * Возвращает перевёрнутую форму пакета.
+     * Порядок строк в форме инвертируется.
+     *
+     * @return Перевёрнутая форма как список строк.
+     */
     public List<String> getUniqueShape() {
         List<String> reversedShape = new ArrayList<>(this.shape);
         Collections.reverse(reversedShape);
         return reversedShape;
     }
-
-
 }

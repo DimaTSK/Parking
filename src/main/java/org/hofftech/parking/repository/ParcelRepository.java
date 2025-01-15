@@ -1,6 +1,6 @@
 package org.hofftech.parking.repository;
 
-import org.hofftech.parking.model.DefaultPackagesType;
+import org.hofftech.parking.model.enums.DefaultPackagesType;
 import org.hofftech.parking.model.Parcel;
 import org.hofftech.parking.model.ParcelStartPosition;
 

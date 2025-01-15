@@ -1,4 +1,4 @@
-package org.hofftech.parking.model;
+package org.hofftech.parking.model.enums;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

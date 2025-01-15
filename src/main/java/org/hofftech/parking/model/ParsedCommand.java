@@ -3,6 +3,7 @@ package org.hofftech.parking.model;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import org.hofftech.parking.model.enums.CommandType;
 
 @Getter
 @Setter

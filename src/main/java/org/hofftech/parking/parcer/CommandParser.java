@@ -1,6 +1,6 @@
 package org.hofftech.parking.parcer;
 
-import org.hofftech.parking.model.CommandType;
+import org.hofftech.parking.model.enums.CommandType;
 import org.hofftech.parking.model.ParsedCommand;
 
 import java.util.HashMap;
