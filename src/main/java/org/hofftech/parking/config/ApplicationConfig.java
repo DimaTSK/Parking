@@ -20,11 +20,53 @@ import org.hofftech.parking.util.telegram.TelegramPrintStream;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
+/**
+ * Конфигурационный класс приложения.
+ * <p>
+ * Этот класс отвечает за инициализацию всех необходимых зависимостей и компонентов
+ * приложения, включая консольный слушатель и Telegram-бота. Он создает экземпляры
+ * сервисов, фабрик и других компонентов, необходимых для работы приложения.
+ * </p>
+ *
+ * <p>
+ * Основные компоненты включают:
+ * <ul>
+ *     <li>{@link ConsoleListener} для прослушивания команд пользователя в консоли.</li>
+ *     <li>{@link CommandHandlerImpl} для обработки пользовательских команд.</li>
+ *     <li>Инициализацию Telegram-бота для взаимодействия через Telegram.</li>
+ * </ul>
+ * </p>
+ *
+ * <p>
+ * При создании экземпляра этого класса выполняется загрузка стандартных пакетов
+ * в {@link ParcelRepository} и настройка всех необходимых сервисов и фабрик.
+ * Также настраивается вывод System.out в Telegram через {@link TelegramPrintStream}.
+ * </p>
+ *
+ * <p>
+ * Добавлен также обработчик завершения работы приложения для корректного
+ * завершения работы Telegram-бота.
+ * </p>
+ *
+ * @author
+ * @version 1.0
+ */
 @Getter
 @Slf4j
 public class ApplicationConfig {
+    /**
+     * Консольный слушатель для обработки команд пользователя.
+     */
     private final ConsoleListener consoleListener;
 
+    /**
+     * Конструктор класса {@link ApplicationConfig}.
+     * <p>
+     * В процессе инициализации создаются и настраиваются все необходимые зависимости,
+     * включая репозиторий посылок, сервисы, фабрики процессоров команд и стратегии упаковки,
+     * а также инициализируется Telegram-бот.
+     * </p>
+     */
     public ApplicationConfig() {
         log.info("Создаем зависимости...");
         ParcelRepository parcelRepository = new ParcelRepository();
@@ -41,6 +83,16 @@ public class ApplicationConfig {
         initializeTelegram(commandHandlerImpl);
     }
 
+    /**
+     * Инициализирует Telegram-бота и настраивает интеграцию с консольным выводом.
+     * <p>
+     * Создает экземпляры необходимых компонентов для работы Telegram-бота, регистрирует бота
+     * и перенаправляет стандартный вывод {@code System.out} в Telegram через {@link TelegramPrintStream}.
+     * Также добавляет обработчик завершения работы для корректного закрытия потоков.
+     * </p>
+     *
+     * @param commandHandlerImpl обработчик команд, используемый Telegram-ботом
+     */
     private static void initializeTelegram(CommandHandlerImpl commandHandlerImpl) {
         try {
             TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
@@ -62,6 +114,18 @@ public class ApplicationConfig {
         }
     }
 
+    /**
+     * Создает и возвращает экземпляр {@link CommandProcessorFactory} с необходимыми зависимостями.
+     * <p>
+     * Инициализирует сервисы парсинга и обработки файлов, а также фабрику стратегий упаковки,
+     * которые затем используются для создания фабрики процессоров команд.
+     * </p>
+     *
+     * @param parcelValidator валидатор посылок
+     * @param truckService сервис управления грузовиками
+     * @param parcelRepository репозиторий для управления посылками
+     * @return экземпляр {@link CommandProcessorFactory}
+     */
     private static CommandProcessorFactory getCommandProcessorFactory(
             ParcelValidator parcelValidator, TruckService truckService, ParcelRepository parcelRepository) {
         ParsingService parsingService = new ParsingService(parcelRepository);
