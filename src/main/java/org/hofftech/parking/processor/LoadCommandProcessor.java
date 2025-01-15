@@ -11,11 +11,42 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Обработчик команды загрузки посылок. Реализует интерфейс {@link CommandProcessor}.
+ *
+ * <p>Этот класс отвечает за обработку команды загрузки посылок из текстового ввода или файла.
+ * Он использует {@link FileProcessingService} для обработки данных о посылках и грузовиках,
+ * а также управляет выбором алгоритмов обработки и сохранением результатов.</p>
+ *
+ * <p>Возможные источники посылок:
+ * <ul>
+ *     <li>Текстовый ввод {@code parcelsText}</li>
+ *     <li>Файл {@code parcelsFile}</li>
+ * </ul>
+ * </p>
+ */
 @RequiredArgsConstructor
 @Slf4j
 public class LoadCommandProcessor implements CommandProcessor {
     private final FileProcessingService fileProcessingService;
 
+    /**
+     * Выполняет обработку команды загрузки посылок.
+     *
+     * <p>Метод выполняет следующие шаги:
+     * <ul>
+     *     <li>Извлекает параметры команды из объекта {@link ParsedCommand}.</li>
+     *     <li>Разбирает список грузовиков из текстового ввода, если он предоставлен.</li>
+     *     <li>Если предоставлен текстовый ввод посылок, вызывает {@link FileProcessingService#processFile} с текстом.</li>
+     *     <li>Если предоставлен файл с посылками, вызывает {@link FileProcessingService#processFile} с путем к файлу.</li>
+     *     <li>Логирует успешную обработку посылок.</li>
+     *     <li>Если ни текстовый ввод, ни файл не предоставлены, выбрасывает {@link CommandProcessingException}.</li>
+     * </ul>
+     * </p>
+     *
+     * @param command объект {@link ParsedCommand}, содержащий данные для выполнения команды загрузки
+     * @throws CommandProcessingException если ни текстовый ввод, ни файл с посылками не указаны
+     */
     @Override
     public void execute(ParsedCommand command) {
         String parcelsText = command.getParcelsText();

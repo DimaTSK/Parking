@@ -9,12 +9,33 @@ import org.hofftech.parking.validator.ParcelValidator;
 
 import java.util.List;
 
+/**
+ * Обработчик команды обновления посылки. Реализует интерфейс {@link CommandProcessor}.
+ *
+ * <p>Этот класс отвечает за обработку команды обновления существующей посылки.
+ * Он осуществляет поиск посылки по текущему имени, обновление её свойств и сохранение изменений в репозитории.
+ * </p>
+ */
 @RequiredArgsConstructor
 @Slf4j
 public class UpdateCommandProcessor implements CommandProcessor {
     private final ParcelRepository repository;
     private static final int FIRST_CHARACTER_INDEX = 0;
 
+    /**
+     * Выполняет обработку команды обновления посылки.
+     *
+     * <p>Метод выполняет следующие шаги:
+     * <ul>
+     *     <li>Находит существующую посылку по текущему имени.</li>
+     *     <li>Обновляет имя, символ и форму посылки, если предоставлены новые значения.</li>
+     *     <li>Сохраняет обновленную посылку в репозитории, учитывая возможное изменение имени.</li>
+     *     <li>Логирует результат операции и выводит обновленную информацию о посылке.</li>
+     * </ul>
+     * </p>
+     *
+     * @param command объект {@link ParsedCommand}, содержащий данные для обновления посылки
+     */
     @Override
     public void execute(ParsedCommand command) {
         String currentName = command.getOldName();
@@ -61,4 +82,3 @@ public class UpdateCommandProcessor implements CommandProcessor {
         }
     }
 }
-

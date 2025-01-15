@@ -12,6 +12,14 @@ import org.hofftech.parking.validator.ParcelValidator;
 
 import java.util.List;
 
+/**
+ * Обработчик команды создания посылки. Реализует интерфейс {@link CommandProcessor}.
+ *
+ * <p>Этот класс отвечает за обработку команды создания новой посылки.
+ * Он валидирует входные данные, создает объект {@link Parcel} и сохраняет его
+ * в {@link ParcelRepository}. В случае ошибок обработки, соответствующие
+ * исключения логируются и выбрасываются для дальнейшей обработки.</p>
+ */
 @RequiredArgsConstructor
 @Slf4j
 public class CreateCommandProcessor implements CommandProcessor {
@@ -19,6 +27,25 @@ public class CreateCommandProcessor implements CommandProcessor {
 
     private static final char DEFAULT_SYMBOL = ' ';
 
+    /**
+     * Выполняет обработку команды создания новой посылки.
+     *
+     * <p>Метод выполняет следующие шаги:
+     * <ul>
+     *     <li>Извлекает имя и форму посылки из объекта {@link ParsedCommand}.</li>
+     *     <li>Проверяет наличие необходимых данных (имя и форма).</li>
+     *     <li>Определяет символ посылки, используя предоставленный символ или устанавливая символ по умолчанию.</li>
+     *     <li>Парсит и валидирует форму посылки с помощью {@link ParcelValidator}.</li>
+     *     <li>Создает новый объект {@link Parcel} с заданными параметрами.</li>
+     *     <li>Добавляет новый объект посылки в {@link ParcelRepository}.</li>
+     *     <li>Логирует успешное создание посылки и выводит форму посылки на консоль.</li>
+     * </ul>
+     * </p>
+     *
+     * @param command объект {@link ParsedCommand}, содержащий данные для создания посылки
+     * @throws InvalidCommandException    если отсутствуют необходимые данные для создания посылки
+     * @throws ParcelCreationException    если возникает ошибка при создании посылки из-за внутренней ошибки
+     */
     @Override
     public void execute(ParsedCommand command) {
         try {
