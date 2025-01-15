@@ -15,11 +15,14 @@ import java.util.List;
 public class CreateCommandProcessor implements CommandProcessor {
     private final ParcelRepository repository;
 
+    private static final char DEFAULT_SYMBOL = ' ';
+
     @Override
     public void execute(ParsedCommand command) {
         String name = command.getName();
         String form = command.getForm();
-        char symbol = command.getSymbol() != null ? command.getSymbol().charAt(0) : ' ';
+
+        char symbol = (command.getSymbol() != null) ? command.getSymbol().charAt(0) : DEFAULT_SYMBOL;
 
         if (name == null || form == null) {
             log.error("Недостаточно данных для создания посылки.");

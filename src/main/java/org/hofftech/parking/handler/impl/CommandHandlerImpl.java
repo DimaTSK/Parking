@@ -7,7 +7,7 @@ import org.hofftech.parking.handler.CommandHandler;
 import org.hofftech.parking.model.ParsedCommand;
 import org.hofftech.parking.parcer.CommandParser;
 import org.hofftech.parking.processor.CommandProcessor;
-import org.hofftech.parking.processor.CommandProcessorFactory;
+import org.hofftech.parking.factory.CommandProcessorFactory;
 
 @Slf4j
 @RequiredArgsConstructor
