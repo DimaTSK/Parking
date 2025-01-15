@@ -36,7 +36,7 @@ public class UpdateCommandProcessor implements CommandProcessor {
             }
 
             List<String> newShape = command.getForm() != null
-                    ? ParcelValidator.isAbleToParseForm(command.getForm())
+                    ? ParcelValidator.parseAndValidateForm(command.getForm())
                     : existingParcel.getShape();
 
             Parcel updatedParcel = new Parcel(newName, newShape, existingParcel.getSymbol(), existingParcel.getParcelStartPosition());

@@ -1,12 +1,7 @@
 package org.hofftech.parking.validator;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
 
-import java.util.List;
-
-
-import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 
 @Slf4j
@@ -21,7 +16,7 @@ public class ParcelValidator {
         return true;
     }
 
-    public static List<String> isAbleToParseForm(String form) {
+    public static List<String> parseAndValidateForm(String form) {
         if (form == null || form.isEmpty()) {
             throw new IllegalArgumentException("Форма посылки не указана.");
         }

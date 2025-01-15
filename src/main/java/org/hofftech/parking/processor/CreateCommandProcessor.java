@@ -12,9 +12,6 @@ import org.hofftech.parking.validator.ParcelValidator;
 
 import java.util.List;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
 @RequiredArgsConstructor
 @Slf4j
 public class CreateCommandProcessor implements CommandProcessor {
@@ -35,7 +32,7 @@ public class CreateCommandProcessor implements CommandProcessor {
             String symbolStr = command.getSymbol();
             char symbol = (symbolStr != null && !symbolStr.isEmpty()) ? symbolStr.charAt(0) : DEFAULT_SYMBOL;
 
-            List<String> shape = ParcelValidator.isAbleToParseForm(form);
+            List<String> shape = ParcelValidator.parseAndValidateForm(form);
             Parcel newParcel = new Parcel(name, shape, symbol, new ParcelStartPosition(0, 0));
             repository.addPackage(newParcel);
 
