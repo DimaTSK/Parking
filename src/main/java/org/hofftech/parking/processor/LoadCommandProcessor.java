@@ -2,9 +2,11 @@ package org.hofftech.parking.processor;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hofftech.parking.exception.CommandProcessingException;
 import org.hofftech.parking.model.ParsedCommand;
 import org.hofftech.parking.service.FileProcessingService;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,10 +31,14 @@ public class LoadCommandProcessor implements CommandProcessor {
 
         if (parcelsText != null && !parcelsText.isEmpty()) {
             fileProcessingService.processFile(null, parcelsText, trucksFromArgs, useEasyAlgorithm, saveToFile, useEvenAlgorithm);
+            log.info("Посылки успешно обработаны из текстового ввода.");
         } else if (parcelsFile != null && !parcelsFile.isBlank()) {
             fileProcessingService.processFile(Path.of(parcelsFile), null, trucksFromArgs, useEasyAlgorithm, saveToFile, useEvenAlgorithm);
+            log.info("Файл успешно импортирован из JSON: {}", parcelsFile);
         } else {
-            log.error("Ошибка: Укажите источник посылок (текст или файл)");
+            String errorMsg = "Ошибка: Укажите источник посылок (текст или файл)";
+            log.error(errorMsg);
+            throw new CommandProcessingException(errorMsg);
         }
     }
 }
