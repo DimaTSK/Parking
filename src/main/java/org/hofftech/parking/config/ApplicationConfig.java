@@ -14,7 +14,7 @@ import org.hofftech.parking.service.TelegramBotService;
 import org.hofftech.parking.service.TruckService;
 import org.hofftech.parking.validator.ParcelValidator;
 import org.hofftech.parking.factory.CommandProcessorFactory;
-import org.hofftech.parking.service.strategy.PackingStrategyFactory;
+import org.hofftech.parking.factory.PackingStrategyFactory;
 import org.hofftech.parking.util.telegram.TelegramAppender;
 import org.hofftech.parking.util.telegram.TelegramPrintStream;
 import org.telegram.telegrambots.meta.TelegramBotsApi;

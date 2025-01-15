@@ -8,7 +8,7 @@ import org.hofftech.parking.service.TruckService;
 import java.util.List;
 
 @AllArgsConstructor
-public class IndividualTruckStrategy implements DefaultPackingStrategy {
+public class IndividualTruckStrategy implements PackingStrategy {
     private final TruckService truckService;
 
     @Override

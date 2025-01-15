@@ -6,6 +6,6 @@ import org.hofftech.parking.model.Truck;
 import java.util.List;
 
 
-public interface DefaultPackingStrategy {
+public interface PackingStrategy {
     List<Truck> addPackages(List<Parcel> parcels, boolean useEasyAlgorithm, boolean useEvenAlgorithm, List<String> trucksFromArgs);
 }

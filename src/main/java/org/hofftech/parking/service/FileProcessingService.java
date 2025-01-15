@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hofftech.parking.model.Parcel;
 import org.hofftech.parking.model.Truck;
-import org.hofftech.parking.service.strategy.DefaultPackingStrategy;
-import org.hofftech.parking.service.strategy.PackingStrategyFactory;
+import org.hofftech.parking.service.strategy.PackingStrategy;
+import org.hofftech.parking.factory.PackingStrategyFactory;
 import org.hofftech.parking.validator.ParcelValidator;
 import org.hofftech.parking.util.FileReaderUtil;
 
@@ -28,7 +28,7 @@ public class FileProcessingService {
                             boolean saveToFile,
                             boolean useEvenAlg) {
         List<Parcel> parcels = getPackagesFromFileOrArgs(parcelsFile, parcelsText);
-        DefaultPackingStrategy strategy = packingStrategyFactory.getStrategy(useEasyAlg);
+        PackingStrategy strategy = packingStrategyFactory.getStrategy(useEasyAlg);
         List<Truck> trucks = strategy.addPackages(parcels, useEasyAlg, useEvenAlg, trucksFromArgs);
 
         if (saveToFile) {

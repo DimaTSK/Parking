@@ -9,7 +9,7 @@ import java.util.List;
 
 
 @AllArgsConstructor
-public class MultipleTruckStrategy implements DefaultPackingStrategy {
+public class MultipleTruckStrategy implements PackingStrategy {
     private final TruckService truckService;
 
     @Override
