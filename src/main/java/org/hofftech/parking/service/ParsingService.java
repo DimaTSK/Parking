@@ -15,7 +15,6 @@ import java.util.regex.Pattern;
 public class ParsingService {
     private final ParcelRepository parcelRepository;
 
-    // Константы для регулярных выражений и разделителей
     private static final Pattern PACKAGE_NAME_PATTERN = Pattern.compile("[“”\"]");
     private static final Pattern PACKAGE_DELIMITER_PATTERN = Pattern.compile(",");
 

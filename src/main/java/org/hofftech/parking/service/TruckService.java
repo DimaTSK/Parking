@@ -132,7 +132,7 @@ public class TruckService {
         }
     }
 
-    private static Truck createTruck(String providedTruckSize) {
+    private  Truck createTruck(String providedTruckSize) {
         if (providedTruckSize == null || providedTruckSize.isEmpty()) {
             providedTruckSize = TRUCK_STANDARD_SIZE;
         }
@@ -142,7 +142,7 @@ public class TruckService {
         return currentTruck;
     }
 
-    private static void sortPackages(List<Parcel> parcelList) {
+    private void sortPackages(List<Parcel> parcelList) {
         parcelList.sort((a, b) -> {
             int heightDiff = Integer.compare(b.getHeight(), a.getHeight());
             if (heightDiff == 0) {
