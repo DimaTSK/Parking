@@ -9,14 +9,32 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Класс, представляющий пакет с его формой и характеристиками.
+ */
 @Getter
 @Setter
 @ToString
 @AllArgsConstructor
 public class Parcel {
+    /**
+     * Название пакета.
+     */
     private String name;
+
+    /**
+     * Форма пакета, представленная списком строк.
+     */
     private List<String> shape;
+
+    /**
+     * Символ, используемый для отображения пакета.
+     */
     private char symbol;
+
+    /**
+     * Начальная позиция пакета.
+     */
     private ParcelStartPosition parcelStartPosition;
 
     /**
