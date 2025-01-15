@@ -1,5 +1,6 @@
 package org.hofftech.parking.parcer;
 
+import org.hofftech.parking.model.CommandFlags;
 import org.hofftech.parking.model.enums.CommandType;
 import org.hofftech.parking.model.ParsedCommand;
 
@@ -9,14 +10,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 public class CommandParser {
     private static final String PARAMETER_REGEX =
-            "-(?<flag>[a-zA-Z]+)\\s+\"(?<valueQuoted>[^\"]+)\"|-(?<flagAlt>[a-zA-Z]+)\\s+(?<valueUnquoted>[^\\s]+)";
+            "-(?<flag>[a-zA-Z]+)\\s+\"(?<valueQuoted>[^\"]+)\"|" +
+                    "-(?<flagAlt>[a-zA-Z]+)\\s+(?<valueUnquoted>[^\\s]+)";
 
     private static final Pattern PARAMETER_PATTERN = Pattern.compile(PARAMETER_REGEX);
 
@@ -55,15 +52,15 @@ public class CommandParser {
     }
 
     private ParsedCommand createParsedCommand(Map<String, String> parameters) {
-        boolean saveToFile = parameters.containsKey("-save");
-        boolean useEasyAlgorithm = parameters.containsKey("-easy");
-        boolean useEvenAlgorithm = parameters.containsKey("-even");
-        boolean withCount = parameters.containsKey("-withCount");
+        boolean saveToFile = parameters.containsKey(CommandFlags.SAVE);
+        boolean useEasyAlgorithm = parameters.containsKey(CommandFlags.EASY);
+        boolean useEvenAlgorithm = parameters.containsKey(CommandFlags.EVEN);
+        boolean withCount = parameters.containsKey(CommandFlags.WITH_COUNT);
 
-        String parcelsText = parameters.get("-parcelsText");
-        String parcelsFile = parameters.get("-parcelsFile");
-        String trucks = parameters.get("-trucks");
-        String inFile = parameters.get("-inFile");
+        String parcelsText = parameters.get(CommandFlags.PARCELS_TEXT);
+        String parcelsFile = parameters.get(CommandFlags.PARCELS_FILE);
+        String trucks = parameters.get(CommandFlags.TRUCKS);
+        String inFile = parameters.get(CommandFlags.IN_FILE);
 
         return new ParsedCommand(
                 saveToFile,
@@ -78,10 +75,9 @@ public class CommandParser {
     }
 
     private void setOptionalParameters(ParsedCommand parsedCommand, Map<String, String> parameters) {
-        parsedCommand.setName(parameters.get("-name"));
-        parsedCommand.setOldName(parameters.get("-oldName"));
-        parsedCommand.setForm(parameters.get("-form"));
-        parsedCommand.setSymbol(parameters.get("-symbol"));
+        parsedCommand.setName(parameters.get(CommandFlags.NAME));
+        parsedCommand.setOldName(parameters.get(CommandFlags.OLD_NAME));
+        parsedCommand.setForm(parameters.get(CommandFlags.FORM));
+        parsedCommand.setSymbol(parameters.get(CommandFlags.SYMBOL));
     }
-
 }
