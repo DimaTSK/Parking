@@ -6,18 +6,20 @@ import org.apache.commons.collections4.CollectionUtils;
 import java.util.List;
 
 
+import lombok.extern.slf4j.Slf4j;
+import java.util.List;
+
 @Slf4j
 public class ParcelValidator {
 
     public boolean isValidFile(List<String> lines) {
-        if (CollectionUtils.isEmpty(lines)) {
+        if (lines == null || lines.isEmpty()) {
             log.error("Файл пустой или не содержит данных.");
             return false;
         }
         log.info("Файл успешно проверен. Количество строк: {}", lines.size());
         return true;
     }
-
 
     public static List<String> isAbleToParseForm(String form) {
         if (form == null || form.isEmpty()) {

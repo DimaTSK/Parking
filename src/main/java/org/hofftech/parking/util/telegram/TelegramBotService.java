@@ -1,8 +1,6 @@
-package org.hofftech.parking.service;
+package org.hofftech.parking.util.telegram;
 
 import org.hofftech.parking.handler.impl.CommandHandlerImpl;
-import org.hofftech.parking.util.telegram.TelegramAppender;
-import org.hofftech.parking.util.telegram.TelegramPrintStream;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.objects.Update;
 

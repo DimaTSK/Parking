@@ -10,7 +10,7 @@ import org.hofftech.parking.service.FileProcessingService;
 import org.hofftech.parking.service.JsonProcessingService;
 import org.hofftech.parking.service.ParcelService;
 import org.hofftech.parking.service.ParsingService;
-import org.hofftech.parking.service.TelegramBotService;
+import org.hofftech.parking.util.telegram.TelegramBotService;
 import org.hofftech.parking.service.TruckService;
 import org.hofftech.parking.validator.ParcelValidator;
 import org.hofftech.parking.factory.CommandProcessorFactory;
