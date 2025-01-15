@@ -43,25 +43,36 @@ public class JsonProcessingService {
             return jsonString;
         } catch (IOException e) {
             log.error("Ошибка при записи JSON: {}", e.getMessage());
-            throw new RuntimeException(e);
+            throw new RuntimeException("Не удалось сохранить данные в JSON", e);
         }
     }
 
-    public List<Map.Entry<String, Long>> importPackagesFromJson(String jsonFilePath, boolean withCount) throws IOException {
+    public List<Map.Entry<String, Long>> importPackagesFromJson(String jsonFilePath, boolean withCount) {
         File jsonFile = new File(jsonFilePath);
         if (!jsonFile.exists()) {
             log.error("Файл не найден: {}", jsonFile.getAbsolutePath());
-            throw new IOException("Файл не найден: " + jsonFilePath);
+            throw new RuntimeException("Файл не найден: " + jsonFilePath);
         }
 
-        Map<String, List<TruckDto>> jsonData = objectMapper.readValue(
-                jsonFile,
-                new TypeReference<>() {}
-        );
+        Map<String, List<TruckDto>> jsonData;
+        try {
+            jsonData = objectMapper.readValue(
+                    jsonFile,
+                    new TypeReference<>() {}
+            );
+        } catch (IOException e) {
+            log.error("Ошибка при чтении JSON файла: {}", e.getMessage());
+            throw new RuntimeException("Не удалось прочитать JSON файл", e);
+        }
+
         List<Parcel> parcels = new ArrayList<>();
         List<TruckDto> trucks = jsonData.get("trucks");
-        for (TruckDto truck : trucks) {
-            extractPackagesFromTruck(truck, parcels);
+        if (trucks != null) {
+            for (TruckDto truck : trucks) {
+                extractPackagesFromTruck(truck, parcels);
+            }
+        } else {
+            log.warn("Ключ 'trucks' отсутствует в JSON файле");
         }
 
         if (withCount) {
@@ -78,7 +89,6 @@ public class JsonProcessingService {
                     .collect(Collectors.toList());
         }
     }
-
 
     private void extractPackagesFromTruck(TruckDto truck, List<Parcel> parcels) {
         for (ParcelDto pkgDto : truck.getPackages()) {
