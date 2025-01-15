@@ -30,7 +30,7 @@ public class ParcelService {
         return !checkForSupport(truck, pkg, startX, startY, topRow, support, requiredSupport);
     }
 
-    private static boolean checkForSupport(Truck truck, Parcel pkg, int startX, int startY, String topRow, int support, int requiredSupport) {
+    private boolean checkForSupport(Truck truck, Parcel pkg, int startX, int startY, String topRow, int support, int requiredSupport) {
         for (int x = 0; x < topRow.length(); x++) {
             if (topRow.charAt(x) != ' ' && truck.getGrid()[startY - 1][startX + x] != ' ') {
                 support++;
@@ -43,7 +43,7 @@ public class ParcelService {
         return false;
     }
 
-    private static boolean checkForIntersection(Truck truck, Parcel pkg, int startX, int startY, int height, List<String> shape) {
+    private boolean checkForIntersection(Truck truck, Parcel pkg, int startX, int startY, int height, List<String> shape) {
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < shape.get(y).length(); x++) {
                 if (shape.get(y).charAt(x) != ' ' && truck.getGrid()[startY + y][startX + x] != ' ') {
@@ -55,7 +55,7 @@ public class ParcelService {
         return false;
     }
 
-    private static boolean checkTruckLimits(Truck truck, Parcel pkg, int startX, int startY, int height, List<String> shape) {
+    private boolean checkTruckLimits(Truck truck, Parcel pkg, int startX, int startY, int height, List<String> shape) {
         for (int y = 0; y < height; y++) {
             int rowWidth = shape.get(y).length();
             if (startX + rowWidth > truck.getWidth() || startY + y >= truck.getHeight()) {
