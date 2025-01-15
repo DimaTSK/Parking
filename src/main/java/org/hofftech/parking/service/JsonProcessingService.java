@@ -18,10 +18,22 @@ import java.util.Map;
 import java.util.LinkedHashMap;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import lombok.extern.slf4j.Slf4j;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
+import java.util.stream.Collectors;
+
 @Slf4j
 public class JsonProcessingService {
     private static final String OUTPUT_DIRECTORY = "out";
     private static final String FILE_NAME = "trucks.json";
+    private static final String KEY_TRUCKS = "trucks"; // Константа для ключа "trucks"
+
     private final ObjectMapper objectMapper;
 
     public JsonProcessingService() {
@@ -37,8 +49,9 @@ public class JsonProcessingService {
         }
 
         try {
-            String jsonString = objectMapper.writeValueAsString(Map.of("trucks", trucksData));
-            objectMapper.writeValue(outputFile, Map.of("trucks", trucksData));
+            Map<String, Object> dataMap = Map.of(KEY_TRUCKS, trucksData);
+            String jsonString = objectMapper.writeValueAsString(dataMap);
+            objectMapper.writeValue(outputFile, dataMap);
             log.info("JSON файл успешно создан: {}", outputFile.getAbsolutePath());
             return jsonString;
         } catch (IOException e) {
@@ -58,7 +71,7 @@ public class JsonProcessingService {
         try {
             jsonData = objectMapper.readValue(
                     jsonFile,
-                    new TypeReference<>() {}
+                    new TypeReference<Map<String, List<TruckDto>>>() {}
             );
         } catch (IOException e) {
             log.error("Ошибка при чтении JSON файла: {}", e.getMessage());
@@ -66,13 +79,13 @@ public class JsonProcessingService {
         }
 
         List<Parcel> parcels = new ArrayList<>();
-        List<TruckDto> trucks = jsonData.get("trucks");
+        List<TruckDto> trucks = jsonData.get(KEY_TRUCKS); // Использование константы
         if (trucks != null) {
             for (TruckDto truck : trucks) {
                 extractPackagesFromTruck(truck, parcels);
             }
         } else {
-            log.warn("Ключ 'trucks' отсутствует в JSON файле");
+            log.warn("Ключ '{}' отсутствует в JSON файле", KEY_TRUCKS);
         }
 
         if (withCount) {
@@ -142,7 +155,7 @@ public class JsonProcessingService {
         return parcelDto;
     }
 
-    private static File createFile() {
+    private File createFile() {
         File outputDir = new File(OUTPUT_DIRECTORY);
         if (!outputDir.exists() && !outputDir.mkdirs()) {
             log.error("Не удалось создать папку для файла Json");
@@ -151,3 +164,4 @@ public class JsonProcessingService {
         return new File(outputDir, FILE_NAME);
     }
 }
+
