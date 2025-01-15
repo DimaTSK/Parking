@@ -3,7 +3,7 @@ package org.hofftech.parking.config;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.hofftech.parking.listener.ConsoleListener;
-import org.hofftech.parking.handler.CommandHandler;
+import org.hofftech.parking.handler.impl.CommandHandlerImpl;
 import org.hofftech.parking.repository.ParcelRepository;
 import org.hofftech.parking.parcer.CommandParser;
 import org.hofftech.parking.service.FileProcessingService;
@@ -36,19 +36,19 @@ public class ApplicationConfig {
                 parcelValidator, truckService, parcelRepository
         );
         CommandParser commandParser = new CommandParser();
-        CommandHandler commandHandler = new CommandHandler(processorFactory, commandParser);
-        this.consoleListener = new ConsoleListener(commandHandler);
-        initializeTelegram(commandHandler);
+        CommandHandlerImpl commandHandlerImpl = new CommandHandlerImpl(processorFactory, commandParser);
+        this.consoleListener = new ConsoleListener(commandHandlerImpl);
+        initializeTelegram(commandHandlerImpl);
     }
 
-    private static void initializeTelegram(CommandHandler commandHandler) {
+    private static void initializeTelegram(CommandHandlerImpl commandHandlerImpl) {
         try {
             TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
             TelegramAppender telegramAppender = new TelegramAppender();
             TelegramPrintStream telegramPrintStream = new TelegramPrintStream(System.out, null);
             TelegramBotService telegramBotService = new TelegramBotService(
                     TelegramBotService.TOKEN,
-                    commandHandler,
+                    commandHandlerImpl,
                     telegramAppender,
                     telegramPrintStream
             );

@@ -1,6 +1,6 @@
 package org.hofftech.parking.service;
 
-import org.hofftech.parking.handler.CommandHandler;
+import org.hofftech.parking.handler.impl.CommandHandlerImpl;
 import org.hofftech.parking.util.telegram.TelegramAppender;
 import org.hofftech.parking.util.telegram.TelegramPrintStream;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -8,7 +8,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 
 public class TelegramBotService extends TelegramLongPollingBot {
 
-    private final CommandHandler commandHandler;
+    private final CommandHandlerImpl commandHandlerImpl;
     private final TelegramAppender telegramAppender;
     private final TelegramPrintStream printStream;
 
@@ -16,10 +16,10 @@ public class TelegramBotService extends TelegramLongPollingBot {
     public static final String BOT_NAME = "java_education_parking_bot";
 
 
-    public TelegramBotService(String botToken, CommandHandler commandHandler,
+    public TelegramBotService(String botToken, CommandHandlerImpl commandHandlerImpl,
                               TelegramAppender telegramAppender, TelegramPrintStream printStream) {
         super(botToken);
-        this.commandHandler = commandHandler;
+        this.commandHandlerImpl = commandHandlerImpl;
         this.telegramAppender = telegramAppender;
         this.printStream = printStream;
     }
@@ -32,7 +32,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
             String message = update.getMessage().getText();
             telegramAppender.setChatId(chatId.toString());
             printStream.setChatId(chatId.toString());
-            commandHandler.handle(message);
+            commandHandlerImpl.handle(message);
         }
     }
 

@@ -2,7 +2,7 @@ package org.hofftech.parking.listener;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hofftech.parking.handler.DefaultCommandHandler;
+import org.hofftech.parking.handler.CommandHandler;
 
 import java.util.Scanner;
 
@@ -10,7 +10,7 @@ import java.util.Scanner;
 @RequiredArgsConstructor
 public class ConsoleListener {
 
-    private final DefaultCommandHandler defaultCommandHandler;
+    private final CommandHandler commandHandler;
 
     public void listen() {
         try (Scanner scanner = new Scanner(System.in)) {
@@ -19,7 +19,7 @@ public class ConsoleListener {
 
             while (scanner.hasNextLine()) {
                 String command = scanner.nextLine();
-                defaultCommandHandler.handle(command);
+                commandHandler.handle(command);
             }
         } catch (Exception e) {
             log.error("Ошибка во время работы консольного контроллера: {}", e.getMessage(), e);
