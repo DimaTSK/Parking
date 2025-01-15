@@ -18,21 +18,15 @@ import java.util.Map;
 import java.util.LinkedHashMap;
 import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import lombok.extern.slf4j.Slf4j;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 public class JsonProcessingService {
     private static final String OUTPUT_DIRECTORY = "out";
     private static final String FILE_NAME = "trucks.json";
-    private static final String KEY_TRUCKS = "trucks"; // Константа для ключа "trucks"
+    private static final String KEY_TRUCKS = "trucks";
+
+
+    private static final int POSITION_OFFSET = 1;
 
     private final ObjectMapper objectMapper;
 
@@ -145,8 +139,8 @@ public class JsonProcessingService {
         ParcelStartPosition position = pkg.getParcelStartPosition();
         if (position != null) {
             ParcelDto.PositionDto positionDto = new ParcelDto.PositionDto();
-            positionDto.setX(position.getX() + 1);
-            positionDto.setY(position.getY() + 1);
+            positionDto.setX(position.getX() + POSITION_OFFSET);
+            positionDto.setY(position.getY() + POSITION_OFFSET);
             parcelDto.setStartPosition(positionDto);
         } else {
             log.warn("У посылки с именем '{}' отсутствует стартовая позиция", pkg.getName());
@@ -164,4 +158,3 @@ public class JsonProcessingService {
         return new File(outputDir, FILE_NAME);
     }
 }
-
