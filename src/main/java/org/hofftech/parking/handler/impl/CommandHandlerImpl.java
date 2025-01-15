@@ -9,12 +9,47 @@ import org.hofftech.parking.parcer.CommandParser;
 import org.hofftech.parking.processor.CommandProcessor;
 import org.hofftech.parking.factory.CommandProcessorFactory;
 
+/**
+ * Реализация интерфейса {@link CommandHandler} для обработки команд.
+ * <p>
+ * Этот класс отвечает за парсинг полученных команд, выбор соответствующего процессора
+ * и выполнение команды. Если подходящий процессор не найден или возникает ошибка
+ * во время обработки команды, генерируются соответствующие исключения.
+ * </p>
+ *
+ * @author
+ * @version 1.0
+ */
 @Slf4j
 @RequiredArgsConstructor
 public class CommandHandlerImpl implements CommandHandler {
+
+    /**
+     * Фабрика процессоров команд, используемая для получения соответствующего {@link CommandProcessor}
+     * на основе типа команды.
+     */
     private final CommandProcessorFactory processorFactory;
+
+    /**
+     * Парсер команд, используемый для преобразования входной строки команды в {@link ParsedCommand}.
+     */
     private final CommandParser commandParser;
 
+    /**
+     * Обрабатывает заданную команду.
+     * <p>
+     * Метод выполняет следующие шаги:
+     * <ol>
+     *     <li>Парсит входную строку команды с помощью {@link CommandParser}.</li>
+     *     <li>Получает соответствующий {@link CommandProcessor} из {@link CommandProcessorFactory} на основе типа команды.</li>
+     *     <li>Если процессор найден, выполняет команду, иначе генерирует {@link CommandProcessingException}.</li>
+     * </ol>
+     * В случае возникновения исключений они логируются и оборачиваются в {@link CommandProcessingException}.
+     * </p>
+     *
+     * @param command строка команды для обработки
+     * @throws CommandProcessingException если возникает ошибка при обработке команды
+     */
     @Override
     public void handle(String command) {
         try {
