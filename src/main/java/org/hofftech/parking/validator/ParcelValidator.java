@@ -7,6 +7,8 @@ import java.util.List;
 @Slf4j
 public class ParcelValidator {
 
+    private static final String DELIMITER = ",";
+
     public boolean isValidFile(List<String> lines) {
         if (lines == null || lines.isEmpty()) {
             log.error("Файл пустой или не содержит данных.");
@@ -21,8 +23,8 @@ public class ParcelValidator {
             throw new IllegalArgumentException("Форма посылки не указана.");
         }
 
-        if (form.contains(",")) {
-            List<String> rows = List.of(form.split(","));
+        if (form.contains(DELIMITER)) {
+            List<String> rows = List.of(form.split(DELIMITER));
             validateDiagonalTouch(rows);
             return rows;
         }
