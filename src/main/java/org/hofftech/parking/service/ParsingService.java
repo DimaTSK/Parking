@@ -8,13 +8,16 @@ import org.hofftech.parking.repository.ParcelRepository;
 import java.util.ArrayList;
 import java.util.List;
 
+import java.util.regex.Pattern;
+
 @Slf4j
 @RequiredArgsConstructor
 public class ParsingService {
     private final ParcelRepository parcelRepository;
 
-
-    private static final String PACKAGE_NAME_REGEX = "[“”\"]";
+    // Константы для регулярных выражений и разделителей
+    private static final Pattern PACKAGE_NAME_PATTERN = Pattern.compile("[“”\"]");
+    private static final Pattern PACKAGE_DELIMITER_PATTERN = Pattern.compile(",");
 
     /**
      * Парсит список строк из файла и возвращает список объектов Parcel.
@@ -25,7 +28,7 @@ public class ParsingService {
     public List<Parcel> parsePackagesFromFile(List<String> lines) {
         List<Parcel> parcels = new ArrayList<>();
         for (String packageName : lines) {
-            String trimmedName = packageName.trim().replaceAll(PACKAGE_NAME_REGEX, "");
+            String trimmedName = PACKAGE_NAME_PATTERN.matcher(packageName.trim()).replaceAll("");
             if (trimmedName.isEmpty()) {
                 continue;
             }
@@ -52,10 +55,10 @@ public class ParsingService {
         }
 
         List<Parcel> parcels = new ArrayList<>();
-        String[] names = parcelsText.split(",");
+        String[] names = PACKAGE_DELIMITER_PATTERN.split(parcelsText);
 
         for (String name : names) {
-            String trimmedName = name.trim().replaceAll(PACKAGE_NAME_REGEX, "");
+            String trimmedName = PACKAGE_NAME_PATTERN.matcher(name.trim()).replaceAll("");
             if (!trimmedName.isEmpty()) {
                 try {
                     Parcel pkg = parcelRepository.findPackage(trimmedName);
