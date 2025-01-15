@@ -23,7 +23,7 @@ public class UnloadCommandProcessor implements CommandProcessor {
 
         if (inFile == null || inFile.isEmpty()) {
             log.error("Путь к JSON-файлу не указан.");
-            return;
+            throw new IllegalArgumentException("Путь к JSON-файлу не указан.");
         }
         try {
             log.info("Импортируем данные из JSON");
@@ -35,6 +35,7 @@ public class UnloadCommandProcessor implements CommandProcessor {
             log.info("Файл успешно импортирован из JSON: {}", inFile);
         } catch (IOException e) {
             log.error("Ошибка при обработке команды importJson: {}", e.getMessage());
+            throw new RuntimeException("Не удалось обработать команду importJson", e);
         }
     }
 }
