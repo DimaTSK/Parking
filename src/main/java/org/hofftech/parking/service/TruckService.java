@@ -10,16 +10,58 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+/**
+ * {@code TruckService} — сервисный класс, отвечающий за управление грузовиками и размещение
+ * посылок внутри них. Класс предоставляет методы для добавления посылок в один или несколько грузовиков,
+ * распределения посылок равномерно, сортировки посылок и вывода состояния грузовиков.
+ * <p>
+ * Класс использует {@link ParcelService} для взаимодействия с посылками и логирует основные операции
+ * с помощью {@link org.slf4j.Logger}.
+ * </p>
+ *
+ * <p><b>Примечание:</b> Для корректной работы методов, связанных с обработкой посылок и грузовиков,
+ * необходимо обеспечить правильную инициализацию {@code ParcelService}.</p>
+ *
+ * @автор [Ваше Имя]
+ * @версия 1.0
+ * @с момента 2023-04-27
+ */
 @Slf4j
 @RequiredArgsConstructor
 public class TruckService {
+    /**
+     * Стандартный размер грузовика по умолчанию.
+     */
     private static final String TRUCK_STANDARD_SIZE = "6x6";
+
+    /**
+     * Разделитель размеров грузовика.
+     */
     private static final String TRUCK_SIZE_DELIMITER = "x";
+
+    /**
+     * Ширина грузовика по умолчанию.
+     */
     private static final int DEFAULT_TRUCK_WIDTH = 6;
+
+    /**
+     * Высота грузовика по умолчанию.
+     */
     private static final int DEFAULT_TRUCK_HEIGHT = 6;
 
+    /**
+     * Сервис для управления посылками.
+     */
     private final ParcelService parcelService;
 
+    /**
+     * Добавляет список посылок в несколько грузовиков с возможностью выбора алгоритма размещения.
+     *
+     * @param parcelList   список посылок для размещения
+     * @param evenAlg      флаг для выбора алгоритма равномерного распределения (если {@code true})
+     * @param trucksFromArgs список размеров грузовиков, предоставленных пользователем
+     * @return список грузовиков с размещенными посылками
+     */
     public List<Truck> addPackagesToMultipleTrucks(List<Parcel> parcelList, Boolean evenAlg, List<String> trucksFromArgs) {
         log.info("Начало размещения упаковок. Всего упаковок: {}", parcelList.size());
         sortPackages(parcelList);
@@ -44,6 +86,12 @@ public class TruckService {
         return trucks;
     }
 
+    /**
+     * Размещает посылки в стандартные грузовики с фиксированным размером и плотным размещением.
+     *
+     * @param parcelList список посылок для размещения
+     * @param trucks     список грузовиков, в которые будут размещены посылки
+     */
     private void placePackagesInStandardTrucks(List<Parcel> parcelList, List<Truck> trucks) {
         while (!parcelList.isEmpty()) {
             Truck truck = createTruck(TRUCK_STANDARD_SIZE);
@@ -63,6 +111,14 @@ public class TruckService {
         }
     }
 
+    /**
+     * Равномерно распределяет посылки между указанными грузовиками.
+     *
+     * @param parcels список посылок для распределения
+     * @param trucks  список грузовиков, в которые будут распределены посылки
+     * @throws IllegalArgumentException если список грузовиков пуст
+     * @throws RuntimeException         если не удалось разместить посылку в любом из грузовиков
+     */
     public void distributePackagesEvenly(List<Parcel> parcels, List<Truck> trucks) {
         if (trucks.isEmpty()) {
             log.error("Количество грузовиков не может быть нулевым.");
@@ -93,6 +149,12 @@ public class TruckService {
         log.info("Все посылки успешно распределены по грузовикам.");
     }
 
+    /**
+     * Размещает посылки по грузовикам без равномерного распределения.
+     *
+     * @param parcelList список посылок для размещения
+     * @param trucks     список грузовиков, в которые будут размещены посылки
+     */
     private void placePackages(List<Parcel> parcelList, List<Truck> trucks) {
         int nextTruckIndex = trucks.size();
         for (Parcel pkg : parcelList) {
@@ -110,6 +172,13 @@ public class TruckService {
         }
     }
 
+    /**
+     * Пытается разместить посылку в существующих грузовиках.
+     *
+     * @param pkg    посылка для размещения
+     * @param trucks список грузовиков
+     * @return {@code true}, если размещение удалось, иначе {@code false}
+     */
     private boolean tryPlacePackageInExistingTrucks(Parcel pkg, List<Truck> trucks) {
         for (Truck truck : trucks) {
             if (parcelService.addPackage(truck, pkg)) {
@@ -120,6 +189,13 @@ public class TruckService {
         return false;
     }
 
+    /**
+     * Пытается повторно разместить посылку в существующих грузовиках.
+     *
+     * @param pkg    посылка для размещения
+     * @param trucks список грузовиков
+     * @return {@code true}, если размещение удалось, иначе {@code false}
+     */
     private boolean tryPlacePackageWithRetry(Parcel pkg, List<Truck> trucks) {
         log.info("Упаковка с ID {} не поместилась. Повторная попытка размещения в существующих грузовиках...", pkg.getName());
 
@@ -132,6 +208,14 @@ public class TruckService {
         return false;
     }
 
+    /**
+     * Создает новый грузовик и пытается разместить в нем посылку.
+     *
+     * @param pkg        посылка для размещения
+     * @param trucks     список грузовиков
+     * @param truckIndex индекс следующего грузовика
+     * @throws RuntimeException если не удалось разместить посылку даже в новом грузовике
+     */
     private void createAndPlaceInNewTruck(Parcel pkg, List<Truck> trucks, int truckIndex) {
         Truck newTruck;
         if (truckIndex < trucks.size()) {
@@ -149,6 +233,13 @@ public class TruckService {
         }
     }
 
+    /**
+     * Создает новый экземпляр {@code Truck} на основе предоставленного размера.
+     *
+     * @param providedTruckSize строка, представляющая размер грузовика в формате "ширинаxвысота"
+     * @return новый объект {@code Truck} с указанными размерами
+     * @throws IllegalArgumentException если формат размера грузовика некорректен или размеры не являются целыми числами
+     */
     private Truck createTruck(String providedTruckSize) {
         if (providedTruckSize == null || providedTruckSize.isEmpty()) {
             providedTruckSize = TRUCK_STANDARD_SIZE;
@@ -174,6 +265,11 @@ public class TruckService {
         return currentTruck;
     }
 
+    /**
+     * Сортирует список посылок по высоте и ширине в порядке убывания.
+     *
+     * @param parcelList список посылок для сортировки
+     */
     private void sortPackages(List<Parcel> parcelList) {
         parcelList.sort((a, b) -> {
             int heightDiff = Integer.compare(b.getHeight(), a.getHeight());
@@ -186,9 +282,9 @@ public class TruckService {
     }
 
     /**
-     * Печатает состояние всех грузовиков.
+     * Печатает состояние всех грузовиков, включая их размеры и заполнение.
      *
-     * @param trucks список грузовиков
+     * @param trucks список грузовиков для вывода состояния
      */
     @SneakyThrows
     public void printTrucks(List<Truck> trucks) {
@@ -201,6 +297,11 @@ public class TruckService {
         }
     }
 
+    /**
+     * Выводит визуальное представление одного грузовика в консоль.
+     *
+     * @param truck грузовик для вывода
+     */
     private void printTruck(Truck truck) {
         StringBuilder truckRepresentation = new StringBuilder();
         truckRepresentation.append("+").append("+".repeat(truck.getWidth())).append("+\n");
@@ -216,6 +317,14 @@ public class TruckService {
         System.out.println(truckRepresentation.toString());
     }
 
+    /**
+     * Добавляет список посылок в индивидуальные грузовики на основе предоставленных размеров.
+     *
+     * @param parcels        список посылок для размещения
+     * @param providedTrucks список размеров грузовиков, предоставленных пользователем
+     * @return список грузовиков с размещенными посылками
+     * @throws RuntimeException если не удалось разместить посылку в каком-либо грузовике
+     */
     public List<Truck> addPackagesToIndividualTrucks(List<Parcel> parcels, List<String> providedTrucks) {
         List<Truck> trucks = new ArrayList<>();
         int truckIndex = 0;

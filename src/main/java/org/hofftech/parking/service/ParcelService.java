@@ -7,9 +7,21 @@ import org.hofftech.parking.model.Truck;
 
 import java.util.List;
 
+/**
+ * Сервис для управления размещением упаковок в грузовике.
+ */
 @Slf4j
 public class ParcelService {
 
+    /**
+     * Проверяет возможность добавления упаковки в указанные координаты.
+     *
+     * @param truck  Грузовик, в который пытаются добавить упаковку.
+     * @param parcel Упаковка, которую необходимо добавить.
+     * @param startX Начальная координата X для размещения упаковки.
+     * @param startY Начальная координата Y для размещения упаковки.
+     * @return {@code true}, если упаковку можно добавить, {@code false} в противном случае.
+     */
     protected boolean canAddPackage(Truck truck, Parcel parcel, int startX, int startY) {
         log.debug("Проверяем возможность добавить упаковку {} в координаты X={}, Y={}", parcel.getName(), startX, startY);
         List<String> shape = parcel.getUniqueShape();
@@ -30,6 +42,18 @@ public class ParcelService {
         return !checkForSupport(truck, parcel, startX, startY, topRow, support, requiredSupport);
     }
 
+    /**
+     * Проверяет наличие достаточной опоры для размещения упаковки.
+     *
+     * @param truck           Грузовик, в котором размещается упаковка.
+     * @param parcel          Упаковка, для которой проверяется опора.
+     * @param startX          Начальная координата X.
+     * @param startY          Начальная координата Y.
+     * @param topRow          Верхняя строка формы упаковки.
+     * @param support         Текущее количество опор.
+     * @param requiredSupport Необходимое количество опор.
+     * @return {@code true}, если опоры недостаточно, {@code false} иначе.
+     */
     private boolean checkForSupport(Truck truck, Parcel parcel, int startX, int startY, String topRow, int support, int requiredSupport) {
         for (int x = 0; x < topRow.length(); x++) {
             if (topRow.charAt(x) != ' ' && truck.getGrid()[startY - 1][startX + x] != ' ') {
@@ -43,6 +67,17 @@ public class ParcelService {
         return false;
     }
 
+    /**
+     * Проверяет пересечение упаковки с уже размещенными объектами в грузовике.
+     *
+     * @param truck  Грузовик, в котором размещается упаковка.
+     * @param parcel Упаковка, которую проверяют на пересечение.
+     * @param startX Начальная координата X.
+     * @param startY Начальная координата Y.
+     * @param height Высота формы упаковки.
+     * @param shape  Форма упаковки.
+     * @return {@code true}, если происходит пересечение, {@code false} иначе.
+     */
     private boolean checkForIntersection(Truck truck, Parcel parcel, int startX, int startY, int height, List<String> shape) {
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < shape.get(y).length(); x++) {
@@ -55,6 +90,17 @@ public class ParcelService {
         return false;
     }
 
+    /**
+     * Проверяет, выходит ли упаковка за пределы грузовика.
+     *
+     * @param truck  Грузовик, в который пытаются добавить упаковку.
+     * @param parcel Упаковка, которую проверяют.
+     * @param startX Начальная координата X.
+     * @param startY Начальная координата Y.
+     * @param height Высота формы упаковки.
+     * @param shape  Форма упаковки.
+     * @return {@code true}, если упаковка выходит за пределы, {@code false} иначе.
+     */
     private boolean checkTruckLimits(Truck truck, Parcel parcel, int startX, int startY, int height, List<String> shape) {
         for (int y = 0; y < height; y++) {
             int rowWidth = shape.get(y).length();
@@ -66,6 +112,13 @@ public class ParcelService {
         return false;
     }
 
+    /**
+     * Добавляет упаковку в грузовик, если это возможно.
+     *
+     * @param truck  Грузовик, в который будет добавлена упаковка.
+     * @param parcel Упаковка, которую необходимо добавить.
+     * @return {@code true}, если упаковка успешно добавлена, {@code false} иначе.
+     */
     protected boolean addPackage(Truck truck, Parcel parcel) {
         log.info("Пытаемся добавить упаковку {} в грузовик.", parcel.getName());
 
@@ -87,7 +140,14 @@ public class ParcelService {
         return false;
     }
 
-
+    /**
+     * Размещает упаковку на грузовике в указанных координатах.
+     *
+     * @param truck  Грузовик, на котором будет размещена упаковка.
+     * @param parcel Упаковка, которую необходимо разместить.
+     * @param startX Начальная координата X.
+     * @param startY Начальная координата Y.
+     */
     protected void placePackage(Truck truck, Parcel parcel, int startX, int startY) {
         List<String> shape = parcel.getUniqueShape();
 

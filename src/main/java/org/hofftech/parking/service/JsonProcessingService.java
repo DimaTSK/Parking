@@ -18,23 +18,34 @@ import java.util.Map;
 import java.util.LinkedHashMap;
 import java.util.stream.Collectors;
 
-
+/**
+ * Сервис для обработки JSON данных, связанных с грузовиками и упаковками.
+ */
 @Slf4j
 public class JsonProcessingService {
     private static final String OUTPUT_DIRECTORY = "out";
     private static final String FILE_NAME = "trucks.json";
     private static final String KEY_TRUCKS = "trucks";
 
-
     private static final int POSITION_OFFSET = 1;
 
     private final ObjectMapper objectMapper;
 
+    /**
+     * Конструктор, инициализирующий ObjectMapper с поддержкой форматированного вывода.
+     */
     public JsonProcessingService() {
         this.objectMapper = new ObjectMapper();
         this.objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
     }
 
+    /**
+     * Сохраняет список грузовиков в JSON формате в файл.
+     *
+     * @param trucks Список грузовиков для сохранения.
+     * @return Строковое представление JSON данных.
+     * @throws RuntimeException если возникает ошибка при записи файла.
+     */
     public String saveToJson(List<Truck> trucks) {
         File outputFile = createFile();
         List<TruckDto> trucksData = new ArrayList<>();
@@ -54,6 +65,14 @@ public class JsonProcessingService {
         }
     }
 
+    /**
+     * Импортирует упаковки из JSON файла и возвращает список их имен с количеством.
+     *
+     * @param jsonFilePath Путь к JSON файлу для импорта.
+     * @param withCount    Флаг, указывающий, необходимо ли учитывать количество каждой упаковки.
+     * @return Список пар имя упаковки и количество.
+     * @throws RuntimeException если возникает ошибка при чтении файла.
+     */
     public List<Map.Entry<String, Long>> importPackagesFromJson(String jsonFilePath, boolean withCount) {
         File jsonFile = new File(jsonFilePath);
         if (!jsonFile.exists()) {
@@ -97,6 +116,12 @@ public class JsonProcessingService {
         }
     }
 
+    /**
+     * Извлекает упаковки из DTO грузовика и добавляет их в список.
+     *
+     * @param truck   DTO грузовика, из которого извлекаются упаковки.
+     * @param parcels Список упаковок для добавления.
+     */
     private void extractPackagesFromTruck(TruckDto truck, List<Parcel> parcels) {
         for (ParcelDto pkgDto : truck.getPackages()) {
             ParcelStartPosition position = null;
@@ -116,6 +141,13 @@ public class JsonProcessingService {
         }
     }
 
+    /**
+     * Конвертирует объект Truck в DTO формат.
+     *
+     * @param truck      Объект Truck для конвертации.
+     * @param truckIndex Индекс грузовика, используемый для установки идентификатора.
+     * @return Конвертированный объект TruckDto.
+     */
     private TruckDto convertToTruckDto(Truck truck, int truckIndex) {
         TruckDto truckDto = new TruckDto();
         truckDto.setTruckId(truckIndex + 1);
@@ -130,6 +162,12 @@ public class JsonProcessingService {
         return truckDto;
     }
 
+    /**
+     * Конвертирует объект Parcel в DTO формат.
+     *
+     * @param pkg Объект Parcel для конвертации.
+     * @return Конвертированный объект ParcelDto.
+     */
     private ParcelDto convertToPackageDto(Parcel pkg) {
         ParcelDto parcelDto = new ParcelDto();
         parcelDto.setName(pkg.getName());
@@ -149,6 +187,12 @@ public class JsonProcessingService {
         return parcelDto;
     }
 
+    /**
+     * Создает файл для сохранения JSON данных. Если директория не существует, пытается создать её.
+     *
+     * @return Созданный файл.
+     * @throws RuntimeException если не удалось создать директорию или файл.
+     */
     private File createFile() {
         File outputDir = new File(OUTPUT_DIRECTORY);
         if (!outputDir.exists() && !outputDir.mkdirs()) {
