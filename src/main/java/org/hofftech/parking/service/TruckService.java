@@ -16,7 +16,6 @@ public class TruckService {
     private static final String TRUCK_STANDARD_SIZE = "6x6";
     private final ParcelService parcelService;
 
-
     public List<Truck> addPackagesToMultipleTrucks(List<Parcel> parcelList, Boolean evenAlg, List<String> trucksFromArgs) {
         log.info("Начало размещения упаковок. Всего упаковок: {}", parcelList.size());
         sortPackages(parcelList);
@@ -89,50 +88,61 @@ public class TruckService {
         log.info("Все посылки успешно распределены по грузовикам.");
     }
 
-
     private void placePackages(List<Parcel> parcelList, List<Truck> trucks) {
         int nextTruckIndex = trucks.size();
         for (Parcel pkg : parcelList) {
             log.info("Пытаемся разместить упаковку с ID {} и именем {}.", pkg.getName(), pkg.getName());
-            boolean placed = false;
+            boolean placed = tryPlacePackageInExistingTrucks(parcelList, pkg, trucks);
 
-            for (Truck truck : trucks) {
-                if (parcelService.addPackage(truck, pkg)) {
-                    log.info("Упаковка с ID {} успешно размещена в существующем грузовике.", pkg.getName());
-                    placed = true;
-                    break;
-                }
-            }
             if (!placed) {
-                log.info("Упаковка с ID {} не поместилась. Повторная попытка размещения в существующих грузовиках...", pkg.getName());
-
-                for (Truck truck : trucks) {
-                    if (parcelService.addPackage(truck, pkg)) {
-                        log.info("Упаковка с ID {} размещена после повторной проверки.", pkg.getName());
-                        placed = true;
-                        break;
-                    }
-                }
+                placed = tryPlacePackageWithRetry(parcelList, pkg, trucks);
             }
-            if (!placed) {
-                if (nextTruckIndex < trucks.size()) {
-                    Truck newTruck = trucks.get(nextTruckIndex);
-                    nextTruckIndex++;
 
-                    if (parcelService.addPackage(newTruck, pkg)) {
-                        log.info("Упаковка с ID {} размещена в новом грузовике.", pkg.getName());
-                    } else {
-                        log.error("Ошибка: упаковка с ID {} не может быть размещена даже в новом грузовике.", pkg.getName());
-                    }
-                } else {
-                    log.error("Все грузовики уже использованы. Упаковка с ID {} не может быть размещена.", pkg.getName());
-                    throw new RuntimeException("Все доступные грузовики использованы, упаковка не может быть размещена.");
-                }
+            if (!placed) {
+                createAndPlaceInNewTruck(parcelList, pkg, trucks, nextTruckIndex);
+                nextTruckIndex++;
             }
         }
     }
 
-    private  Truck createTruck(String providedTruckSize) {
+    private boolean tryPlacePackageInExistingTrucks(List<Parcel> parcelList, Parcel pkg, List<Truck> trucks) {
+        for (Truck truck : trucks) {
+            if (parcelService.addPackage(truck, pkg)) {
+                log.info("Упаковка с ID {} успешно размещена в существующем грузовике.", pkg.getName());
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean tryPlacePackageWithRetry(List<Parcel> parcelList, Parcel pkg, List<Truck> trucks) {
+        log.info("Упаковка с ID {} не поместилась. Повторная попытка размещения в существующих грузовиках...", pkg.getName());
+
+        for (Truck truck : trucks) {
+            if (parcelService.addPackage(truck, pkg)) {
+                log.info("Упаковка с ID {} размещена после повторной проверки.", pkg.getName());
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void createAndPlaceInNewTruck(List<Parcel> parcelList, Parcel pkg, List<Truck> trucks, int truckIndex) {
+        if (truckIndex < trucks.size()) {
+            Truck newTruck = trucks.get(truckIndex);
+            if (parcelService.addPackage(newTruck, pkg)) {
+                log.info("Упаковка с ID {} размещена в новом грузовике.", pkg.getName());
+            } else {
+                log.error("Ошибка: упаковка с ID {} не может быть размещена даже в новом грузовике.", pkg.getName());
+                throw new RuntimeException("Все доступные грузовики использованы, упаковка не может быть размещена.");
+            }
+        } else {
+            log.error("Все грузовики уже использованы. Упаковка с ID {} не может быть размещена.", pkg.getName());
+            throw new RuntimeException("Все доступные грузовики использованы, упаковка не может быть размещена.");
+        }
+    }
+
+    private Truck createTruck(String providedTruckSize) {
         if (providedTruckSize == null || providedTruckSize.isEmpty()) {
             providedTruckSize = TRUCK_STANDARD_SIZE;
         }
@@ -183,7 +193,6 @@ public class TruckService {
         truckRepresentation.append("+").append("+".repeat(truck.getWidth())).append("+\n");
         System.out.println(String.valueOf(truckRepresentation));
     }
-
 
     public List<Truck> addPackagesToIndividualTrucks(List<Parcel> parcels, List<String> providedTrucks) {
         List<Truck> trucks = new ArrayList<>();

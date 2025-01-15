@@ -49,7 +49,6 @@ public class ParsingService {
      */
     public List<Parcel> getPackagesFromArgs(String parcelsText) {
         if (parcelsText == null || parcelsText.isBlank()) {
-            log.warn("Текст посылок пустой.");
             throw new IllegalArgumentException("Аргумент с посылками пуст");
         }
 
