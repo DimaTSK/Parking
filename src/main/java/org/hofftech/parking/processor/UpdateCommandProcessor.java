@@ -13,6 +13,7 @@ import java.util.List;
 @Slf4j
 public class UpdateCommandProcessor implements CommandProcessor {
     private final ParcelRepository repository;
+    private static final int FIRST_CHARACTER_INDEX = 0;
 
     @Override
     public void execute(ParsedCommand command) {
@@ -27,8 +28,8 @@ public class UpdateCommandProcessor implements CommandProcessor {
         try {
             String newName = command.getName() != null ? command.getName() : existingParcel.getName();
 
-            if (command.getSymbol() != null) {
-                char newSymbol = command.getSymbol().charAt(0);
+            if (command.getSymbol() != null && !command.getSymbol().isEmpty()) {
+                char newSymbol = command.getSymbol().charAt(FIRST_CHARACTER_INDEX);
                 if (newSymbol != existingParcel.getSymbol()) {
                     existingParcel.updateSymbol(newSymbol);
                 }
@@ -40,7 +41,9 @@ public class UpdateCommandProcessor implements CommandProcessor {
 
             Parcel updatedParcel = new Parcel(newName, newShape, existingParcel.getSymbol(), existingParcel.getParcelStartPosition());
 
-            if (!newName.equals(existingParcel.getName())) {
+            boolean nameChanged = !newName.equals(existingParcel.getName());
+
+            if (nameChanged) {
                 repository.deletePackage(currentName);
                 repository.addPackage(updatedParcel);
                 log.info("Посылка '{}' успешно переименована и обновлена.", currentName);
@@ -58,3 +61,4 @@ public class UpdateCommandProcessor implements CommandProcessor {
         }
     }
 }
+

@@ -2,8 +2,8 @@ package org.hofftech.parking.factory;
 
 import lombok.AllArgsConstructor;
 import org.hofftech.parking.service.TruckService;
-import org.hofftech.parking.service.strategy.IndividualTruckStrategy;
-import org.hofftech.parking.service.strategy.MultipleTruckStrategy;
+import org.hofftech.parking.service.strategy.impl.IndividualTruckStrategy;
+import org.hofftech.parking.service.strategy.impl.MultipleTruckStrategy;
 import org.hofftech.parking.service.strategy.PackingStrategy;
 
 

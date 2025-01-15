@@ -53,7 +53,7 @@ public class FileProcessingService {
         return parcels;
     }
 
-    protected void saveTrucksToJson(List<Truck> trucks) {
+    private void saveTrucksToJson(List<Truck> trucks) {
         try {
             log.info("Сохраняем данные грузовиков в JSON...");
             String result = jsonProcessingService.saveToJson(trucks);
