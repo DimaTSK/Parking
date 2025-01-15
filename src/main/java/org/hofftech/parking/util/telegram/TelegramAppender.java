@@ -6,20 +6,32 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.bots.AbsSender;
-
+/**
+ * Класс для отправки логов в Telegram.
+ */
 @Setter
 @Slf4j
 public final class TelegramAppender extends AppenderBase<ILoggingEvent> {
     private static AbsSender bot;
     private static String chatId;
 
+    /**
+     * Инициализирует Telegram-бота для отправки сообщений.
+     *
+     * @param telegramBot объект бота для отправки сообщений
+     * @throws IllegalArgumentException если бот равен null
+     */
     public static void initialize(AbsSender telegramBot) {
         if (telegramBot == null) {
             throw new IllegalArgumentException("Бот не может быть null");
         }
         bot = telegramBot;
     }
-
+    /**
+     * Устанавливает идентификатор чата Telegram для отправки сообщений.
+     *
+     * @param telegramChatId идентификатор чата
+     */
 
     public void setChatId(String telegramChatId) {
         chatId = telegramChatId;

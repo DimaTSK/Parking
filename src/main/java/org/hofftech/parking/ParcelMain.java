@@ -50,19 +50,19 @@ public class ParcelMain {
      * @param args аргументы командной строки, переданные приложению. В данном контексте не используются.
      */
     public static void main(String[] args) {
-        // Устанавливаем поток вывода с кодировкой UTF-8
+
         System.setOut(new PrintStream(System.out, true, StandardCharsets.UTF_8));
 
-        // Логируем начало работы приложения
+
         log.info("Приложение запускается...");
 
-        // Инициализируем конфигурацию приложения
+
         ApplicationConfig context = new ApplicationConfig();
 
-        // Запускаем прослушивание консольного ввода
+
         context.getConsoleListener().listen();
 
-        // Логируем завершение работы приложения
+
         log.info("Приложение завершило работу.");
     }
 }
