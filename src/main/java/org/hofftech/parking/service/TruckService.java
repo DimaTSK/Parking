@@ -14,6 +14,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TruckService {
     private static final String TRUCK_STANDARD_SIZE = "6x6";
+    private static final String TRUCK_SIZE_DELIMITER = "x";
+
     private final ParcelService parcelService;
 
     public List<Truck> addPackagesToMultipleTrucks(List<Parcel> parcelList, Boolean evenAlg, List<String> trucksFromArgs) {
@@ -146,7 +148,7 @@ public class TruckService {
         if (providedTruckSize == null || providedTruckSize.isEmpty()) {
             providedTruckSize = TRUCK_STANDARD_SIZE;
         }
-        String[] splitSize = providedTruckSize.split("x");
+        String[] splitSize = providedTruckSize.split(TRUCK_SIZE_DELIMITER); // Используем константу
         Truck currentTruck = new Truck(Integer.parseInt(splitSize[0].trim()), Integer.parseInt(splitSize[1].trim()));
         log.info("Создан грузовик размером {}x{}.", splitSize[0].trim(), splitSize[1].trim());
         return currentTruck;
