@@ -9,7 +9,16 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class CommandParser {
+    private static final String PARAMETER_REGEX =
+            "-(?<flag>[a-zA-Z]+)\\s+\"(?<valueQuoted>[^\"]+)\"|-(?<flagAlt>[a-zA-Z]+)\\s+(?<valueUnquoted>[^\\s]+)";
+
+    private static final Pattern PARAMETER_PATTERN = Pattern.compile(PARAMETER_REGEX);
 
     public ParsedCommand parse(String command) {
         Map<String, String> parameters = extractParameters(command);
@@ -24,14 +33,21 @@ public class CommandParser {
 
     private Map<String, String> extractParameters(String command) {
         Map<String, String> parameters = new HashMap<>();
-        Pattern pattern = Pattern.compile("-([a-zA-Z]+)\\s+\"([^\"]+)\"|-([a-zA-Z]+)\\s+([^\\s]+)");
-        Matcher matcher = pattern.matcher(command);
+
+        Matcher matcher = PARAMETER_PATTERN.matcher(command);
 
         while (matcher.find()) {
-            if (matcher.group(1) != null && matcher.group(2) != null) {
-                parameters.put("-" + matcher.group(1), matcher.group(2));
-            } else if (matcher.group(3) != null && matcher.group(4) != null) {
-                parameters.put("-" + matcher.group(3), matcher.group(4));
+            String flag = matcher.group("flag");
+            String value = matcher.group("valueQuoted");
+
+            if (flag != null && value != null) {
+                parameters.put("-" + flag, value);
+            } else {
+                flag = matcher.group("flagAlt");
+                value = matcher.group("valueUnquoted");
+                if (flag != null && value != null) {
+                    parameters.put("-" + flag, value);
+                }
             }
         }
 
@@ -67,6 +83,5 @@ public class CommandParser {
         parsedCommand.setForm(parameters.get("-form"));
         parsedCommand.setSymbol(parameters.get("-symbol"));
     }
-
 
 }
