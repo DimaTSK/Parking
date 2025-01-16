@@ -3,6 +3,7 @@ package org.hofftech.parking.config;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.hofftech.parking.controller.ConsoleController;
+import org.hofftech.parking.handler.CommandHandler;
 import org.hofftech.parking.handler.impl.CommandHandlerImpl;
 import org.hofftech.parking.repository.ParcelRepository;
 import org.hofftech.parking.parcer.CommandParser;
@@ -78,9 +79,9 @@ public class ApplicationConfig {
                 parcelValidator, truckService, parcelRepository
         );
         CommandParser commandParser = new CommandParser();
-        CommandHandlerImpl commandHandlerImpl = new CommandHandlerImpl(processorFactory, commandParser);
-        this.consoleController = new ConsoleController(commandHandlerImpl);
-        initializeTelegram(commandHandlerImpl);
+        CommandHandler commandHandler = new CommandHandlerImpl(processorFactory, commandParser);
+        this.consoleController = new ConsoleController(commandHandler);
+        initializeTelegram((CommandHandlerImpl) commandHandler);
     }
 
     /**
