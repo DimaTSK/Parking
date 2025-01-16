@@ -1,8 +1,12 @@
 package org.hofftech.parking.util.telegram;
 
+
+import lombok.extern.slf4j.Slf4j;
 import org.hofftech.parking.handler.impl.CommandHandlerImpl;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
-import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.TelegramBotsApi;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
 /**
  * {@code TelegramBotService} — сервисный класс, расширяющий {@link TelegramLongPollingBot}
@@ -14,10 +18,11 @@ import org.telegram.telegrambots.meta.api.objects.Update;
  * пользователю.
  * </p>
  *
- * @автор [Ваше Имя]
+ * @autor [Ваше Имя]
  * @версия 1.0
  * @с момента 2023-04-27
  */
+@Slf4j
 public class TelegramBotService extends TelegramLongPollingBot {
 
     /**
@@ -37,33 +42,55 @@ public class TelegramBotService extends TelegramLongPollingBot {
 
     /**
      * Токен аутентификации для Telegram-бота.
-     * <p>
-     * <b>Примечание:</b> Рекомендуется хранить токены в безопасности и не размещать их в исходном коде.
-     * Рассмотрите возможность использования переменных среды или файлов конфигурации для управления
-     * конфиденциальной информацией.
-     * </p>
      */
-    public static final String TOKEN = "7787231158:AAE90-cAJlHmEEF9Ds0g2Pm3xXu2RLcfeUo";
+    private final String token;
 
     /**
      * Имя пользователя Telegram-бота.
      */
-    public static final String BOT_NAME = "java_education_parking_bot";
+    private final String botName;
 
     /**
-     * Создаёт новый экземпляр {@code TelegramBotService} с указанными параметрами.
+     * Создаёт новый экземпляр {@code TelegramBotService} с указанными параметрами
+     * и регистрирует бота в Telegram API.
      *
-     * @param botToken           токен аутентификации для Telegram-бота
      * @param commandHandlerImpl реализация обработчика команд
      * @param telegramAppender   appender Telegram для логирования или обработки сообщений
      * @param printStream        поток вывода для отправки сообщений пользователям Telegram
+     * @param token              токен аутентификации для Telegram-бота
+     * @param botName            имя пользователя Telegram-бота
      */
-    public TelegramBotService(String botToken, CommandHandlerImpl commandHandlerImpl,
-                              TelegramAppender telegramAppender, TelegramPrintStream printStream) {
-        super(botToken);
+    public TelegramBotService(CommandHandlerImpl commandHandlerImpl,
+                              TelegramAppender telegramAppender,
+                              TelegramPrintStream printStream,
+                              String token,
+                              String botName) {
+        super(token);
         this.commandHandlerImpl = commandHandlerImpl;
         this.telegramAppender = telegramAppender;
         this.printStream = printStream;
+        this.token = token;
+        this.botName = botName;
+
+        // Регистрация бота при создании экземпляра
+        initializeTelegram();
+    }
+
+    /**
+     * Инициализирует и регистрирует бота в TelegramBotsApi.
+     */
+    private void initializeTelegram() {
+        try {
+            TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
+            botsApi.registerBot(this);
+            TelegramAppender.initialize(this);
+            printStream.setBot(this);
+            System.setOut(printStream);
+            Runtime.getRuntime().addShutdownHook(new Thread(printStream::shutdown));
+            log.info("Telegram-бот успешно зарегистрирован.");
+        } catch (TelegramApiException e) {
+            log.error("Ошибка при запуске Telegram-бота: {}", e.getMessage(), e);
+        }
     }
 
     /**
@@ -77,7 +104,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
      * @param update обновление, полученное от Telegram, содержащее сообщение и метаданные
      */
     @Override
-    public void onUpdateReceived(Update update) {
+    public void onUpdateReceived(org.telegram.telegrambots.meta.api.objects.Update update) {
         if (update.hasMessage() && update.getMessage().hasText()) {
             Long chatId = update.getMessage().getChatId();
             String message = update.getMessage().getText();
@@ -94,6 +121,16 @@ public class TelegramBotService extends TelegramLongPollingBot {
      */
     @Override
     public String getBotUsername() {
-        return BOT_NAME;
+        return this.botName;
+    }
+
+    /**
+     * Возвращает токен аутентификации Telegram-бота.
+     *
+     * @return токен бота как {@code String}
+     */
+    @Override
+    public String getBotToken() {
+        return this.token;
     }
 }
