@@ -1,4 +1,4 @@
-package org.hofftech.parking.listener;
+package org.hofftech.parking.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +18,7 @@ import java.util.Scanner;
  */
 @Slf4j
 @RequiredArgsConstructor
-public class ConsoleListener {
+public class ConsoleController {
 
     /**
      * Обработчик команд, отвечающий за выполнение введенных пользователем команд.

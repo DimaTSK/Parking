@@ -7,11 +7,6 @@ import org.hofftech.parking.config.ApplicationConfig;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 
-import lombok.extern.slf4j.Slf4j;
-
-import java.io.PrintStream;
-import java.nio.charset.StandardCharsets;
-
 /**
  * Точка входа приложения Parcel.
  * <p>
@@ -60,7 +55,7 @@ public class ParcelMain {
         ApplicationConfig context = new ApplicationConfig();
 
 
-        context.getConsoleListener().listen();
+        context.getConsoleController().listen();
 
 
         log.info("Приложение завершило работу.");

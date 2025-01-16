@@ -2,7 +2,7 @@ package org.hofftech.parking.config;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.hofftech.parking.listener.ConsoleListener;
+import org.hofftech.parking.controller.ConsoleController;
 import org.hofftech.parking.handler.impl.CommandHandlerImpl;
 import org.hofftech.parking.repository.ParcelRepository;
 import org.hofftech.parking.parcer.CommandParser;
@@ -31,7 +31,7 @@ import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
  * <p>
  * Основные компоненты включают:
  * <ul>
- *     <li>{@link ConsoleListener} для прослушивания команд пользователя в консоли.</li>
+ *     <li>{@link ConsoleController} для прослушивания команд пользователя в консоли.</li>
  *     <li>{@link CommandHandlerImpl} для обработки пользовательских команд.</li>
  *     <li>Инициализацию Telegram-бота для взаимодействия через Telegram.</li>
  * </ul>
@@ -57,7 +57,7 @@ public class ApplicationConfig {
     /**
      * Консольный слушатель для обработки команд пользователя.
      */
-    private final ConsoleListener consoleListener;
+    private final ConsoleController consoleController;
 
     /**
      * Конструктор класса {@link ApplicationConfig}.
@@ -79,7 +79,7 @@ public class ApplicationConfig {
         );
         CommandParser commandParser = new CommandParser();
         CommandHandlerImpl commandHandlerImpl = new CommandHandlerImpl(processorFactory, commandParser);
-        this.consoleListener = new ConsoleListener(commandHandlerImpl);
+        this.consoleController = new ConsoleController(commandHandlerImpl);
         initializeTelegram(commandHandlerImpl);
     }
 
