@@ -39,15 +39,6 @@ public class TruckService {
      */
     private static final String TRUCK_SIZE_DELIMITER = "x";
 
-    /**
-     * Ширина грузовика по умолчанию.
-     */
-    private static final int DEFAULT_TRUCK_WIDTH = 6;
-
-    /**
-     * Высота грузовика по умолчанию.
-     */
-    private static final int DEFAULT_TRUCK_HEIGHT = 6;
 
     /**
      * Сервис для управления посылками.
