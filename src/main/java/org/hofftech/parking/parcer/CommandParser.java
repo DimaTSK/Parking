@@ -1,8 +1,8 @@
 package org.hofftech.parking.parcer;
 
 import org.hofftech.parking.model.CommandFlags;
-import org.hofftech.parking.model.enums.CommandType;
 import org.hofftech.parking.model.ParsedCommand;
+import org.hofftech.parking.model.enums.CommandType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,6 +22,10 @@ public class CommandParser {
     private static final String PARAMETER_REGEX =
             "-(?<flag>[a-zA-Z]+)\\s+\"(?<valueQuoted>[^\"]+)\"|" +
                     "-(?<flagAlt>[a-zA-Z]+)\\s+(?<valueUnquoted>[^\\s]+)";
+    private static final String GROUP_FLAG = "flag";
+    private static final String GROUP_FLAG_ALT = "flagAlt";
+    private static final String GROUP_VALUE_QUOTED = "valueQuoted";
+    private static final String GROUP_VALUE_UNQUOTED = "valueUnquoted";
 
     /**
      * Компилированный шаблон регулярного выражения для извлечения параметров команды.
@@ -66,14 +70,14 @@ public class CommandParser {
         Matcher matcher = PARAMETER_PATTERN.matcher(command);
 
         while (matcher.find()) {
-            String flag = matcher.group("flag");
-            String value = matcher.group("valueQuoted");
+            String flag = matcher.group(GROUP_FLAG);
+            String value = matcher.group(GROUP_VALUE_QUOTED);
 
             if (flag != null && value != null) {
                 parameters.put("-" + flag, value);
             } else {
-                flag = matcher.group("flagAlt");
-                value = matcher.group("valueUnquoted");
+                flag = matcher.group(GROUP_FLAG_ALT);
+                value = matcher.group(GROUP_VALUE_UNQUOTED);
                 if (flag != null && value != null) {
                     parameters.put("-" + flag, value);
                 }

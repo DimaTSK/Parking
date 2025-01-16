@@ -41,9 +41,9 @@ public class FindCommandProcessor implements CommandProcessor {
             return;
         }
 
-        Parcel pkg = repository.findPackage(name);
-        if (pkg != null) {
-            System.out.println("Найдена посылка: " + pkg);
+        Parcel parcel = repository.findPackage(name);
+        if (parcel != null) {
+            System.out.println("Найдена посылка: " + parcel);
         } else {
             log.error("Посылка с именем '{}' не найдена.", name);
         }
