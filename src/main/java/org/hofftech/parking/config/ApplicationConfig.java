@@ -22,7 +22,6 @@ import org.hofftech.parking.validator.ParcelValidator;
  * а также инициализируется Telegram-бот.
  * </p>
  *
- * @autor [Ваше Имя]
  * @версия 1.0
  * @с момента 2023-04-27
  */
@@ -40,28 +39,28 @@ public class ApplicationConfig {
     public ApplicationConfig() {
         log.info("Создаем зависимости...");
 
-        // Инициализация репозитория и загрузка дефолтных посылок
+
         ParcelRepository parcelRepository = new ParcelRepository();
         parcelRepository.loadDefaultPackages();
 
-        // Инициализация сервисов
+
         ParcelService parcelService = new ParcelService();
         TruckService truckService = new TruckService(parcelService);
         ParcelValidator parcelValidator = new ParcelValidator();
 
-        // Инициализация фабрики процессоров команд
+
         CommandProcessorFactory processorFactory = getCommandProcessorFactory(
                 parcelValidator, truckService, parcelRepository
         );
 
-        // Инициализация парсера и обработчика команд
+
         CommandParser commandParser = new CommandParser();
         CommandHandlerImpl commandHandler = new CommandHandlerImpl(processorFactory, commandParser);
 
-        // Инициализация контроллера консоли
+
         this.consoleController = new ConsoleController(commandHandler);
 
-        // Инициализация компонентов Telegram
+
         initializeTelegramBot(commandHandler);
     }
 
