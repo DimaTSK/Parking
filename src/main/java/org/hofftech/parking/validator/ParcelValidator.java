@@ -1,80 +1,108 @@
 package org.hofftech.parking.validator;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
-import org.hofftech.parking.exception.InvalidJsonStructureException;
-import org.hofftech.parking.model.dto.ParcelDto;
-import org.hofftech.parking.model.enums.ParcelType;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
+
+/**
+ * Класс {@code ParcelValidator} предоставляет методы для проверки валидности
+ * файла с данными и формы посылки. Он осуществляет проверку содержимого файла на
+ * наличие данных и валидирует форму посылки на корректность диагонального
+ * касания символов.
+ * <p>
+ * Используется для валидации данных перед обработкой в системе парковки.
+ * </p>
+ *
+ * @author
+ * @version 1.0
+ */
 @Slf4j
 public class ParcelValidator {
 
+    /**
+     * Разделитель, используемый для разделения строк в форме посылки.
+     */
+    private static final String DELIMITER = ",";
+
+    /**
+     * Проверяет, является ли предоставленный список строк валидным файлом.
+     * <p>
+     * Файл считается валидным, если он не {@code null} и содержит хотя бы одну строку.
+     * </p>
+     *
+     * @param lines список строк, представляющих содержимое файла
+     * @return {@code true}, если файл валиден; {@code false} в противном случае
+     */
     public boolean isValidFile(List<String> lines) {
-        if (CollectionUtils.isEmpty(lines)) {
-            log.error("Файл пустой.");
+        if (lines == null || lines.isEmpty()) {
+            log.error("Файл пустой или не содержит данных.");
             return false;
         }
-        log.info("Файл проверен, количество строк: {}", lines.size());
+        log.info("Файл успешно проверен. Количество строк: {}", lines.size());
         return true;
     }
 
-    public boolean isValidParcels(List<ParcelDto> parcelDtos) {
-        List<ParcelDto> invalidParcelDtos = parcelDtos.stream()
-                .filter(pkg -> !isValidParcel(pkg))
-                .collect(Collectors.toList());
-
-        if (!invalidParcelDtos.isEmpty()) {
-            invalidParcelDtos.forEach(invalidPkg -> log.error(
-                    "Посылка с ID {} имеет некорректную форму: {}",
-                    invalidPkg.getId(), invalidPkg.getType().getShape()));
-            return false;
+    /**
+     * Парсит и валидирует форму посылки.
+     * <p>
+     * Форма посылки должна быть строкой, возможно содержащей несколько строк,
+     * разделенных разделителем {@code DELIMITER}. Если разделитель присутствует,
+     * каждая строка будет проверена на корректность диагонального касания символов.
+     * </p>
+     *
+     * @param form строковое представление формы посылки
+     * @return список строк, полученных после парсинга формы
+     * @throws IllegalArgumentException если форма посылки не указана или
+     *                                  содержит некорректные символы
+     */
+    public static List<String> parseAndValidateForm(String form) {
+        if (form == null || form.isEmpty()) {
+            throw new IllegalArgumentException("Форма посылки не указана.");
         }
 
-        log.info("Все посылки успешно валидированы.");
-        return true;
+        if (form.contains(DELIMITER)) {
+            List<String> rows = List.of(form.split(DELIMITER));
+            validateDiagonalTouch(rows);
+            return rows;
+        }
+
+        return List.of(form);
     }
 
-    private boolean isValidParcel(ParcelDto pkg) {
-        ParcelType type = pkg.getType();
-        List<String> shape = type.getShape();
+    /**
+     * Валидирует диагональное касание символов в списке строк.
+     * <p>
+     * Каждый символ в текущей строке проверяется на наличие соседних символов слева,
+     * справа и снизу. Если символ "висят в воздухе" (не имеет левого или правого
+     * соседа и не имеет нижнего соседа), выбрасывается {@code IllegalArgumentException}.
+     * </p>
+     *
+     * @param rows список строк для валидации
+     * @throws IllegalArgumentException если найден символ, который "висит в воздухе"
+     */
+    public static void validateDiagonalTouch(List<String> rows) {
+        int height = rows.size();
 
-        if (shape.isEmpty()) {
-            log.error("Посылка с ID {} имеет пустую форму.", pkg.getId());
-            return false;
-        }
+        for (int i = 0; i < height - 1; i++) {
+            String currentRow = rows.get(i);
+            String nextRow = rows.get(i + 1);
 
-        int expectedLength = shape.get(0).length();
-        for (String row : shape) {
-            if (row.length() != expectedLength) {
-                log.error("Посылка с ID {} имеет строки различной длины.", pkg.getId());
-                return false;
-            }
-        }
-        return true;
-    }
+            for (int j = 0; j < currentRow.length(); j++) {
+                char current = currentRow.charAt(j);
 
-    public void validateJsonStructure(Map<String, Object> jsonData) {
-        if (!jsonData.containsKey("trucks")) {
-            log.error("Ошибка: JSON не содержит ключ 'trucks'.");
-            throw new InvalidJsonStructureException("Структура JSON некорректна: отсутствует ключ 'trucks'.");
-        }
+                if (current != ' ') {
+                    boolean hasLeft = j > 0 && currentRow.charAt(j - 1) != ' ';
+                    boolean hasRight = j < currentRow.length() - 1 && currentRow.charAt(j + 1) != ' ';
+                    boolean hasBottom = j < nextRow.length() && nextRow.charAt(j) != ' ';
 
-        List<Map<String, Object>> trucks = (List<Map<String, Object>>) jsonData.get("trucks");
-        for (Map<String, Object> truck : trucks) {
-            if (!truck.containsKey("parcels")) continue;
-            List<Map<String, Object>> parcels = (List<Map<String, Object>>) truck.get("parcels");
-            for (Map<String, Object> pkg : parcels) {
-                if (!pkg.containsKey("type")) {
-                    log.error("У одной из посылок отсутствует ключ 'type'.");
-                    throw new InvalidJsonStructureException("Структура JSON некорректна: у одной из посылок отсутствует ключ 'type'.");
+                    if ((!hasLeft && !hasBottom) || (!hasRight && !hasBottom)) {
+                        throw new IllegalArgumentException(
+                                "Символ в позиции (" + i + ", " + j + ") висит в воздухе."
+                        );
+                    }
                 }
             }
         }
-        log.info("JSON успешно проверен.");
     }
 }

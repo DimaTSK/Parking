@@ -1,4 +1,0 @@
-import C:\java_education\Parking\parking\src\main\resources\parcels.txt
-import even 5 C:\java_education\Parking\parking\src\main\resources\parcels.txt
-save C:\java_education\Parking\parking\src\main\resources\parcels.txt
-import_json out/parcels.json

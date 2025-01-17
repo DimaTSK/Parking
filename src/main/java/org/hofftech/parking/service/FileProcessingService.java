@@ -1,125 +1,123 @@
 package org.hofftech.parking.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hofftech.parking.exception.FileProcessingException;
-import org.hofftech.parking.exception.ParcelCreationException;
-import org.hofftech.parking.model.dto.ParcelDto;
-import org.hofftech.parking.model.entity.Truck;
-import org.hofftech.parking.parcer.ParcelParser;
-import org.hofftech.parking.util.*;
+import org.hofftech.parking.model.Parcel;
+import org.hofftech.parking.model.Truck;
+import org.hofftech.parking.service.strategy.PackingStrategy;
+import org.hofftech.parking.factory.PackingStrategyFactory;
 import org.hofftech.parking.validator.ParcelValidator;
+import org.hofftech.parking.util.FileReaderUtil;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Сервис для обработки файлов, содержащих информацию об упаковках и грузовиках.
+ * Отвечает за чтение, валидацию, парсинг данных и сохранение результатов в JSON файл или вывод на экран.
+ */
 @Slf4j
+@RequiredArgsConstructor
 public class FileProcessingService {
-    private final FileReader fileReader;
-    private final ParcelParser parcelParser;
+    private final ParsingService fileParser;
     private final ParcelValidator parcelValidator;
     private final TruckService truckService;
-    private final JsonFileService jsonFileService;
-    private final TruckPrinter truckPrinter;
-    private final ParcelSorter parcelSorter;
+    private final JsonProcessingService jsonProcessingService;
+    private final PackingStrategyFactory packingStrategyFactory;
 
-    public FileProcessingService(FileReader fileReader, ParcelParser parcelParser,
-            ParcelValidator parcelValidator, TruckService truckService,
-            JsonFileService jsonFileService, TruckPrinter truckPrinter, ParcelSorter parcelSorter) {
-        this.fileReader = fileReader;
-        this.parcelParser = parcelParser;
-        this.parcelValidator = parcelValidator;
-        this.truckService = truckService;
-        this.jsonFileService = jsonFileService;
-        this.truckPrinter = truckPrinter;
-        this.parcelSorter = parcelSorter;
-    }
+    /**
+     * Обрабатывает файл с данными об упаковках или текстовые данные, распределяет упаковки по грузовикам
+     * с использованием выбранной стратегии упаковки и сохраняет результаты или выводит их на экран.
+     *
+     * @param parcelsFile   Путь к файлу с данными об упаковках. Может быть {@code null}, если используются текстовые данные.
+     * @param parcelsText   Текстовые данные об упаковках. Может быть {@code null} или пустым, если используется файл.
+     * @param trucksFromArgs Список грузовиков, переданных через аргументы.
+     * @param useEasyAlg    Флаг, указывающий, использовать ли простую стратегию упаковки.
+     * @param saveToFile    Флаг, указывающий, сохранять результаты в JSON файл или выводить на экран.
+     * @param useEvenAlg    Флаг, указывающий, использовать ли алгоритм для равномерного распределения.
+     */
+    public void processFile(Path parcelsFile, String parcelsText, List<String> trucksFromArgs,
+                            boolean useEasyAlg,
+                            boolean saveToFile,
+                            boolean useEvenAlg) {
+        List<Parcel> parcels = getPackagesFromFileOrArgs(parcelsFile, parcelsText);
+        PackingStrategy strategy = packingStrategyFactory.getStrategy(useEasyAlg);
+        List<Truck> trucks = strategy.addPackages(parcels, useEasyAlg, useEvenAlg, trucksFromArgs);
 
-    public void processFile(Path filePath, boolean useEasyAlgorithm, boolean isSaveToFile, int maxTrucks, boolean lazyAlg) throws ParcelCreationException {
-        try {
-            String algorithm = determineAlgorithm(useEasyAlgorithm, lazyAlg);
-            log.info("Обработка файла: {} с использованием алгоритма: {}. Сохранение в файл: {}",
-                    filePath, algorithm, isSaveToFile);
-
-            List<String> lines = readFile(filePath);
-            validateFile(filePath, lines);
-            List<ParcelDto> parcelDtos = parseFileLines(filePath, lines);
-            validateParcels(parcelDtos);
-
-            parcelSorter.sortParcels(parcelDtos);
-
-            List<Truck> truckEntities = addParcels(useEasyAlgorithm, parcelDtos, maxTrucks, lazyAlg);
-
-            if (isSaveToFile) {
-                saveTrucksToFile(truckEntities);
-            } else {
-                truckPrinter.printTrucks(truckEntities);
-            }
-        } catch (Exception e) {
-            log.error("Ошибка при обработке файла {}: {}", filePath, e.getMessage(), e);
-            throw new ParcelCreationException("Ошибка при обработке файла: " + filePath, e);
-        }
-    }
-
-    private String determineAlgorithm(boolean useEasyAlgorithm, boolean lazyAlg) {
-        if (useEasyAlgorithm) {
-            return "easyAlgorithm";
-        } else if (lazyAlg) {
-            return "multipleTrucksAlgorithm_even";
+        if (saveToFile) {
+            saveTrucksToJson(trucks);
         } else {
-            return "multipleTrucksAlgorithm";
+            truckService.printTrucks(trucks);
         }
     }
 
-    private List<String> readFile(Path filePath) {
+    /**
+     * Получает список упаковок из файла или из переданных текстовых данных.
+     *
+     * @param parcelsFile Путь к файлу с данными об упаковках.
+     * @param parcelsText Текстовые данные об упаковках.
+     * @return Список объектов {@link Parcel}, представляющих упаковки.
+     * @throws IllegalArgumentException если список упаковок пуст после обработки файла или текста.
+     */
+    private List<Parcel> getPackagesFromFileOrArgs(Path parcelsFile, String parcelsText) {
+        List<Parcel> parcels = new ArrayList<>();
+        if (parcelsFile != null) {
+            List<String> lines = FileReaderUtil.readAllLines(parcelsFile);
+            validateFile(parcelsFile, lines);
+            parcels = parseFileLines(parcelsFile, lines);
+        } else if (parcelsText != null && !parcelsText.isEmpty()) {
+            parcels = fileParser.getPackagesFromArgs(parcelsText);
+        }
+        if (parcels.isEmpty()) {
+            throw new IllegalArgumentException("Упаковки не представлены, продолжение работы невозможно");
+        }
+        return parcels;
+    }
+
+    /**
+     * Сохраняет информацию о грузовиках в JSON файл.
+     *
+     * @param trucks Список грузовиков для сохранения.
+     * @throws RuntimeException если возникает ошибка при сохранении данных в JSON.
+     */
+    private void saveTrucksToJson(List<Truck> trucks) {
         try {
-            return fileReader.readAllLines(filePath);
+            log.info("Сохраняем данные грузовиков в JSON...");
+            String result = jsonProcessingService.saveToJson(trucks);
+            log.info("Данные успешно сохранены в JSON: {}", result);
         } catch (Exception e) {
-            log.error("Ошибка при чтении файла {}", filePath, e);
-            throw new FileProcessingException("Ошибка чтения файла: " + filePath, e);
+            log.error("Ошибка при сохранении данных в JSON: {}", e.getMessage(), e);
+            throw e;
         }
     }
 
-    protected void saveTrucksToFile(List<Truck> truckEntities) {
-        try {
-            log.info("Сохранение загруженных грузовиков в JSON");
-            jsonFileService.saveTrucksToJson(truckEntities);
-        } catch (Exception e) {
-            log.error("Ошибка при сохранении в JSON", e);
-            throw new RuntimeException("Ошибка при сохранении в JSON", e);
-        }
-    }
-
-    public List<Truck> addParcels(boolean useEasyAlgorithm, List<ParcelDto> parcelDtos, int maxTrucks, Boolean lazyAlg) {
-        List<Truck> truckEntities;
-        if (useEasyAlgorithm) {
-            truckEntities = truckService.addParcelsToIndividualTrucks(parcelDtos);
-        } else {
-            truckEntities = truckService.addParcelsToMultipleTrucks(parcelDtos, maxTrucks, lazyAlg);
-        }
-        return truckEntities;
-    }
-
-    private void validateParcels(List<ParcelDto> parcelDtos) {
-        if (!parcelValidator.isValidParcels(parcelDtos)) {
-            log.warn("Некоторые упаковки не прошли валидацию.");
-        } else {
-            log.info("Все упаковки успешно прошли валидацию.");
-        }
-    }
-
-    protected List<ParcelDto> parseFileLines(Path filePath, List<String> lines) throws ParcelCreationException {
-        List<ParcelDto> parcelDtos = parcelParser.parseParcels(lines);
-        if (parcelDtos.isEmpty()) {
+    /**
+     * Парсит строки из файла и преобразует их в список объектов {@link Parcel}.
+     *
+     * @param filePath Путь к файлу с данными.
+     * @param lines    Список строк из файла.
+     * @return Список объектов {@link Parcel}, представляющих упаковки.
+     */
+    protected List<Parcel> parseFileLines(Path filePath, List<String> lines) {
+        List<Parcel> parcels = fileParser.parsePackagesFromFile(lines);
+        if (parcels.isEmpty()) {
             log.warn("Не удалось распарсить ни одной упаковки из файла: {}", filePath);
-        } else {
-            log.info("Успешно распарсено {} упаковок.", parcelDtos.size());
         }
-        return parcelDtos;
+        log.info("Успешно распарсено {} упаковок.", parcels.size());
+        return parcels;
     }
 
+    /**
+     * Валидирует содержимое файла с данными об упаковках.
+     *
+     * @param filePath Путь к файлу, который проверяется.
+     * @param lines    Список строк из файла для валидации.
+     * @throws RuntimeException если файл не прошел валидацию.
+     */
     protected void validateFile(Path filePath, List<String> lines) {
         if (!parcelValidator.isValidFile(lines)) {
-            log.error("Файл не прошел валидацию: {}", filePath);
+            log.error("Файл не прошел валидацию");
             throw new RuntimeException("Файл не прошел валидацию: " + filePath);
         }
         log.info("Файл успешно прошел валидацию.");
