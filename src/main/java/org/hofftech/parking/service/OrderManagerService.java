@@ -12,21 +12,41 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Сервис для управления заказами.
+ * Предоставляет методы для добавления заказов и генерации отчетов по заказам пользователя
+ * в заданном диапазоне дат.
+ */
 @Slf4j
 public class OrderManagerService {
     private final List<Order> orders = new ArrayList<>();
 
+    /**
+     * Добавляет новый заказ в список заказов.
+     *
+     * @param order Заказ, который необходимо добавить.
+     */
     public void addOrder(Order order) {
         orders.add(order);
     }
 
+    /**
+     * Генерирует отчет о заказах для указанного пользователя в заданном диапазоне дат.
+     *
+     * @param userId Идентификатор пользователя, для которого генерируется отчет.
+     * @param from   Начальная дата диапазона в формате "dd-MM-yyyy".
+     * @param to     Конечная дата диапазона в формате "dd-MM-yyyy".
+     * @return Строка с форматом отчета, где каждая строка соответствует одному заказу.
+     * @throws BillingException Если формат даты некорректен или не найдены заказы для пользователя
+     *                          в указанном диапазоне дат.
+     */
     public String generateReport(String userId, String from, String to) {
         LocalDate fromDate;
         LocalDate toDate;
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
-        log.info("Генерируем отчет для " + userId + " с " + from + " по " + to);
+        log.info("Отчет для " + userId + " с " + from + " по " + to);
         try {
             fromDate = LocalDate.parse(from, formatter);
             toDate = LocalDate.parse(to, formatter);
@@ -53,6 +73,14 @@ public class OrderManagerService {
                 .collect(Collectors.joining("\n"));
     }
 
+    /**
+     * Получает список заказов для указанного пользователя в заданном диапазоне дат.
+     *
+     * @param userId   Идентификатор пользователя.
+     * @param dateFrom Начальная дата диапазона.
+     * @param dateTo   Конечная дата диапазона.
+     * @return Список заказов, соответствующих критериям фильтрации.
+     */
     private List<Order> getOrdersByUserIdAndDateRange(String userId, LocalDate dateFrom, LocalDate dateTo) {
         return orders.stream()
                 .filter(order -> order.getUserId().equals(userId)

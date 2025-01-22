@@ -8,7 +8,18 @@ import org.hofftech.parking.model.Truck;
 
 import java.util.ArrayList;
 import java.util.List;
-
+/**
+ * Сервис для управления грузовиками и размещения посылок.
+ * <p>
+ * Предоставляет методы для распределения посылок по нескольким грузовикам,
+ * равномерного распределения, создания грузовиков, а также для печати
+ * состояния грузовиков.
+ * </p>
+ * Логирование осуществляется с помощью аннотации {@code @Slf4j}.
+ * Конструктор с параметрами генерируется с помощью {@code @RequiredArgsConstructor},
+ * что обеспечивает внедрение необходимых зависимостей.
+ * </p>
+ */
 @Slf4j
 @RequiredArgsConstructor
 public class TruckService {
@@ -19,6 +30,21 @@ public class TruckService {
     private static final int SECOND_PART = 1;
     private final ParcelService parcelService;
 
+    /**
+     * Добавляет посылки в несколько грузовиков.
+     *
+     * <p>
+     * Размещает список посылок в предоставленных грузовиках.
+     * При необходимости используется равномерный алгоритм распределения.
+     * </p>
+     *
+     * @param parcelList       список посылок для размещения
+     * @param isEvenAlgorithm  флаг, указывающий использовать ли равномерный алгоритм
+     * @param trucksFromArgs    список размеров грузовиков, предоставленных через аргументы
+     * @return список грузовиков с размещенными посылками
+     * @throws IllegalArgumentException если список грузовиков пуст
+     * @throws RuntimeException         если недостаточно грузовиков для размещения всех посылок
+     */
     public List<Truck> addParcelsToMultipleTrucks(List<Parcel> parcelList, Boolean isEvenAlgorithm, List<String> trucksFromArgs) {
         log.info("Начало размещения упаковок. Всего упаковок: {}", parcelList.size());
         parcelList.sort(null);
@@ -43,6 +69,19 @@ public class TruckService {
         return trucks;
     }
 
+    /**
+     * Равномерно распределяет посылки по грузовикам.
+     *
+     * <p>
+     * Посылки распределяются по всем доступным грузовикам последовательно,
+     * обеспечивая равномерное распределение нагрузки.
+     * </p>
+     *
+     * @param parcels список посылок для распределения
+     * @param trucks  список грузовиков, в которые будут размещены посылки
+     * @throws IllegalArgumentException если список грузовиков пуст
+     * @throws RuntimeException         если недостаточно грузовиков для размещения всех посылок
+     */
     public void distributeParcelsEvenly(List<Parcel> parcels, List<Truck> trucks) {
         if (trucks.isEmpty()) {
             throw new IllegalArgumentException("Невозможно распределить посылки: нет грузовиков.");
@@ -71,7 +110,17 @@ public class TruckService {
         log.info("Все посылки успешно распределены по грузовикам.");
     }
 
-
+    /**
+     * Размещает посылки в грузовиках по порядку.
+     *
+     * <p>
+     * Для каждой посылки пытается найти подходящий грузовик и разместить её.
+     * Если посылка не помещается, предпринимается повторная попытка размещения.
+     * </p>
+     *
+     * @param parcelList список посылок для размещения
+     * @param trucks     список грузовиков, в которые будут размещены посылки
+     */
     private void placeParcels(List<Parcel> parcelList, List<Truck> trucks) {
         for (Parcel providedParcel : parcelList) {
             log.info("Пытаемся разместить упаковку с ID {} и именем {}.", providedParcel.getName(), providedParcel.getName());
@@ -97,6 +146,17 @@ public class TruckService {
         }
     }
 
+    /**
+     * Создает новый грузовик на основе предоставленного размера.
+     *
+     * <p>
+     * Размеры грузовика передаются в виде строки, разделенной символом {@code TRUCK_SIZE_SPLITTER}.
+     * </p>
+     *
+     * @param providedTruckSize строка, содержащая размеры грузовика в формате {@code ширинаxвысота}
+     * @return новый экземпляр {@link Truck} с указанными размерами
+     * @throws NumberFormatException если размеры грузовика не являются числами
+     */
     private Truck createTruck(String providedTruckSize) {
         String[] splitSize = providedTruckSize.split(TRUCK_SIZE_SPLITTER);
         Truck currentTruck = new Truck(Integer.parseInt(splitSize[FIRST_PART].trim()), Integer.parseInt(splitSize[SECOND_PART].trim()));
@@ -104,6 +164,17 @@ public class TruckService {
         return currentTruck;
     }
 
+    /**
+     * Формирует строковое представление состояния всех грузовиков.
+     *
+     * <p>
+     * Каждому грузовику присваивается номер, указывается его размер и отображается
+     * текущая загруженность в виде текстовой сетки.
+     * </p>
+     *
+     * @param trucks список грузовиков для отображения
+     * @return строковое представление состояния всех грузовиков
+     */
     @SneakyThrows
     public String printTrucks(List<Truck> trucks) {
         log.info("Начало формирования состояния всех грузовиков. Всего грузовиков: {}", trucks.size());
@@ -120,6 +191,17 @@ public class TruckService {
         return result.toString();
     }
 
+    /**
+     * Возвращает строковое представление загруженности конкретного грузовика.
+     *
+     * <p>
+     * Отображает содержимое грузовика в виде сетки с границами.
+     * Пустые ячейки обозначаются пробелами.
+     * </p>
+     *
+     * @param truck грузовик для отображения
+     * @return строковое представление грузовика
+     */
     private String getTruckRepresentation(Truck truck) {
         StringBuilder truckRepresentation = new StringBuilder();
         truckRepresentation.append("+").append("+".repeat(truck.getWidth())).append("+\n");
@@ -137,6 +219,17 @@ public class TruckService {
         return truckRepresentation.toString();
     }
 
+    /**
+     * Добавляет посылки в индивидуальные грузовики.
+     *
+     * <p>
+     * Каждой посылке назначается отдельный грузовик на основе предоставленных размеров.
+     * </p>
+     *
+     * @param parcels        список посылок для размещения
+     * @param providedTrucks список размеров грузовиков в формате {@code ширинаxвысота}
+     * @return список грузовиков с размещенными посылками
+     */
     public List<Truck> addParcelsToIndividualTrucks(List<Parcel> parcels, List<String> providedTrucks) {
         List<Truck> trucks = new ArrayList<>();
         int truckIndex = 0;

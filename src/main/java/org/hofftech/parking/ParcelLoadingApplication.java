@@ -30,9 +30,7 @@ public class ParcelLoadingApplication {
      */
     public static void main(String[] args) {
         System.setOut(new PrintStream(System.out, true, StandardCharsets.UTF_8));
-        log.info("Приложение запускается...");
         SpringApplication.run(ParcelLoadingApplication.class, args);
-        log.info("Приложение завершило работу.");
     }
 }
 

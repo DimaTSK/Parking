@@ -10,6 +10,10 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Класс для парсинга пользовательских команд.
+ * Предоставляет методы для извлечения параметров из строки команды и создания объекта {@link ParsedCommand}.
+ */
 @AllArgsConstructor
 public class CommandParser {
 
@@ -36,10 +40,16 @@ public class CommandParser {
 
     private final CommandTypeService commandTypeService;
 
+    /**
+     * Парсит строку команды и возвращает объект {@link ParsedCommand}.
+     *
+     * @param command строка команды для парсинга
+     * @return объект {@link ParsedCommand}, содержащий разобранные параметры команды
+     */
     public ParsedCommand parse(String command) {
         Map<String, String> parameters = extractParameters(command);
-        String firstArgumentFromCommand = command.split(COMMAND_SPLIT_SYMBOL)[FIRST_ARGUMENT_INDEX].
-                replaceFirst("^/", "").toUpperCase();
+        String firstArgumentFromCommand = command.split(COMMAND_SPLIT_SYMBOL)[FIRST_ARGUMENT_INDEX]
+                .replaceFirst("^/", "").toUpperCase();
 
         CommandType commandType = commandTypeService.determineCommandType(firstArgumentFromCommand);
 
@@ -50,6 +60,12 @@ public class CommandParser {
         return parsedCommand;
     }
 
+    /**
+     * Извлекает параметры из строки команды на основе регулярного выражения.
+     *
+     * @param command строка команды
+     * @return карта с ключами и значениями параметров
+     */
     private Map<String, String> extractParameters(String command) {
         Map<String, String> parameters = new HashMap<>();
         Pattern pattern = Pattern.compile(COMMAND_REGEX);
@@ -68,7 +84,12 @@ public class CommandParser {
         return parameters;
     }
 
-
+    /**
+     * Создает объект {@link ParsedCommand} на основе извлеченных параметров.
+     *
+     * @param parameters карта с ключами и значениями параметров
+     * @return объект {@link ParsedCommand} с установленными параметрами
+     */
     private ParsedCommand createParsedCommand(Map<String, String> parameters) {
         boolean saveToFile = parameters.containsKey(SAVE);
         boolean isEasyAlgorithm = parameters.containsKey(EASY);
@@ -98,12 +119,16 @@ public class CommandParser {
         );
     }
 
+    /**
+     * Устанавливает необязательные параметры в объект {@link ParsedCommand}.
+     *
+     * @param parsedCommand объект {@link ParsedCommand}, в который устанавливаются параметры
+     * @param parameters     карта с ключами и значениями параметров
+     */
     private void setOptionalParameters(ParsedCommand parsedCommand, Map<String, String> parameters) {
         parsedCommand.setName(parameters.get(NAME));
         parsedCommand.setOldName(parameters.get(OLD_NAME));
         parsedCommand.setForm(parameters.get(FORM));
         parsedCommand.setSymbol(parameters.get(SYMBOL));
     }
-
-
 }

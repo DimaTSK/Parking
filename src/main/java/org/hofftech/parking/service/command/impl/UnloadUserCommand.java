@@ -13,7 +13,9 @@ import org.hofftech.parking.service.command.UserCommand;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-
+/**
+ * Класс реализации пользовательской команды для создания посылки.
+ */
 @RequiredArgsConstructor
 public class UnloadUserCommand implements UserCommand {
 
@@ -21,7 +23,9 @@ public class UnloadUserCommand implements UserCommand {
     private final FileSavingUtil fileSavingUtil;
 
     private static final String OUTPUT_FILE_PATH = "out/in.txt";
-
+    /**
+     * Выполняет команду создания посылки на основе переданной команды.
+     */
     @Override
     public String execute(ParsedCommand command) {
         String inFile = command.getInFile();

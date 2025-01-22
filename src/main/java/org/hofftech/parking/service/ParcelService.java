@@ -7,6 +7,11 @@ import org.hofftech.parking.model.Truck;
 
 import java.util.List;
 
+/**
+ * Сервис для управления упаковками в грузовике.
+ * Предоставляет методы для проверки возможности добавления упаковки,
+ * упаковки в грузовик и размещения упаковки на сетке грузовика.
+ */
 @Slf4j
 public class ParcelService {
 
@@ -15,6 +20,16 @@ public class ParcelService {
     private static final char EMPTY_SPACE = ' ';
     private int ROWLENGTH_FIRT_SYMBOL;
 
+    /**
+     * Проверяет, можно ли добавить указанную упаковку в грузовик
+     * в заданные координаты.
+     *
+     * @param truck          Грузовик, в который пытаемся добавить упаковку.
+     * @param providedParcel Упаковка, которую нужно добавить.
+     * @param startX         Начальная позиция по оси X.
+     * @param startY         Начальная позиция по оси Y.
+     * @return {@code true}, если упаковку можно добавить, иначе {@code false}.
+     */
     protected boolean canAddParcel(Truck truck, Parcel providedParcel, int startX, int startY) {
         log.debug("Проверяем возможность добавить упаковку {} в координаты X={}, Y={}", providedParcel.getName(), startX, startY);
         List<String> shape = providedParcel.getReversedShape();
@@ -35,6 +50,18 @@ public class ParcelService {
         return !isParcelSupported(truck, providedParcel, startX, startY, topRow, support, requiredSupport);
     }
 
+    /**
+     * Проверяет, поддерживается ли верхняя строка упаковки достаточным количеством опор.
+     *
+     * @param truck           Грузовик, в котором размещается упаковка.
+     * @param parcel          Упаковка, для которой выполняется проверка.
+     * @param startX          Начальная позиция по оси X.
+     * @param startY          Начальная позиция по оси Y.
+     * @param topRow          Верхняя строка формы упаковки.
+     * @param support         Количество текущих опор.
+     * @param requiredSupport Требуемое количество опор.
+     * @return {@code true}, если опор недостаточно, иначе {@code false}.
+     */
     private boolean isParcelSupported(Truck truck, Parcel parcel, int startX, int startY, String topRow, int support, double requiredSupport) {
         ROWLENGTH_FIRT_SYMBOL = 0;
         for (int x = ROWLENGTH_FIRT_SYMBOL; x < topRow.length(); x++) {
@@ -49,6 +76,17 @@ public class ParcelService {
         return false;
     }
 
+    /**
+     * Проверяет, пересекается ли упаковка с уже размещенными объектами в грузовике.
+     *
+     * @param truck  Грузовик, в котором проверяется пересечение.
+     * @param parcel Упаковка, для которой выполняется проверка.
+     * @param startX Начальная позиция по оси X.
+     * @param startY Начальная позиция по оси Y.
+     * @param height Высота формы упаковки.
+     * @param shape  Форма упаковки в виде списка строк.
+     * @return {@code true}, если происходит пересечение, иначе {@code false}.
+     */
     private boolean isIntersection(Truck truck, Parcel parcel, int startX, int startY, int height, List<String> shape) {
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < shape.get(y).length(); x++) {
@@ -61,6 +99,17 @@ public class ParcelService {
         return false;
     }
 
+    /**
+     * Проверяет, находится ли упаковка в пределах размеров грузовика.
+     *
+     * @param truck  Грузовик, в который пытаемся добавить упаковку.
+     * @param parcel Упаковка, которую нужно проверить.
+     * @param startX Начальная позиция по оси X.
+     * @param startY Начальная позиция по оси Y.
+     * @param height Высота формы упаковки.
+     * @param shape  Форма упаковки в виде списка строк.
+     * @return {@code true}, если упаковка выходит за пределы грузовика, иначе {@code false}.
+     */
     private boolean isParcelWithinLimits(Truck truck, Parcel parcel, int startX, int startY, int height, List<String> shape) {
         for (int y = 0; y < height; y++) {
             int rowWidth = shape.get(y).length();
@@ -72,6 +121,14 @@ public class ParcelService {
         return false;
     }
 
+    /**
+     * Пытается добавить указанную упаковку в грузовик.
+     * Перебирает все возможные позиции и проверяет возможность добавления.
+     *
+     * @param truck          Грузовик, в который пытаемся добавить упаковку.
+     * @param providedParcel Упаковка, которую нужно добавить.
+     * @return {@code true}, если упаковку удалось добавить, иначе {@code false}.
+     */
     protected boolean tryPack(Truck truck, Parcel providedParcel) {
         log.info("Пытаемся добавить упаковку {} в грузовик.", providedParcel.getName());
 
@@ -93,6 +150,14 @@ public class ParcelService {
         return false;
     }
 
+    /**
+     * Размещает указанную упаковку на сетке грузовика в заданных координатах.
+     *
+     * @param truck  Грузовик, в котором размещается упаковка.
+     * @param parcel Упаковка, которую нужно разместить.
+     * @param startX Начальная позиция по оси X.
+     * @param startY Начальная позиция по оси Y.
+     */
     protected void placeParcel(Truck truck, Parcel parcel, int startX, int startY) {
         List<String> shape = parcel.getReversedShape();
 
@@ -107,6 +172,4 @@ public class ParcelService {
         truck.getParcels().add(parcel);
         log.info("Упаковка {} размещена на грузовике", parcel.getName());
     }
-
-
 }

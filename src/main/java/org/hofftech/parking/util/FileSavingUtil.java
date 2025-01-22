@@ -47,7 +47,7 @@ public final class FileSavingUtil {
      */
     public void saveParcelsToFile(List<Map<String, Long>> parcels, String outputFilePath, boolean isWithCount) throws IOException {
         File outputFile = new File(outputFilePath);
-        log.info("Начинаем запись в файл {} количества: {}", outputFilePath, isWithCount ? "с подсчётом" : "без подсчёта");
+        log.info("Запись в файл {} количества: {}", outputFilePath, isWithCount ? "с подсчётом" : "без подсчёта");
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
             for (Map<String, Long> map : parcels) {
@@ -57,8 +57,6 @@ public final class FileSavingUtil {
             log.error("Ошибка записи в файл: {}", e.getMessage());
             throw e;
         }
-
-        log.info("Посылки успешно импортированы и сохранены в файл: {}", outputFile.getAbsolutePath());
     }
 
     /**

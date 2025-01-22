@@ -10,14 +10,18 @@ import org.hofftech.parking.service.command.UserCommand;
 
 import java.util.List;
 import java.util.Optional;
-
+/**
+ * Класс реализации пользовательской команды для создания посылки.
+ */
 @AllArgsConstructor
 public class UpdateUserCommand implements UserCommand {
 
     private static final int INDEX_OF_FIRST_SYMBOL = 0;
     private final ParcelRepository parcelRepository;
     private final ParcelValidator parcelValidator;
-
+    /**
+     * Выполняет команду создания посылки на основе переданной команды.
+     */
     @Override
     public String execute(ParsedCommand command) {
         String currentName = command.getOldName();

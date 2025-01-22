@@ -4,7 +4,11 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.hofftech.parking.model.enums.CommandType;
-
+/**
+ * Класс, представляющий разобранную пользовательскую команду.
+ * Содержит информацию о параметрах команды, таких как имя посылки, форма, символ,
+ * флаги для алгоритмов упаковки, информация о пользователе и другие параметры.
+ */
 @Getter
 @Setter
 @RequiredArgsConstructor

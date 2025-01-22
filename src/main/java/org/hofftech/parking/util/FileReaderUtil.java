@@ -41,7 +41,6 @@ public final class FileReaderUtil {
             if (!Files.isReadable(filePath)) {
                 throw new InputFileException("Файл недоступен для чтения: " + filePath);
             }
-            log.info("Чтение строк из файла: {}", filePath);
             return Files.readAllLines(filePath);
         } catch (IOException e) {
             throw new InputFileException("Ошибка чтения файла: " + filePath);

@@ -25,6 +25,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Сервис для обработки JSON данных, связанных с грузовиками и посылками.
+ * Предоставляет методы для сохранения данных о грузовиках в JSON файл и импорта посылок из JSON.
+ */
 @Slf4j
 public class JsonProcessingService {
     private static final String OUTPUT_DIRECTORY = "out";
@@ -41,6 +45,12 @@ public class JsonProcessingService {
         this.objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
     }
 
+    /**
+     * Сохраняет список грузовиков в JSON файл.
+     *
+     * @param trucks список грузовиков для сохранения
+     * @return строковое представление JSON
+     */
     public String saveToJson(List<Truck> trucks) {
         File outputFile = createFile();
         List<TruckDto> trucksData = new ArrayList<>();
@@ -59,6 +69,13 @@ public class JsonProcessingService {
         }
     }
 
+    /**
+     * Получает начальную позицию посылки из DTO.
+     *
+     * @param parcelDto DTO посылки
+     * @param position  текущая позиция
+     * @return начальная позиция посылки
+     */
     private ParcelStartPosition getParcelStartPosition(ParcelDto parcelDto, ParcelStartPosition position) {
         if (parcelDto.getStartPosition() != null) {
             position = new ParcelStartPosition(
@@ -69,6 +86,14 @@ public class JsonProcessingService {
         return position;
     }
 
+    /**
+     * Импортирует посылки из JSON файла.
+     *
+     * @param jsonFilePath путь к JSON файлу
+     * @param isWithCount  флаг группировки посылок с подсчетом
+     * @param user         идентификатор пользователя
+     * @return список карт с названиями посылок и их количеством
+     */
     @SneakyThrows
     public List<Map<String, Long>> importParcelsFromJson(String jsonFilePath, boolean isWithCount, String user) {
         File jsonFile = new File(jsonFilePath);
@@ -100,6 +125,13 @@ public class JsonProcessingService {
         }
     }
 
+    /**
+     * Добавляет заказ на разгрузку.
+     *
+     * @param trucks  список DTO грузовиков
+     * @param parcels список посылок
+     * @param userId  идентификатор пользователя
+     */
     public void addUnloadOrder(List<TruckDto> trucks, List<Parcel> parcels, String userId) {
         Order order = new Order(
                 userId,
@@ -110,9 +142,15 @@ public class JsonProcessingService {
         );
 
         orderManagerService.addOrder(order);
-        log.info("Добавлен заказ на рагрузку для {}", userId);
+        log.info("Добавлен заказ на разгрузку для {}", userId);
     }
 
+    /**
+     * Получает индивидуальные посылки без группировки.
+     *
+     * @param parcels список посылок
+     * @return список карт с названиями посылок и их количеством
+     */
     private List<Map<String, Long>> getIndividualParcels(List<Parcel> parcels) {
         return parcels.stream()
                 .flatMap(parcel -> parcel.getName().repeat(1).lines())
@@ -120,6 +158,12 @@ public class JsonProcessingService {
                 .toList();
     }
 
+    /**
+     * Группирует посылки с подсчетом количества каждой.
+     *
+     * @param parcels список посылок
+     * @return список карт с названиями посылок и их количеством
+     */
     private List<Map<String, Long>> groupParcelsWithCount(List<Parcel> parcels) {
         return parcels.stream()
                 .collect(Collectors.groupingBy(
@@ -133,6 +177,12 @@ public class JsonProcessingService {
                 .toList();
     }
 
+    /**
+     * Извлекает посылки из DTO грузовика и добавляет их в список.
+     *
+     * @param truck   DTO грузовика
+     * @param parcels список для добавления посылок
+     */
     private void extractParcelsFromTruck(TruckDto truck, List<Parcel> parcels) {
         for (ParcelDto parcelDto : truck.getParcels()) {
             ParcelStartPosition position = null;
@@ -147,6 +197,13 @@ public class JsonProcessingService {
         }
     }
 
+    /**
+     * Преобразует объект Truck в TruckDto.
+     *
+     * @param truck      объект Truck
+     * @param truckIndex индекс грузовика
+     * @return объект TruckDto
+     */
     private TruckDto convertToTruckDto(Truck truck, int truckIndex) {
         List<ParcelDto> parcelDtos = new ArrayList<>();
         for (Parcel parcel : truck.getParcels()) {
@@ -155,6 +212,12 @@ public class JsonProcessingService {
         return new TruckDto(truckIndex + TRUCK_NAME_INDEX, truck.getWidth() + TRUCK_SIZE_SPLITTER + truck.getHeight(), parcelDtos);
     }
 
+    /**
+     * Преобразует объект Parcel в ParcelDto.
+     *
+     * @param providedParcel объект Parcel
+     * @return объект ParcelDto
+     */
     private ParcelDto convertToParcelDto(Parcel providedParcel) {
         ParcelDto parcelDto = new ParcelDto();
         parcelDto.setName(providedParcel.getName());
@@ -174,6 +237,11 @@ public class JsonProcessingService {
         return parcelDto;
     }
 
+    /**
+     * Создает файл для сохранения JSON данных.
+     *
+     * @return объект File
+     */
     private File createFile() {
         File outputDir = new File(OUTPUT_DIRECTORY);
         if (!outputDir.exists() && !outputDir.mkdirs()) {

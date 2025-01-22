@@ -6,12 +6,16 @@ import org.hofftech.parking.exception.ParcelNotFoundException;
 import org.hofftech.parking.model.ParsedCommand;
 import org.hofftech.parking.repository.ParcelRepository;
 import org.hofftech.parking.service.command.UserCommand;
-
+/**
+ * Класс реализации пользовательской команды для создания посылки.
+ */
 @RequiredArgsConstructor
 public class FindUserCommand implements UserCommand {
 
     private final ParcelRepository parcelRepository;
-
+    /**
+     * Выполняет команду создания посылки на основе переданной команды.
+     */
     @Override
     public String execute(ParsedCommand command) {
         String name = command.getName();

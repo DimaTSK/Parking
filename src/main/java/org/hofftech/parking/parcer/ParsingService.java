@@ -11,6 +11,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 
+/**
+ * Сервис для парсинга информации о посылках.
+ * Предоставляет методы для извлечения посылок из файла и аргументов.
+ */
 @Slf4j
 @RequiredArgsConstructor
 public class ParsingService {
@@ -18,6 +22,13 @@ public class ParsingService {
     private static final String PARCELS_SPLITTER = ",";
     private final ParcelRepository parcelRepository;
 
+    /**
+     * Парсит список строк из файла и возвращает список соответствующих посылок.
+     *
+     * @param lines список строк, представляющих имена посылок
+     * @return список объектов {@link Parcel}
+     * @throws RuntimeException если посылка не найдена в репозитории
+     */
     public List<Parcel> parseParcelsFromFile(List<String> lines) {
         List<Parcel> parcels = new ArrayList<>();
         for (String parcelName : lines) {
@@ -35,6 +46,14 @@ public class ParsingService {
         return parcels;
     }
 
+    /**
+     * Извлекает посылки из строки аргументов и возвращает список соответствующих посылок.
+     *
+     * @param parcelsText строка, содержащая имена посылок, разделенные запятыми
+     * @return список объектов {@link Parcel}
+     * @throws ParcelArgumentException если строка аргументов пуста или null
+     * @throws ParcelNotFoundException если одна из посылок не найдена в репозитории
+     */
     public List<Parcel> getParcelFromArgs(String parcelsText) {
         if (parcelsText == null || parcelsText.isBlank()) {
             throw new ParcelArgumentException("Аргумент с посылками пуст");

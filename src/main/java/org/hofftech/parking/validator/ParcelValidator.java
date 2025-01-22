@@ -113,6 +113,5 @@ public class ParcelValidator {
         if (lines.isEmpty()) {
             throw new ValidateException("Файл пустой или не содержит данных.");
         }
-        log.info("Файл успешно проверен. Количество строк: {}", lines.size());
     }
 }

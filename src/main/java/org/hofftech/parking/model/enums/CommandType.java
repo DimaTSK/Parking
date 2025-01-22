@@ -2,7 +2,15 @@ package org.hofftech.parking.model.enums;
 
 import lombok.Getter;
 
-
+/**
+ * Перечисление типов команд, используемых в системе.
+ * <p>
+ * Каждая константа данного перечисления представляет определённый тип команды,
+ * который может быть выполнен пользователем или системой.
+ * </p>
+ *
+ * @see lombok.Getter
+ */
 @Getter
 public enum CommandType {
     START,

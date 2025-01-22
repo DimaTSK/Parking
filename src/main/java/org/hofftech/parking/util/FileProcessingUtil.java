@@ -68,7 +68,7 @@ public class FileProcessingUtil {
 
         if (saveToFile) {
             saveTrucksToJson(trucks);
-            return "Данные успешно сохранены в файл.";
+            return "Данные сохранены в файл.";
         } else {
             return truckService.printTrucks(trucks);
         }
@@ -174,7 +174,6 @@ public class FileProcessingUtil {
         if (parcels.isEmpty()) {
             throw new RuntimeException("Не удалось распарсить ни одной упаковки из файла: " + filePath);
         }
-        log.info("Успешно распарсено {} упаковок.", parcels.size());
         return parcels;
     }
 }

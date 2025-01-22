@@ -7,12 +7,16 @@ import org.hofftech.parking.repository.ParcelRepository;
 import org.hofftech.parking.service.command.UserCommand;
 
 import java.util.List;
-
+/**
+ * Класс реализации пользовательской команды для создания посылки.
+ */
 @RequiredArgsConstructor
 public class ListUserCommand implements UserCommand {
 
     private final ParcelRepository parcelRepository;
-
+    /**
+     * Выполняет команду создания посылки на основе переданной команды.
+     */
     @Override
     public String execute(ParsedCommand command) {
         List<Parcel> parcels = parcelRepository.getAllParcel();

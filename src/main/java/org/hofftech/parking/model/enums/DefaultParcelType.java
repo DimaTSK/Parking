@@ -5,7 +5,13 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.Arrays;
 import java.util.List;
-
+/**
+ * Перечисление {@code DefaultParcelType} определяет стандартные типы посылок с предопределенной формой.
+ *
+ * <p>
+ * Каждая константа перечисления представляет собой определенный тип посылки с соответствующей формой,
+ * представленной списком строк.
+ */
 @Getter
 @RequiredArgsConstructor
 public enum DefaultParcelType {

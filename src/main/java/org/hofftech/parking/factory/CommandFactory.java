@@ -19,7 +19,12 @@ import org.hofftech.parking.service.command.impl.StartUserCommand;
 import org.hofftech.parking.service.command.impl.UnloadUserCommand;
 import org.hofftech.parking.service.command.impl.UpdateUserCommand;
 
-
+/**
+ * Фабрика для создания процессоров пользовательских команд на основе типа команды.
+ * <p>
+ * Использует различные зависимости для инициализации конкретных реализаций {@link UserCommand}.
+ * </p>
+ */
 @RequiredArgsConstructor
 public class CommandFactory {
     private final ParcelRepository repository;
@@ -29,6 +34,12 @@ public class CommandFactory {
     private final ParcelValidator parcelValidator;
     private final OrderManagerService orderManagerService;
 
+    /**
+     * Создает процессор команды на основе указанного типа команды.
+     *
+     * @param commandType тип команды, для которой нужно создать процессор
+     * @return экземпляр {@link UserCommand}, соответствующий заданному типу команды
+     */
     public UserCommand createProcessor(CommandType commandType) {
         return switch (commandType) {
             case CREATE -> new CreateUserCommand(repository, parcelValidator);

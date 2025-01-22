@@ -9,12 +9,16 @@ import org.hofftech.parking.service.command.UserCommand;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-
+/**
+ * Класс реализации пользовательской команды для создания посылки.
+ */
 @RequiredArgsConstructor
 public class LoadUserCommand implements UserCommand {
 
     private final FileProcessingUtil fileProcessingUtil;
-
+    /**
+     * Выполняет команду создания посылки на основе переданной команды.
+     */
     @Override
     public String execute(ParsedCommand command) {
         String parcelsText = command.getParcelsText();
@@ -31,7 +35,7 @@ public class LoadUserCommand implements UserCommand {
                     : new ArrayList<>();
 
             if (user == null || user.isEmpty()) {
-                throw new UserNotProvidedException("Пользователь должен быть передан для комынды LOAD");
+                throw new UserNotProvidedException("Пользователь должен быть передан для команды LOAD");
             }
 
             if (parcelsText != null && !parcelsText.isEmpty()) {

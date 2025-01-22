@@ -11,6 +11,13 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
+/**
+ * Контроллер для Telegram-бота, отвечающий за обработку входящих сообщений и выполнение соответствующих команд.
+ * <p>
+ * Класс расширяет {@link TelegramLongPollingBot} и использует {@link CommandFactory} и {@link CommandParser}
+ * для обработки и выполнения пользовательских команд.
+ * </p>
+ */
 @Slf4j
 @Getter
 public class TelegramController extends TelegramLongPollingBot {
@@ -32,11 +39,25 @@ public class TelegramController extends TelegramLongPollingBot {
         this.commandParser = commandParser;
     }
 
+    /**
+     * Возвращает имя бота.
+     *
+     * @return имя бота
+     */
     @Override
     public String getBotUsername() {
         return botName;
     }
 
+    /**
+     * Обрабатывает входящие обновления от Telegram.
+     * <p>
+     * При получении текстового сообщения, команда разбирается и выполняется соответствующим процессором.
+     * Результат выполнения отправляется обратно пользователю в формате Markdown.
+     * </p>
+     *
+     * @param update объект обновления, полученного от Telegram
+     */
     @Override
     public void onUpdateReceived(Update update) {
         if (update.hasMessage() && update.getMessage().hasText()) {
@@ -58,6 +79,13 @@ public class TelegramController extends TelegramLongPollingBot {
         }
     }
 
+    /**
+     * Регистрирует бота в Telegram API.
+     * <p>
+     * Использует {@link TelegramBotsApi} для регистрации текущего экземпляра бота.
+     * В случае ошибки регистрации выбрасывает {@link RuntimeException}.
+     * </p>
+     */
     public void registerBot() {
         try {
             TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);

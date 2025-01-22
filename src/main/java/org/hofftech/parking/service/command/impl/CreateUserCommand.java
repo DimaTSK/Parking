@@ -9,7 +9,9 @@ import org.hofftech.parking.repository.ParcelRepository;
 import org.hofftech.parking.validator.ParcelValidator;
 import org.hofftech.parking.service.command.UserCommand;
 import java.util.List;
-
+/**
+ * Класс реализации пользовательской команды для создания посылки.
+ */
 @RequiredArgsConstructor
 public class CreateUserCommand implements UserCommand {
 
@@ -18,7 +20,9 @@ public class CreateUserCommand implements UserCommand {
 
     private static final int FIRST_CHAR_INDEX = 0;
     private static final int POSITION_START_INDEX = 0;
-
+    /**
+     * Выполняет команду создания посылки на основе переданной команды.
+     */
     @Override
     public String execute(ParsedCommand command) {
         String name = command.getName();
