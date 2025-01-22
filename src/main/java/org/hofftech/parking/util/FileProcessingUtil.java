@@ -19,7 +19,16 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-
+/**
+ * Утилитный класс для обработки файлов с информацией о посылках.
+ * <p>
+ * Предоставляет методы для обработки файлов, валидации данных, распределения посылок по грузовикам,
+ * сохранения результатов и управления заказами.
+ * </p>
+ * Логирование осуществляется с помощью аннотации {@code @Slf4j}.
+ * Класс использует конструктор с параметрами для внедрения зависимостей через {@code @RequiredArgsConstructor}.
+ * </p>
+ */
 @Slf4j
 @RequiredArgsConstructor
 public class FileProcessingUtil {
@@ -31,6 +40,24 @@ public class FileProcessingUtil {
     private final ParcelAlgorithmFactory parcelAlgorithmFactory;
     private final OrderManagerService orderManagerService;
 
+    /**
+     * Обрабатывает файл с посылками или текстовые данные, распределяет посылки по грузовикам,
+     * добавляет заказ и при необходимости сохраняет результаты в файл.
+     *
+     * <p>
+     * В зависимости от предоставленных аргументов, метод может использовать алгоритм упрощенной или
+     * четной упаковки, сохранять результаты в файл или возвращать их в виде строки.
+     * </p>
+     *
+     * @param parcelsFile      путь к файлу с посылками
+     * @param parcelsText      текстовое представление посылок
+     * @param trucksFromArgs   список грузовиков, переданных через аргументы
+     * @param isEasyAlgorithm  флаг использования упрощенного алгоритма
+     * @param saveToFile       флаг сохранения результатов в файл
+     * @param isEvenAlgorithm  флаг использования четного алгоритма
+     * @param user             идентификатор пользователя
+     * @return строковое сообщение о результате обработки
+     */
     public String processFile(Path parcelsFile, String parcelsText, List<String> trucksFromArgs,
                               boolean isEasyAlgorithm, boolean saveToFile, boolean isEvenAlgorithm, String user) {
         List<Parcel> parcels = getParcelsFromFileOrArgs(parcelsFile, parcelsText);
@@ -47,6 +74,17 @@ public class FileProcessingUtil {
         }
     }
 
+    /**
+     * Добавляет заказ на погрузку грузовиков для указанного пользователя.
+     *
+     * <p>
+     * Собирает все посылки из грузовиков, подсчитывает количество задействованных грузовиков и
+     * создаёт новый заказ, который затем добавляется в систему управления заказами.
+     * </p>
+     *
+     * @param trucks  список грузовиков для добавления в заказ
+     * @param userId идентификатор пользователя, для которого создаётся заказ
+     */
     private void addLoadOrder(List<Truck> trucks, String userId) {
         List<Parcel> allParcels = new ArrayList<>();
         int truckCount = 0;
@@ -69,6 +107,19 @@ public class FileProcessingUtil {
         log.info("Заказ на погрузку добавлен для пользователя {}", userId);
     }
 
+    /**
+     * Получает список посылок из файла или из текстового представления.
+     *
+     * <p>
+     * В зависимости от предоставленных аргументов, метод читает посылки из файла или
+     * парсит их из текстовой строки. После этого выполняется валидация полученных данных.
+     * </p>
+     *
+     * @param parcelsFile путь к файлу с посылками
+     * @param parcelsText текстовое представление посылок
+     * @return список объектов {@link Parcel}, представляющих посылки
+     * @throws IllegalArgumentException если посылки не представлены
+     */
     private List<Parcel> getParcelsFromFileOrArgs(Path parcelsFile, String parcelsText) {
         List<Parcel> parcels = new ArrayList<>();
         if (parcelsFile != null) {
@@ -84,6 +135,17 @@ public class FileProcessingUtil {
         return parcels;
     }
 
+    /**
+     * Сохраняет информацию о грузовиках в формате JSON.
+     *
+     * <p>
+     * Использует сервис {@link JsonProcessingService} для преобразования данных о грузовиках
+     * в JSON формат и сохраняет результат.
+     * </p>
+     *
+     * @param trucks список грузовиков для сохранения
+     * @throws RuntimeException если происходит ошибка при сохранении данных в JSON
+     */
     protected void saveTrucksToJson(List<Truck> trucks) {
         try {
             log.info("Сохраняем данные грузовиков в JSON...");
@@ -94,6 +156,19 @@ public class FileProcessingUtil {
         }
     }
 
+    /**
+     * Парсит строки файла и преобразует их в список посылок.
+     *
+     * <p>
+     * Использует сервис {@link ParsingService} для парсинга строк из файла в объекты {@link Parcel}.
+     * Если ни одна посылка не была успешно распарсена, выбрасывается исключение.
+     * </p>
+     *
+     * @param filePath путь к файлу с посылками
+     * @param lines    список строк из файла
+     * @return список объектов {@link Parcel}, представляющих посылки
+     * @throws RuntimeException если ни одна посылка не была распарсена
+     */
     protected List<Parcel> parseFileLines(Path filePath, List<String> lines) {
         List<Parcel> parcels = fileParser.parseParcelsFromFile(lines);
         if (parcels.isEmpty()) {

@@ -20,6 +20,20 @@ public class ParcelValidator {
     private static final String FORM_SPLITTER = ",";
     private static final int FIRST_ROW_INDEX = 0;
 
+    /**
+     * Проверяет, не висят ли символы ниже формы.
+     *
+     * <p>
+     * Для каждого символа в текущей строке проверяется наличие соседних
+     * символов слева, справа и снизу. Если символ не имеет поддержки
+     * слева и снизу, либо справа и снизу, выбрасывается исключение {@code ValidateException}.
+     * </p>
+     *
+     * @param currentRow текущая строка формы
+     * @param nextRow    следующая строка формы
+     * @param i          индекс текущей строки
+     * @throws ValidateException если символ висит в воздухе
+     */
     private static void checkSymbolsBelowShape(String currentRow, String nextRow, int i) {
         for (int j = FIRST_ROW_INDEX; j < currentRow.length(); j++) {
             char current = currentRow.charAt(j);
@@ -36,6 +50,18 @@ public class ParcelValidator {
         }
     }
 
+    /**
+     * Валидирует форму посылки.
+     *
+     * <p>
+     * Проверяет, что форма не пустая и разделена корректным разделителем.
+     * Затем выполняет дополнительную валидацию на касание диагоналей.
+     * </p>
+     *
+     * @param form строковое представление формы посылки
+     * @return список строк, представляющих строки формы
+     * @throws ValidateException если форма пустая или имеет некорректный формат
+     */
     public List<String> validateForm(String form) {
         if (form == null || form.isEmpty()) {
             throw new ValidateException("Форма посылки не указана.");
@@ -50,6 +76,17 @@ public class ParcelValidator {
         return List.of(form);
     }
 
+    /**
+     * Валидирует касание диагоналей в форме посылки.
+     *
+     * <p>
+     * Проверяет, что символы в каждой строке корректно соприкасаются с символами
+     * в следующей строке, чтобы избежать висящих символов.
+     * </p>
+     *
+     * @param rows список строк формы посылки
+     * @throws ValidateException если обнаружены висящие символы
+     */
     public void validateDiagonalTouch(List<String> rows) {
         int height = rows.size();
 
@@ -61,6 +98,17 @@ public class ParcelValidator {
         }
     }
 
+    /**
+     * Валидирует содержимое файла с данными формы.
+     *
+     * <p>
+     * Проверяет, что файл не пустой и содержит данные. При успешной проверке
+     * выводит информацию в лог о количестве строк в файле.
+     * </p>
+     *
+     * @param lines список строк из файла
+     * @throws ValidateException если файл пустой или не содержит данных
+     */
     public void validateFile(List<String> lines) {
         if (lines.isEmpty()) {
             throw new ValidateException("Файл пустой или не содержит данных.");
