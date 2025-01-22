@@ -9,61 +9,24 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Класс, представляющий пакет с его формой и характеристиками.
- */
 @Getter
 @Setter
 @ToString
 @AllArgsConstructor
-public class Parcel {
-    /**
-     * Название пакета.
-     */
+public class Parcel implements Comparable<Parcel> {
     private String name;
-
-    /**
-     * Форма пакета, представленная списком строк.
-     */
     private List<String> shape;
-
-    /**
-     * Символ, используемый для отображения пакета.
-     */
     private char symbol;
-
-    /**
-     * Начальная позиция пакета.
-     */
     private ParcelStartPosition parcelStartPosition;
 
-    /**
-     * Возвращает ширину пакета, основанную на длине первой строки формы.
-     *
-     * @return Ширина пакета.
-     */
     public int getWidth() {
-        if (shape == null || shape.isEmpty()) {
-            return 0;
-        }
-        return shape.get(0).length();
+        return shape.getFirst().length();
     }
 
-    /**
-     * Возвращает высоту пакета, основанную на количестве строк в форме.
-     *
-     * @return Высота пакета.
-     */
     public int getHeight() {
-        return (shape != null) ? shape.size() : 0;
+        return shape.size();
     }
 
-    /**
-     * Обновляет символ, используемый в форме пакета.
-     * Заменяет все вхождения текущего символа на новый символ.
-     *
-     * @param newSymbol Новый символ для использования в форме.
-     */
     public void updateSymbol(char newSymbol) {
         if (shape == null || shape.isEmpty()) {
             return;
@@ -78,15 +41,18 @@ public class Parcel {
         this.symbol = newSymbol;
     }
 
-    /**
-     * Возвращает перевёрнутую форму пакета.
-     * Порядок строк в форме инвертируется.
-     *
-     * @return Перевёрнутая форма как список строк.
-     */
-    public List<String> getUniqueShape() {
+    public List<String> getReversedShape() {
         List<String> reversedShape = new ArrayList<>(this.shape);
         Collections.reverse(reversedShape);
         return reversedShape;
+    }
+
+    @Override
+    public int compareTo(Parcel other) {
+        int heightDiff = Integer.compare(other.getHeight(), this.getHeight());
+        if (heightDiff == 0) {
+            return Integer.compare(other.getWidth(), this.getWidth());
+        }
+        return heightDiff;
     }
 }

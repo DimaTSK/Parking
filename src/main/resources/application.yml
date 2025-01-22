@@ -1,0 +1,9 @@
+telegram:
+  bot:
+    token: "${TELEGRAM_BOT_NAME}"
+    name: "${TELEGRAM_BOT_NAME}"
+
+spring:
+  shell:
+    interactive:
+      enabled: true

@@ -9,86 +9,46 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Утилитный класс {@code FileSavingUtil} предоставляет методы для сохранения
- * информации о посылках в файл. Класс содержит статический метод для записи
- * списка посылок в указанный файл с возможностью сохранения данных с подсчетом
- * количества или без него.
- * <p>
- * Этот класс является финальным и содержит только статические методы, предназначенные
- * для облегчения процесса сохранения данных о посылках.
- * </p>
- *
- * <p><strong>Пример использования:</strong></p>
- * <pre>
- *     List<Map.Entry<String, Long>> packages = ...; // инициализация списка
- *     String outputPath = "path/to/output/file.txt";
- *     boolean withCount = true;
- *
- *     try {
- *         FileSavingUtil.savePackagesToFile(packages, outputPath, withCount);
- *     } catch (IOException e) {
- *         // обработка исключения
- *     }
- * </pre>
- *
- * @author
- * @version 1.0
- */
+
 @Slf4j
 public final class FileSavingUtil {
 
-    /**
-     * Предотвращает создание экземпляров данного класса.
-     */
-    private FileSavingUtil() {
-        // Конструктор приватный для предотвращения создания экземпляров
-    }
-
-    /**
-     * Сохраняет список посылок в файл по указанному пути.
-     * <p>
-     * Метод позволяет сохранить информацию о посылках либо с подсчетом количества каждой
-     * посылки, либо без подсчета, записывая каждую посылку отдельно столько раз, сколько указано.
-     * </p>
-     *
-     * @param packages       список посылок, каждая посылка представлена парой ключ-значение,
-     *                       где ключ — название посылки, а значение — количество таких посылок
-     * @param outputFilePath путь к файлу, в который будут сохранены данные
-     * @param withCount      флаг, определяющий режим сохранения:
-     *                       <ul>
-     *                           <li>{@code true} — сохранять с подсчетом количества (например, "ПосылкаA" - 5 шт)</li>
-     *                           <li>{@code false} — сохранять без подсчета, записывая каждую посылку отдельно</li>
-     *                       </ul>
-     * @throws IOException если произошла ошибка при записи в файл
-     *
-     * @implNote Метод использует {@link BufferedWriter} для эффективной записи данных в файл.
-     *           В случае ошибки записи логируется сообщение об ошибке и исключение пробрасывается дальше.
-     */
-    public static void savePackagesToFile(List<Map.Entry<String, Long>> packages,
-                                          String outputFilePath, boolean withCount) throws IOException {
+    public void saveParcelsToFile(List<Map<String, Long>> parcels, String outputFilePath, boolean isWithCount) throws IOException {
         File outputFile = new File(outputFilePath);
-        log.info("Начинаем запись в файл {} количества", withCount ? "с подсчётом" : "без подсчёта");
+        log.info("Начинаем запись в файл {} количества: {}", outputFilePath, isWithCount ? "с подсчётом" : "без подсчёта");
+
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
-            for (Map.Entry<String, Long> entry : packages) {
-                String line;
-                if (withCount) {
-                    line = String.format("\"%s\" - %d шт", entry.getKey(), entry.getValue());
-                    writer.write(line);
-                    writer.newLine();
-                } else {
-                    for (long i = 0; i < entry.getValue(); i++) { // Изменено на long для соответствия типу значения
-                        line = String.format("\"%s\"", entry.getKey());
-                        writer.write(line);
-                        writer.newLine();
-                    }
-                }
+            for (Map<String, Long> map : parcels) {
+                writeParcelMapToFile(map, writer, isWithCount);
             }
         } catch (IOException e) {
-            log.error("Ошибка при записи в файл {}: {}", outputFilePath, e.getMessage());
+            log.error("Ошибка записи в файл: {}", e.getMessage());
             throw e;
         }
+
         log.info("Посылки успешно импортированы и сохранены в файл: {}", outputFile.getAbsolutePath());
     }
 
+    private void writeParcelMapToFile(Map<String, Long> map, BufferedWriter writer, boolean withCount) throws IOException {
+        for (String key : map.keySet()) {
+            if (withCount) {
+                writeLineWithCount(writer, key, map.get(key));
+            } else {
+                writeLinesWithoutCount(writer, key, map.get(key));
+            }
+        }
+    }
+
+    private void writeLineWithCount(BufferedWriter writer, String key, Long value) throws IOException {
+        String line = String.format("%s - %d шт", key, value);
+        writer.write(line);
+        writer.newLine();
+    }
+
+    private void writeLinesWithoutCount(BufferedWriter writer, String key, Long value) throws IOException {
+        for (int i = 0; i < value; i++) {
+            writer.write(key);
+            writer.newLine();
+        }
+    }
 }

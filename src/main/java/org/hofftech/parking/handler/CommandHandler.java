@@ -1,25 +1,31 @@
 package org.hofftech.parking.handler;
 
-/**
- * Интерфейс обработчика команд.
- * <p>
- * Этот интерфейс определяет метод для обработки команд, введённых пользователем.
- * Реализации этого интерфейса отвечают за выполнение конкретных действий в ответ на команды.
- * </p>
- *
- * @author
- * @version 1.0
- */
-public interface CommandHandler {
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.hofftech.parking.factory.CommandFactory;
+import org.hofftech.parking.model.ParsedCommand;
+import org.hofftech.parking.parcer.CommandParser;
+import org.hofftech.parking.service.command.UserCommand;
 
-    /**
-     * Обрабатывает заданную команду.
-     * <p>
-     * Этот метод принимает строку команды и выполняет соответствующее действие.
-     * Реализация может включать парсинг команды, выполнение операций и обработку результатов.
-     * </p>
-     *
-     * @param command команда для обработки
-     */
-    void handle(String command);
+@Slf4j
+@RequiredArgsConstructor
+
+public class CommandHandler {
+    private final CommandFactory processorFactory;
+    private final CommandParser commandParser;
+    @Getter
+    private UserCommand currentProcessor;
+
+    public String handle(String command) {
+        ParsedCommand parsedCommand = commandParser.parse(command);
+        currentProcessor = processorFactory.createProcessor(parsedCommand.getCommandType());
+
+        if (currentProcessor != null) {
+            return currentProcessor.execute(parsedCommand);
+        } else {
+            throw new IllegalArgumentException("Процессор для команды не найден: " + parsedCommand.getCommandType());
+        }
+    }
+
 }
