@@ -21,6 +21,9 @@ import java.util.stream.Collectors;
 public class OrderManagerService {
     private final List<Order> orders = new ArrayList<>();
 
+    private static final int LOAD_COST = 80;
+    private static final int UNLOAD_COST = 50;
+
     /**
      * Добавляет новый заказ в список заказов.
      *
@@ -54,23 +57,64 @@ public class OrderManagerService {
             throw new BillingException("Некорректный формат даты. Используйте формат: dd-MM-yyyy.");
         }
 
-        List<Order> orders = getOrdersByUserIdAndDateRange(userId, fromDate, toDate);
+        List<Order> userOrders = getOrdersByUserIdAndDateRange(userId, fromDate, toDate);
 
-        if (orders.isEmpty()) {
+        if (userOrders.isEmpty()) {
             throw new BillingException("Не найдено заказов для пользователя " + userId +
                     " в диапазоне " + fromDate + " - " + toDate);
         }
 
-        return orders.stream()
-                .map(order -> String.format(
-                        "%s; %s; %d машин; %d посылок; %d рублей",
-                        order.getDate().format(formatter),
-                        order.getOperationType() == OrderOperationType.LOAD ? "Погрузка" : "Разгрузка",
-                        order.getTruckCount(),
-                        order.getParcels().size(),
-                        order.getTotalCost()
-                ))
+        return userOrders.stream()
+                .map(order -> {
+                    int totalCost = calculateTotalCost(order);
+                    return String.format(
+                            "%s; %s; %d машин; %d посылок; %d рублей",
+                            order.getDate().format(formatter),
+                            order.getOperationType() == OrderOperationType.LOAD ? "Погрузка" : "Разгрузка",
+                            order.getTruckCount(),
+                            order.getParcels().size(),
+                            totalCost
+                    );
+                })
                 .collect(Collectors.joining("\n"));
+    }
+
+    /**
+     * Вычисляет общую стоимость заказа на основе типа операции и количества сегментов в каждой посылке.
+     *
+     * <p>
+     * Если список посылок пуст или равен {@code null}, возвращает 0.
+     * Иначе для каждой посылки подсчитывается количество сегментов (ненулевых символов) в ее форме,
+     * умножается на стоимость за сегмент в зависимости от типа операции (загрузка или разгрузка),
+     * и результаты суммируются.
+     * </p>
+     *
+     * @param order Заказ, для которого необходимо вычислить стоимость.
+     * @return общая стоимость заказа
+     */
+    public int calculateTotalCost(Order order) {
+        if (order.getParcels() == null || order.getParcels().isEmpty()) {
+            return 0;
+        }
+
+        int costPerSegment = order.getOperationType() == OrderOperationType.LOAD ? LOAD_COST : UNLOAD_COST;
+
+        return order.getParcels().stream()
+                .mapToInt(parcel -> countSegments(parcel.getShape()) * costPerSegment)
+                .sum();
+    }
+
+    /**
+     * Подсчитывает количество сегментов в форме посылки.
+     * Сегментом считается любой символ, кроме пробела.
+     *
+     * @param shape список строк, представляющих форму посылки
+     * @return количество сегментов в форме посылки
+     */
+    private int countSegments(List<String> shape) {
+        return shape.stream()
+                .mapToInt(row -> (int) row.chars().filter(ch -> ch != ' ').count())
+                .sum();
     }
 
     private List<Order> getOrdersByUserIdAndDateRange(String userId, LocalDate dateFrom, LocalDate dateTo) {
@@ -78,7 +122,6 @@ public class OrderManagerService {
                 .filter(order -> order.getUserId().equals(userId))
                 .filter(order -> !order.getDate().isBefore(dateFrom))
                 .filter(order -> !order.getDate().isAfter(dateTo))
-                .toList();
+                .collect(Collectors.toList());
     }
-
 }
