@@ -2,8 +2,6 @@ package org.hofftech.parking.service.json;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.hofftech.parking.exception.InputFileException;
 import org.hofftech.parking.exception.JsonWriteException;
@@ -20,10 +18,7 @@ import org.hofftech.parking.service.OrderManagerService;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -38,6 +33,7 @@ public class JsonProcessingService {
     private static final int ADJUSTING_FOR_START_POSITION = 1;
     private static final int TRUCK_NAME_INDEX = 1;
     private static final String TRUCK_SIZE_SPLITTER = "x";
+
     private final ObjectMapper objectMapper;
     private final OrderManagerService orderManagerService;
 
@@ -54,36 +50,19 @@ public class JsonProcessingService {
      */
     public String saveToJson(List<Truck> trucks) {
         File outputFile = createFile();
-        List<TruckDto> trucksData = new ArrayList<>();
-        for (int i = 0; i < trucks.size(); i++) {
-            trucksData.add(convertToTruckDto(trucks.get(i), i));
-        }
+        List<TruckDto> trucksData = trucks.stream()
+                .map(this::convertToTruckDto)
+                .collect(Collectors.toList());
 
         try {
-            String jsonString = objectMapper.writeValueAsString(Map.of("trucks", trucksData));
-            objectMapper.writeValue(outputFile, Map.of("trucks", trucksData));
+            Map<String, List<TruckDto>> data = Map.of(TRUCKS_ARRAY, trucksData);
+            String jsonString = objectMapper.writeValueAsString(data);
+            objectMapper.writeValue(outputFile, data);
             log.info("JSON файл успешно создан: {}", outputFile.getAbsolutePath());
             return jsonString;
         } catch (IOException e) {
             throw new JsonWriteException("Не удалось записать JSON", e);
         }
-    }
-
-    /**
-     * Получает начальную позицию посылки из DTO.
-     *
-     * @param parcelDto DTO посылки
-     * @param position  текущая позиция
-     * @return начальная позиция посылки
-     */
-    private ParcelStartPosition getParcelStartPosition(ParcelDto parcelDto, ParcelStartPosition position) {
-        if (parcelDto.getStartPosition() != null) {
-            position = new ParcelStartPosition(
-                    parcelDto.getStartPosition().getX(),
-                    parcelDto.getStartPosition().getY()
-            );
-        }
-        return position;
     }
 
     /**
@@ -95,33 +74,53 @@ public class JsonProcessingService {
      * @return список карт с названиями посылок и их количеством
      */
     public List<Map<String, Long>> importParcelsFromJson(String jsonFilePath, boolean isWithCount, String user) {
+        File jsonFile = validateAndGetFile(jsonFilePath);
+        Map<String, List<TruckDto>> jsonData = parseJsonFile(jsonFile);
+        List<Parcel> parcels = extractAllParcels(jsonData.get(TRUCKS_ARRAY));
+        addUnloadOrder(jsonData.get(TRUCKS_ARRAY), parcels, user);
+        return isWithCount ? groupParcelsWithCount(parcels) : getIndividualParcels(parcels);
+    }
+
+    /**
+     * Проверяет существование файла и возвращает объект File.
+     *
+     * @param jsonFilePath путь к JSON файлу
+     * @return объект File
+     */
+    private File validateAndGetFile(String jsonFilePath) {
         File jsonFile = new File(jsonFilePath);
         if (!jsonFile.exists()) {
             throw new InputFileException("Файл не найден: " + jsonFilePath);
         }
-        Map<String, List<TruckDto>> jsonData;
+        return jsonFile;
+    }
+
+    /**
+     * Парсит JSON файл и возвращает структуру данных.
+     *
+     * @param jsonFile объект File
+     * @return карта с данными из JSON
+     */
+    private Map<String, List<TruckDto>> parseJsonFile(File jsonFile) {
         try {
-            jsonData = objectMapper.readValue(
-                    jsonFile,
-                    new TypeReference<>() {
-                    }
-            );
+            return objectMapper.readValue(jsonFile, new TypeReference<>() {});
         } catch (IOException e) {
             throw new RuntimeException("Ошибка маппинга: " + e.getMessage(), e);
         }
+    }
+
+    /**
+     * Извлекает все посылки из списка грузовиков.
+     *
+     * @param trucks список DTO грузовиков
+     * @return список посылок
+     */
+    private List<Parcel> extractAllParcels(List<TruckDto> trucks) {
         List<Parcel> parcels = new ArrayList<>();
-        List<TruckDto> trucks = jsonData.get(TRUCKS_ARRAY);
         for (TruckDto truck : trucks) {
             extractParcelsFromTruck(truck, parcels);
         }
-
-        addUnloadOrder(trucks, parcels, user);
-
-        if (isWithCount) {
-            return groupParcelsWithCount(parcels);
-        } else {
-            return getIndividualParcels(parcels);
-        }
+        return parcels;
     }
 
     /**
@@ -131,7 +130,7 @@ public class JsonProcessingService {
      * @param parcels список посылок
      * @param userId  идентификатор пользователя
      */
-    public void addUnloadOrder(List<TruckDto> trucks, List<Parcel> parcels, String userId) {
+    private void addUnloadOrder(List<TruckDto> trucks, List<Parcel> parcels, String userId) {
         Order order = new Order(
                 userId,
                 LocalDate.now(),
@@ -142,14 +141,6 @@ public class JsonProcessingService {
 
         orderManagerService.addOrder(order);
         log.info("Добавлен заказ на разгрузку для {}", userId);
-    }
-
-
-    private List<Map<String, Long>> getIndividualParcels(List<Parcel> parcels) {
-        return parcels.stream()
-                .flatMap(parcel -> parcel.getName().repeat(1).lines())
-                .map(name -> Map.of(name, 1L))
-                .toList();
     }
 
     /**
@@ -172,6 +163,18 @@ public class JsonProcessingService {
     }
 
     /**
+     * Возвращает список индивидуальных посылок.
+     *
+     * @param parcels список посылок
+     * @return список карт с названиями посылок и количеством 1
+     */
+    private List<Map<String, Long>> getIndividualParcels(List<Parcel> parcels) {
+        return parcels.stream()
+                .map(parcel -> Map.of(parcel.getName(), 1L))
+                .collect(Collectors.toList());
+    }
+
+    /**
      * Извлекает посылки из DTO грузовика и добавляет их в список.
      *
      * @param truck   DTO грузовика
@@ -179,8 +182,7 @@ public class JsonProcessingService {
      */
     private void extractParcelsFromTruck(TruckDto truck, List<Parcel> parcels) {
         for (ParcelDto parcelDto : truck.getParcels()) {
-            ParcelStartPosition position = null;
-            position = getParcelStartPosition(parcelDto, position);
+            ParcelStartPosition position = getParcelStartPosition(parcelDto);
             Parcel parcel = new Parcel(
                     parcelDto.getName(),
                     parcelDto.getShape(),
@@ -192,18 +194,33 @@ public class JsonProcessingService {
     }
 
     /**
+     * Получает начальную позицию посылки из DTO.
+     *
+     * @param parcelDto DTO посылки
+     * @return начальная позиция посылки
+     */
+    private ParcelStartPosition getParcelStartPosition(ParcelDto parcelDto) {
+        if (parcelDto.getStartPosition() != null) {
+            return new ParcelStartPosition(
+                    parcelDto.getStartPosition().getX(),
+                    parcelDto.getStartPosition().getY()
+            );
+        }
+        throw new RuntimeException("Отсутствует стартовая позиция у посылки " + parcelDto.getName());
+    }
+
+    /**
      * Преобразует объект Truck в TruckDto.
      *
-     * @param truck      объект Truck
-     * @param truckIndex индекс грузовика
+     * @param truck объект Truck
      * @return объект TruckDto
      */
-    private TruckDto convertToTruckDto(Truck truck, int truckIndex) {
-        List<ParcelDto> parcelDtos = new ArrayList<>();
-        for (Parcel parcel : truck.getParcels()) {
-            parcelDtos.add(convertToParcelDto(parcel));
-        }
-        return new TruckDto(truckIndex + TRUCK_NAME_INDEX, truck.getWidth() + TRUCK_SIZE_SPLITTER + truck.getHeight(), parcelDtos);
+    private TruckDto convertToTruckDto(Truck truck) {
+        List<ParcelDto> parcelDtos = truck.getParcels().stream()
+                .map(this::convertToParcelDto)
+                .collect(Collectors.toList());
+        String size = truck.getWidth() + TRUCK_SIZE_SPLITTER + truck.getHeight();
+        return new TruckDto(TRUCK_NAME_INDEX, size, parcelDtos);
     }
 
     /**
