@@ -1,6 +1,5 @@
 package org.hofftech.parking.handler;
 
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hofftech.parking.factory.CommandFactory;
@@ -23,9 +22,6 @@ public class CommandHandler {
     private final CommandFactory processorFactory;
     private final CommandParser commandParser;
 
-    @Getter
-    private UserCommand currentProcessor;
-
     /**
      * Основной метод обработки команды без обработки исключений.
      *
@@ -35,14 +31,14 @@ public class CommandHandler {
      */
     public String execute(String command) {
         ParsedCommand parsedCommand = commandParser.parse(command);
-        currentProcessor = processorFactory.createProcessor(parsedCommand.getCommandType());
-        return currentProcessor.execute(parsedCommand);
+        UserCommand processor = processorFactory.createProcessor(parsedCommand.getCommandType());
+        return processor.execute(parsedCommand);
     }
 
     /**
      * Обрабатывает переданную команду, выполняет её и возвращает результат.
      * <p>
-     * Парсит строковую команду, создает соответствующий процессор команды через {@link CommandFactory},
+     * Парсит строковую команду, создаёт соответствующий процессор команды через {@link CommandFactory},
      * выполняет команду и возвращает результат. В случае возникновения ошибки, логирует её и возвращает сообщение об ошибке.
      * </p>
      *
