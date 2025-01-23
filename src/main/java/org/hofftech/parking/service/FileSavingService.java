@@ -1,6 +1,7 @@
 package org.hofftech.parking.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.hofftech.parking.exception.FileSavingException;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -33,19 +34,19 @@ public final class FileSavingService {
      * @param parcels        список карт, где каждая карта содержит название посылки и её количество
      * @param outputFilePath путь к выходному файлу для сохранения данных
      * @param isWithCount    флаг, указывающий, нужно ли записывать количество каждой посылки
-     * @throws IOException если происходит ошибка при записи в файл
      */
-    public void saveParcels(List<Map<String, Long>> parcels, String outputFilePath, boolean isWithCount) throws IOException {
+    public void saveParcels(List<Map<String, Long>> parcels, String outputFilePath, boolean isWithCount) {
         File outputFile = new File(outputFilePath);
-        log.info("Запись в файл {} количества: {}", outputFilePath, isWithCount ? "с подсчётом" : "без подсчёта");
+        log.info("Начало записи в файл {} с подсчётом: {}", outputFilePath, isWithCount);
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
             for (Map<String, Long> map : parcels) {
                 writeParcelMapToFile(map, writer, isWithCount);
             }
+            log.info("Успешная запись в файл {}", outputFilePath);
         } catch (IOException e) {
-            log.error("Ошибка записи в файл: {}", e.getMessage());
-            throw e;
+            log.error("Ошибка записи в файл {}: {}", outputFilePath, e.getMessage());
+            throw new FileSavingException("Не удалось сохранить посылки в файл: " + outputFilePath, e);
         }
     }
 
@@ -58,15 +59,16 @@ public final class FileSavingService {
      *
      * @param map       карта, содержащая название посылки и её количество
      * @param writer    {@link BufferedWriter} для записи данных в файл
-     * @param withCount флаг, определяющий способ записи (с подсчётом или без)
-     * @throws IOException если происходит ошибка при записи в файл
+     * @param isWithCount флаг, определяющий способ записи (с подсчётом или без)
      */
-    private void writeParcelMapToFile(Map<String, Long> map, BufferedWriter writer, boolean withCount) throws IOException {
-        for (String key : map.keySet()) {
-            if (withCount) {
-                writeLineWithCount(writer, key, map.get(key));
+    private void writeParcelMapToFile(Map<String, Long> map, BufferedWriter writer, boolean isWithCount) {
+        for (Map.Entry<String, Long> entry : map.entrySet()) {
+            String key = entry.getKey();
+            Long value = entry.getValue();
+            if (isWithCount) {
+                writeLineWithCount(writer, key, value);
             } else {
-                writeLinesWithoutCount(writer, key, map.get(key));
+                writeLinesWithoutCount(writer, key, value);
             }
         }
     }
@@ -81,12 +83,16 @@ public final class FileSavingService {
      * @param writer {@link BufferedWriter} для записи данных в файл
      * @param key    название посылки
      * @param value количество посылки
-     * @throws IOException если происходит ошибка при записи в файл
      */
-    private void writeLineWithCount(BufferedWriter writer, String key, Long value) throws IOException {
-        String line = String.format("%s - %d шт", key, value);
-        writer.write(line);
-        writer.newLine();
+    private void writeLineWithCount(BufferedWriter writer, String key, Long value) {
+        try {
+            String line = String.format("%s - %d шт", key, value);
+            writer.write(line);
+            writer.newLine();
+        } catch (IOException e) {
+            log.error("Ошибка записи строки с подсчётом для {}: {}", key, e.getMessage());
+            throw new FileSavingException("Не удалось записать строку с подсчётом для: " + key, e);
+        }
     }
 
     /**
@@ -99,12 +105,16 @@ public final class FileSavingService {
      * @param writer {@link BufferedWriter} для записи данных в файл
      * @param key    название посылки
      * @param value количество посылки
-     * @throws IOException если происходит ошибка при записи в файл
      */
-    private void writeLinesWithoutCount(BufferedWriter writer, String key, Long value) throws IOException {
-        for (int i = 0; i < value; i++) {
-            writer.write(key);
-            writer.newLine();
+    private void writeLinesWithoutCount(BufferedWriter writer, String key, Long value) {
+        try {
+            for (long i = 0; i < value; i++) {
+                writer.write(key);
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            log.error("Ошибка записи строк без подсчёта для {}: {}", key, e.getMessage());
+            throw new FileSavingException("Не удалось записать строки без подсчёта для: " + key, e);
         }
     }
 }

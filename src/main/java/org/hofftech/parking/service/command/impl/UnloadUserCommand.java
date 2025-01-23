@@ -46,7 +46,7 @@ public class UnloadUserCommand implements UserCommand {
                     isWithCount, user);
             fileSavingService.saveParcels(parcelsCountMap, OUTPUT_FILE_PATH, isWithCount);
             return "Файл успешно импортирован из JSON: " + inFile;
-        } catch (IOException e) {
+        } catch (FileSavingException e) {
             throw new FileSavingException("Ошибка при сохранении файла: " + e.getMessage(), e);
         }
     }
