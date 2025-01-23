@@ -19,7 +19,7 @@ public class ListUserCommand implements UserCommand {
      */
     @Override
     public String execute(ParsedCommand command) {
-        List<Parcel> parcels = parcelRepository.getAllParcel();
+        List<Parcel> parcels = parcelRepository.findAllParcel();
         if (parcels.isEmpty()) {
             return "Нет доступных посылок.";
         } else {

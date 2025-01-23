@@ -47,7 +47,7 @@ public class ParcelRepository {
     public Optional<Parcel> findParcel(String name) {
         for (String key : parcels.keySet()) {
             if (key.equalsIgnoreCase(name)) {
-                return Optional.of(parcels.get(key));
+                return Optional.ofNullable(parcels.get(key));
             }
         }
         return Optional.empty();
@@ -85,7 +85,7 @@ public class ParcelRepository {
      *
      * @return список всех посылок
      */
-    public List<Parcel> getAllParcel() {
+    public List<Parcel> findAllParcel() {
         return parcels.values().stream()
                 .sorted(Comparator.comparing(Parcel::getName))
                 .toList();
