@@ -3,8 +3,11 @@ package org.hofftech.parking.service.json;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.hofftech.parking.exception.FileCreationException;
 import org.hofftech.parking.exception.InputFileException;
+import org.hofftech.parking.exception.JsonMappingException;
 import org.hofftech.parking.exception.JsonWriteException;
+import org.hofftech.parking.exception.MissingStartPositionException;
 import org.hofftech.parking.model.Order;
 import org.hofftech.parking.model.enums.OrderOperationType;
 import org.hofftech.parking.model.Parcel;
@@ -107,7 +110,7 @@ public class JsonProcessingService {
         try {
             return objectMapper.readValue(jsonFile, new TypeReference<>() {});
         } catch (IOException e) {
-            throw new RuntimeException("Ошибка маппинга: " + e.getMessage(), e);
+            throw new JsonMappingException("Ошибка маппинга JSON файла: " + e.getMessage(), e);
         }
     }
 
@@ -208,7 +211,7 @@ public class JsonProcessingService {
                     parcelDto.getStartPosition().getY()
             );
         }
-        throw new RuntimeException("Отсутствует стартовая позиция у посылки " + parcelDto.getName());
+        throw new MissingStartPositionException("Отсутствует стартовая позиция у посылки " + parcelDto.getName());
     }
 
     /**
@@ -244,7 +247,7 @@ public class JsonProcessingService {
             positionDto.setY(position.y() + ADJUSTING_FOR_START_POSITION);
             parcelDto.setStartPosition(positionDto);
         } else {
-            throw new RuntimeException("Отсутствует стартовая позиция у посылки " + providedParcel.getName());
+            throw new MissingStartPositionException("Отсутствует стартовая позиция у посылки " + providedParcel.getName());
         }
 
         return parcelDto;
@@ -258,7 +261,7 @@ public class JsonProcessingService {
     private File createFile() {
         File outputDir = new File(OUTPUT_DIRECTORY);
         if (!outputDir.exists() && !outputDir.mkdirs()) {
-            throw new RuntimeException("Не удалось создать папку для файла Json");
+            throw new FileCreationException("Не удалось создать папку для файла Json");
         }
         return new File(outputDir, FILE_NAME);
     }
