@@ -14,7 +14,13 @@ import java.util.List;
  */
 @RequiredArgsConstructor
 public class BillingUserCommand implements UserCommand {
+
     private final OrderManagerService orderManagerService;
+
+    // Константы для названий полей
+    private static final String USER_FIELD = "user";
+    private static final String DATE_FROM_FIELD = "dateFrom";
+    private static final String DATE_TO_FIELD = "dateTo";
 
     /**
      * Выполняет команду создания посылки на основе переданной команды.
@@ -28,13 +34,13 @@ public class BillingUserCommand implements UserCommand {
         List<String> missingFields = new ArrayList<>();
 
         if (user == null || user.isEmpty()) {
-            missingFields.add("user");
+            missingFields.add(USER_FIELD);
         }
         if (dateFrom == null || dateFrom.isEmpty()) {
-            missingFields.add("dateFrom");
+            missingFields.add(DATE_FROM_FIELD);
         }
         if (dateTo == null || dateTo.isEmpty()) {
-            missingFields.add("dateTo");
+            missingFields.add(DATE_TO_FIELD);
         }
 
         if (missingFields.isEmpty()) {
