@@ -6,7 +6,7 @@ import org.hofftech.parking.exception.FileSavingException;
 import org.hofftech.parking.exception.OutputFileException;
 import org.hofftech.parking.exception.UserNotProvidedException;
 import org.hofftech.parking.model.ParsedCommand;
-import org.hofftech.parking.util.FileSavingUtil;
+import org.hofftech.parking.service.FileSavingService;
 import org.hofftech.parking.service.json.JsonProcessingService;
 import org.hofftech.parking.service.command.UserCommand;
 
@@ -21,7 +21,7 @@ import java.util.Map;
 public class UnloadUserCommand implements UserCommand {
 
     private final JsonProcessingService jsonProcessingService;
-    private final FileSavingUtil fileSavingUtil;
+    private final FileSavingService fileSavingService;
 
     private static final String OUTPUT_FILE_PATH = "out/in.txt";
     /**
@@ -44,7 +44,7 @@ public class UnloadUserCommand implements UserCommand {
         try {
             List<Map<String, Long>> parcelsCountMap = jsonProcessingService.importParcelsFromJson(inFile,
                     isWithCount, user);
-            fileSavingUtil.saveParcelsToFile(parcelsCountMap, OUTPUT_FILE_PATH, isWithCount);
+            fileSavingService.saveParcels(parcelsCountMap, OUTPUT_FILE_PATH, isWithCount);
             return "Файл успешно импортирован из JSON: " + inFile;
         } catch (IOException e) {
             throw new FileSavingException("Ошибка при сохранении файла: " + e.getMessage(), e);

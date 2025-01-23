@@ -3,7 +3,7 @@ import lombok.RequiredArgsConstructor;
 import org.hofftech.parking.model.enums.CommandType;
 import org.hofftech.parking.repository.ParcelRepository;
 import org.hofftech.parking.util.FileProcessingUtil;
-import org.hofftech.parking.util.FileSavingUtil;
+import org.hofftech.parking.service.FileSavingService;
 import org.hofftech.parking.service.json.JsonProcessingService;
 import org.hofftech.parking.service.OrderManagerService;
 import org.hofftech.parking.validator.ParcelValidator;
@@ -30,7 +30,7 @@ public class CommandFactory {
     private final ParcelRepository repository;
     private final FileProcessingUtil fileProcessingUtil;
     private final JsonProcessingService jsonProcessingService;
-    private final FileSavingUtil fileSavingUtil;
+    private final FileSavingService fileSavingService;
     private final ParcelValidator parcelValidator;
     private final OrderManagerService orderManagerService;
 
@@ -48,7 +48,7 @@ public class CommandFactory {
             case DELETE -> new DeleteUserCommand(repository);
             case LIST -> new CreateParcelCommand(repository);
             case LOAD -> new LoadUserCommand(fileProcessingUtil);
-            case UNLOAD -> new UnloadUserCommand(jsonProcessingService, fileSavingUtil);
+            case UNLOAD -> new UnloadUserCommand(jsonProcessingService, fileSavingService);
             case BILLING -> new BillingUserCommand(orderManagerService);
             case START -> new StartUserCommand();
             case EXIT -> new ExitUserCommand();

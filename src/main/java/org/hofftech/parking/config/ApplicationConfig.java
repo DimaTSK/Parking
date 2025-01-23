@@ -7,7 +7,7 @@ import org.hofftech.parking.repository.ParcelRepository;
 import org.hofftech.parking.parcer.CommandParser;
 import org.hofftech.parking.service.CommandTypeSelectionService;
 import org.hofftech.parking.util.FileProcessingUtil;
-import org.hofftech.parking.util.FileSavingUtil;
+import org.hofftech.parking.service.FileSavingService;
 import org.hofftech.parking.service.json.JsonProcessingService;
 import org.hofftech.parking.service.OrderManagerService;
 import org.hofftech.parking.service.ParcelService;
@@ -143,13 +143,13 @@ public class ApplicationConfig {
     }
 
     /**
-     * Создает и настраивает бин {@link FileSavingUtil}, отвечающий за сохранение файлов.
+     * Создает и настраивает бин {@link FileSavingService}, отвечающий за сохранение файлов.
      *
-     * @return экземпляр {@link FileSavingUtil}
+     * @return экземпляр {@link FileSavingService}
      */
     @Bean
-    public FileSavingUtil fileSavingService() {
-        return new FileSavingUtil();
+    public FileSavingService fileSavingService() {
+        return new FileSavingService();
     }
 
     /**
@@ -158,7 +158,7 @@ public class ApplicationConfig {
      * @param parcelRepository      зависимость {@link ParcelRepository}
      * @param fileProcessingUtil    зависимость {@link FileProcessingUtil}
      * @param jsonProcessingService зависимость {@link JsonProcessingService}
-     * @param fileSavingUtil        зависимость {@link FileSavingUtil}
+     * @param fileSavingService        зависимость {@link FileSavingService}
      * @param parcelValidator       зависимость {@link ParcelValidator}
      * @param orderManagerService   зависимость {@link OrderManagerService}
      * @return экземпляр {@link CommandFactory}
@@ -168,12 +168,12 @@ public class ApplicationConfig {
             ParcelRepository parcelRepository,
             FileProcessingUtil fileProcessingUtil,
             JsonProcessingService jsonProcessingService,
-            FileSavingUtil fileSavingUtil,
+            FileSavingService fileSavingService,
             ParcelValidator parcelValidator,
             OrderManagerService orderManagerService) {
         return new CommandFactory(
                 parcelRepository, fileProcessingUtil, jsonProcessingService,
-                fileSavingUtil, parcelValidator, orderManagerService);
+                fileSavingService, parcelValidator, orderManagerService);
     }
 
     /**

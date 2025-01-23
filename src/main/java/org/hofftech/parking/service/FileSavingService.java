@@ -1,14 +1,4 @@
-package org.hofftech.parking.util;
-
-import lombok.extern.slf4j.Slf4j;
-
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-
+package org.hofftech.parking.service;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -29,7 +19,7 @@ import java.util.Map;
  * </p>
  */
 @Slf4j
-public final class FileSavingUtil {
+public final class FileSavingService {
 
     /**
      * Сохраняет список посылок в файл.
@@ -45,7 +35,7 @@ public final class FileSavingUtil {
      * @param isWithCount    флаг, указывающий, нужно ли записывать количество каждой посылки
      * @throws IOException если происходит ошибка при записи в файл
      */
-    public void saveParcelsToFile(List<Map<String, Long>> parcels, String outputFilePath, boolean isWithCount) throws IOException {
+    public void saveParcels(List<Map<String, Long>> parcels, String outputFilePath, boolean isWithCount) throws IOException {
         File outputFile = new File(outputFilePath);
         log.info("Запись в файл {} количества: {}", outputFilePath, isWithCount ? "с подсчётом" : "без подсчёта");
 
