@@ -144,12 +144,7 @@ public class JsonProcessingService {
         log.info("Добавлен заказ на разгрузку для {}", userId);
     }
 
-    /**
-     * Получает индивидуальные посылки без группировки.
-     *
-     * @param parcels список посылок
-     * @return список карт с названиями посылок и их количеством
-     */
+
     private List<Map<String, Long>> getIndividualParcels(List<Parcel> parcels) {
         return parcels.stream()
                 .flatMap(parcel -> parcel.getName().repeat(1).lines())
