@@ -45,7 +45,6 @@ public final class FileSavingService {
             }
             log.info("Успешная запись в файл {}", outputFilePath);
         } catch (IOException e) {
-            log.error("Ошибка записи в файл {}: {}", outputFilePath, e.getMessage());
             throw new FileSavingException("Не удалось сохранить посылки в файл: " + outputFilePath, e);
         }
     }
