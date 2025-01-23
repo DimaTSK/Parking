@@ -132,7 +132,7 @@ public class LoadUserCommand implements UserCommand {
      * @return результат обработки посылок
      */
     private String processParcelsFromText(ParsedCommand command, List<String> trucksFromArgs, String user) {
-        return fileProcessingUtil.processFile(
+        return fileProcessingUtil.process(
                 null, // Path не требуется
                 command.getParcelsText(),
                 trucksFromArgs,
@@ -152,7 +152,7 @@ public class LoadUserCommand implements UserCommand {
      * @return результат обработки посылок
      */
     private String processParcelsFromFile(ParsedCommand command, List<String> trucksFromArgs, String user) {
-        return fileProcessingUtil.processFile(
+        return fileProcessingUtil.process(
                 Path.of(command.getParcelsFile()),
                 null, // Текст не требуется
                 trucksFromArgs,

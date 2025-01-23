@@ -58,8 +58,8 @@ public class FileProcessingUtil {
      * @param user             идентификатор пользователя
      * @return строковое сообщение о результате обработки
      */
-    public String processFile(Path parcelsFile, String parcelsText, List<String> trucksFromArgs,
-                              boolean isEasyAlgorithm, boolean isSaveToFile, boolean isEvenAlgorithm, String user) {
+    public String process(Path parcelsFile, String parcelsText, List<String> trucksFromArgs,
+                          boolean isEasyAlgorithm, boolean isSaveToFile, boolean isEvenAlgorithm, String user) {
         List<Parcel> parcels = getParcelsFromFileOrArgs(parcelsFile, parcelsText);
         PackingAlgorithm strategy = parcelAlgorithmFactory.createStrategy(isEasyAlgorithm);
         List<Truck> trucks = strategy.addParcels(parcels, isEasyAlgorithm, isEvenAlgorithm, trucksFromArgs);

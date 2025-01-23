@@ -294,7 +294,6 @@ public class TruckService {
 
         for (Parcel parcel : parcels) {
             if (truckIndex >= providedTrucks.size()) {
-                log.error("Недостаточно предоставленных грузовиков для размещения посылок.");
                 throw new InsufficientTrucksException("Не хватает предоставленных грузовиков для размещения всех посылок.");
             }
             Truck truck = createTruck(providedTrucks.get(truckIndex));
