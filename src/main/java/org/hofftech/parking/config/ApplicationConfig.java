@@ -1,6 +1,7 @@
 package org.hofftech.parking.config;
 
 import org.hofftech.parking.controller.TelegramController;
+import org.hofftech.parking.exception.TelegramBotRegistrationException;
 import org.hofftech.parking.factory.CommandFactory;
 import org.hofftech.parking.factory.ParcelAlgorithmFactory;
 import org.hofftech.parking.repository.ParcelRepository;
@@ -140,12 +141,12 @@ public class ApplicationConfig {
             CommandFactory processorFactory,
             CommandParser commandParser,
             ResponseFormatter responseFormatter) {
-        TelegramController botController = new TelegramController(token, botName, processorFactory, commandParser, responseFormatter); // Передаём formatter в конструктор
+        TelegramController botController = new TelegramController(token, botName, processorFactory, commandParser, responseFormatter);
         try {
             botController.registerBot();
             return botController;
         } catch (Exception e) {
-            throw new RuntimeException("Ошибка регистрации Telegram-бота", e);
+            throw new TelegramBotRegistrationException("Ошибка регистрации Telegram-бота", e);
         }
     }
 }
