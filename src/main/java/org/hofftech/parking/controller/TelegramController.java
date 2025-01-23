@@ -7,6 +7,7 @@ import org.hofftech.parking.model.ParsedCommand;
 import org.hofftech.parking.parcer.CommandParser;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
+import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
@@ -24,7 +25,7 @@ public class TelegramController extends TelegramLongPollingBot {
 
     private final String botToken;
     private final String botName;
-    private static final String PARSE_MODE = "MarkdownV2";
+    private static final String PARSE_MODE = ParseMode.MARKDOWNV2;
     private final CommandFactory processorFactory;
     private final CommandParser commandParser;
 
