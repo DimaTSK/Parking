@@ -48,8 +48,8 @@ public class ApplicationConfig {
     }
 
     @Bean
-    public TruckService truckService(ParcelService parcelService) {
-        return new TruckService(parcelService);
+    public TruckService truckService(ParcelService parcelService,FormatterService formatterService) {
+        return new TruckService(parcelService,formatterService);
     }
 
     @Bean

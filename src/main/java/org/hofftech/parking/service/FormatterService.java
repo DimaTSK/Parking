@@ -1,6 +1,7 @@
 package org.hofftech.parking.service;
 
 import org.hofftech.parking.model.Parcel;
+import org.hofftech.parking.model.Truck;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -46,5 +47,33 @@ public class FormatterService {
     public String formatParcelListAsMarkdown(List<Parcel> parcels) {
         String formattedList = formatParcelList(parcels);
         return formatAsMarkdownCodeBlock(formattedList);
+    }
+
+    /**
+     * Возвращает строковое представление загруженности конкретного грузовика.
+     *
+     * <p>
+     * Отображает содержимое грузовика в виде сетки с границами.
+     * Пустые ячейки обозначаются пробелами.
+     * </p>
+     *
+     * @param truck грузовик для отображения
+     * @return строковое представление грузовика
+     */
+    public String getTruckRepresentation(Truck truck) {
+        StringBuilder truckRepresentation = new StringBuilder();
+        truckRepresentation.append("+").append("+".repeat(truck.getWidth())).append("+\n");
+
+        for (int y = truck.getHeight() - 1; y >= 0; y--) {
+            truckRepresentation.append("+");
+            for (int x = 0; x < truck.getWidth(); x++) {
+                char cell = truck.getGrid()[y][x];
+                truckRepresentation.append(cell == '\0' ? ' ' : cell);
+            }
+            truckRepresentation.append("+\n");
+        }
+        truckRepresentation.append("+").append("+".repeat(truck.getWidth())).append("+\n");
+
+        return truckRepresentation.toString();
     }
 }

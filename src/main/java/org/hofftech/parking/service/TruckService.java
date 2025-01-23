@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.hofftech.parking.exception.InsufficientTrucksException;
 import org.hofftech.parking.model.Parcel;
 import org.hofftech.parking.model.Truck;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +24,7 @@ import java.util.List;
  */
 @Slf4j
 @RequiredArgsConstructor
+@Service
 public class TruckService {
     private static final String TRUCK_SIZE_SPLITTER = "x";
 
@@ -38,6 +40,7 @@ public class TruckService {
     private static final int NEXT_TRUCK_OFFSET = 1;
 
     private final ParcelService parcelService;
+    private final FormatterService formatterService;
 
     /**
      * Добавляет посылки в несколько грузовиков.
@@ -178,7 +181,6 @@ public class TruckService {
         }
     }
 
-
     /**
      * Пытается разместить посылку в одном из грузовиков.
      *
@@ -212,7 +214,6 @@ public class TruckService {
         }
         return false;
     }
-
 
     /**
      * Создает новый грузовик на основе предоставленного размера.
@@ -268,39 +269,11 @@ public class TruckService {
         for (Truck truck : trucks) {
             result.append("Truck ").append(truckNumber).append("\n")
                     .append(truck.getWidth()).append("x").append(truck.getHeight()).append("\n");
-            result.append(getTruckRepresentation(truck)).append("\n");
+            result.append(formatterService.getTruckRepresentation(truck)).append("\n");
             truckNumber++;
         }
 
         return result.toString();
-    }
-
-    /**
-     * Возвращает строковое представление загруженности конкретного грузовика.
-     *
-     * <p>
-     * Отображает содержимое грузовика в виде сетки с границами.
-     * Пустые ячейки обозначаются пробелами.
-     * </p>
-     *
-     * @param truck грузовик для отображения
-     * @return строковое представление грузовика
-     */
-    private String getTruckRepresentation(Truck truck) {
-        StringBuilder truckRepresentation = new StringBuilder();
-        truckRepresentation.append("+").append("+".repeat(truck.getWidth())).append("+\n");
-
-        for (int y = truck.getHeight() - 1; y >= 0; y--) {
-            truckRepresentation.append("+");
-            for (int x = 0; x < truck.getWidth(); x++) {
-                char cell = truck.getGrid()[y][x];
-                truckRepresentation.append(cell == '\0' ? ' ' : cell);
-            }
-            truckRepresentation.append("+\n");
-        }
-        truckRepresentation.append("+").append("+".repeat(truck.getWidth())).append("+\n");
-
-        return truckRepresentation.toString();
     }
 
     /**
