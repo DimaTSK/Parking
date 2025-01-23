@@ -1,6 +1,7 @@
 package org.hofftech.parking.factory;
 
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.hofftech.parking.service.TruckService;
 import org.hofftech.parking.service.packingalgorithm.PackingAlgorithm;
 import org.hofftech.parking.service.packingalgorithm.impl.IndividualTruckAlgorithm;
@@ -13,7 +14,7 @@ import org.hofftech.parking.service.packingalgorithm.impl.MultipleTruckAlgorithm
  * Данная фабрика предоставляет метод для создания стратегии упаковки в зависимости от заданного условия.
  * </p>
  */
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class ParcelAlgorithmFactory {
     private final TruckService truckService;
 
