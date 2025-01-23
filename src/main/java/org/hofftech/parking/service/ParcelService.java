@@ -18,7 +18,8 @@ public class ParcelService {
     private static final int START_Y_POSITION = 0;
     private static final int START_X_POSITION = 0;
     private static final char EMPTY_SPACE = ' ';
-    private int ROWLENGTH_FIRT_SYMBOL;
+    private static final double SUPPORT_FACTOR = 0.5;
+    private static final int INITIAL_SYMBOL_INDEX = 0;
 
     /**
      * Проверяет, можно ли добавить указанную упаковку в грузовик
@@ -39,10 +40,10 @@ public class ParcelService {
 
         if (isIntersection(truck, providedParcel, startX, startY, height, shape)) return false;
 
-        String topRow = shape.getFirst();
-        double requiredSupport = Math.ceil(topRow.length() / 2.0);
+        String topRow = shape.get(0);
+        double requiredSupport = Math.ceil(topRow.length() * SUPPORT_FACTOR);
         int support = 0;
-        if (startY == 0) {
+        if (startY == START_Y_POSITION) {
             log.debug("Упаковка {} внизу грузовика, опора не требуется.", providedParcel.getName());
             return true;
         }
@@ -63,8 +64,7 @@ public class ParcelService {
      * @return {@code true}, если опор недостаточно, иначе {@code false}.
      */
     private boolean isParcelSupported(Truck truck, Parcel parcel, int startX, int startY, String topRow, int support, double requiredSupport) {
-        ROWLENGTH_FIRT_SYMBOL = 0;
-        for (int x = ROWLENGTH_FIRT_SYMBOL; x < topRow.length(); x++) {
+        for (int x = INITIAL_SYMBOL_INDEX; x < topRow.length(); x++) {
             if (topRow.charAt(x) != EMPTY_SPACE && truck.getGrid()[startY - 1][startX + x] != EMPTY_SPACE) {
                 support++;
             }
@@ -136,7 +136,7 @@ public class ParcelService {
         int height = shape.size();
 
         for (int startY = START_Y_POSITION; startY <= truck.getHeight() - height; startY++) {
-            for (int startX = START_X_POSITION; startX <= truck.getWidth() - shape.getFirst().length(); startX++) {
+            for (int startX = START_X_POSITION; startX <= truck.getWidth() - shape.get(0).length(); startX++) {
                 if (canAddParcel(truck, providedParcel, startX, startY)) {
                     log.info("Упаковка {} успешно добавлена", providedParcel.getName());
                     providedParcel.setParcelStartPosition(new ParcelStartPosition(startX, startY));
