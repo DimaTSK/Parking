@@ -29,13 +29,11 @@ public class TruckService {
     private static final int WIDTH_INDEX = 0;
     private static final int HEIGHT_INDEX = 1;
 
-    private static final String EMPTY_TRUCKS_ERROR_MESSAGE = "Аргумент с грузовиками пуст, погрузка невозможна";
     private static final String INVALID_TRUCK_SIZE_FORMAT_MESSAGE = "Размер грузовика должен быть в формате ширинаxвысота, например 10x10.";
     private static final String NON_NUMERIC_TRUCK_SIZE_MESSAGE = "Размеры грузовика должны быть числами.";
     private static final String NEGATIVE_TRUCK_SIZE_MESSAGE = "Размеры грузовика должны быть положительными числами.";
 
     private static final String STANDARD_TRUCK_SIZE = "10x10";
-    private static final boolean DEFAULT_IS_EVEN_ALGORITHM = false;
     private static final int NEXT_TRUCK_OFFSET = 1;
 
     private final ParcelService parcelService;
@@ -100,7 +98,7 @@ public class TruckService {
         Truck standardTruck = createTruck(STANDARD_TRUCK_SIZE);
         trucks.add(standardTruck);
 
-        if (Boolean.TRUE.equals(isEvenAlgorithm)) {
+        if (isEvenAlgorithm) {
             distributeParcelsEvenly(parcelList, trucks);
         } else {
             placeParcels(parcelList, trucks);
