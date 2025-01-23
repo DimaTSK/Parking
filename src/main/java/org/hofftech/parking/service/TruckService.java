@@ -24,21 +24,16 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 public class TruckService {
-
-    // Разделитель размеров грузовика
     private static final String TRUCK_SIZE_SPLITTER = "x";
 
-    // Индексы для парсинга размеров грузовика
     private static final int WIDTH_INDEX = 0;
     private static final int HEIGHT_INDEX = 1;
 
-    // Сообщения об ошибках
     private static final String EMPTY_TRUCKS_ERROR_MESSAGE = "Аргумент с грузовиками пуст, погрузка невозможна";
     private static final String INVALID_TRUCK_SIZE_FORMAT_MESSAGE = "Размер грузовика должен быть в формате ширинаxвысота, например 10x10.";
     private static final String NON_NUMERIC_TRUCK_SIZE_MESSAGE = "Размеры грузовика должны быть числами.";
     private static final String NEGATIVE_TRUCK_SIZE_MESSAGE = "Размеры грузовика должны быть положительными числами.";
 
-    // Стандартные значения
     private static final String STANDARD_TRUCK_SIZE = "10x10";
     private static final boolean DEFAULT_IS_EVEN_ALGORITHM = false;
     private static final int NEXT_TRUCK_OFFSET = 1;
