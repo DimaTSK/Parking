@@ -5,7 +5,7 @@ import org.hofftech.parking.factory.CommandFactory;
 import org.hofftech.parking.factory.ParcelAlgorithmFactory;
 import org.hofftech.parking.repository.ParcelRepository;
 import org.hofftech.parking.parcer.CommandParser;
-import org.hofftech.parking.service.CommandTypeService;
+import org.hofftech.parking.service.CommandTypeSelectionService;
 import org.hofftech.parking.util.FileProcessingUtil;
 import org.hofftech.parking.util.FileSavingUtil;
 import org.hofftech.parking.service.json.JsonProcessingService;
@@ -177,24 +177,24 @@ public class ApplicationConfig {
     }
 
     /**
-     * Создает и настраивает бин {@link CommandTypeService}, отвечающий за управление типами команд.
+     * Создает и настраивает бин {@link CommandTypeSelectionService}, отвечающий за управление типами команд.
      *
-     * @return экземпляр {@link CommandTypeService}
+     * @return экземпляр {@link CommandTypeSelectionService}
      */
     @Bean
-    public CommandTypeService commandTypeService() {
-        return new CommandTypeService();
+    public CommandTypeSelectionService commandTypeService() {
+        return new CommandTypeSelectionService();
     }
 
     /**
      * Создает и настраивает бин {@link CommandParser}, отвечающий за парсинг команд.
      *
-     * @param commandTypeService зависимость {@link CommandTypeService}
+     * @param commandTypeSelectionService зависимость {@link CommandTypeSelectionService}
      * @return экземпляр {@link CommandParser}
      */
     @Bean
-    public CommandParser commandParser(CommandTypeService commandTypeService) {
-        return new CommandParser(commandTypeService);
+    public CommandParser commandParser(CommandTypeSelectionService commandTypeSelectionService) {
+        return new CommandParser(commandTypeSelectionService);
     }
 
     /**

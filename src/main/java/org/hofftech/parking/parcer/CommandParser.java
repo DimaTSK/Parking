@@ -3,7 +3,7 @@ package org.hofftech.parking.parcer;
 import lombok.AllArgsConstructor;
 import org.hofftech.parking.model.enums.CommandType;
 import org.hofftech.parking.model.ParsedCommand;
-import org.hofftech.parking.service.CommandTypeService;
+import org.hofftech.parking.service.CommandTypeSelectionService;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -55,7 +55,7 @@ public class CommandParser {
     private static final String SLASH = "/";
     private static final String EMPTY_TRIMMED = "";
 
-    private final CommandTypeService commandTypeService;
+    private final CommandTypeSelectionService commandTypeSelectionService;
 
     /**
      * Парсит строку команды и возвращает объект {@link ParsedCommand}.
@@ -67,7 +67,7 @@ public class CommandParser {
         Map<String, String> parameters = extractParameters(command);
         String firstArgumentFromCommand = extractFirstArgument(command);
 
-        CommandType commandType = commandTypeService.determineCommandType(firstArgumentFromCommand);
+        CommandType commandType = commandTypeSelectionService.determineCommandType(firstArgumentFromCommand);
 
         ParsedCommand parsedCommand = createParsedCommand(parameters);
         parsedCommand.setCommandType(commandType);
