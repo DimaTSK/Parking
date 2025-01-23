@@ -160,32 +160,80 @@ public class TruckService {
      */
     private void placeParcels(List<Parcel> parcelList, List<Truck> trucks) {
         for (Parcel providedParcel : parcelList) {
-            log.info("Пытаемся разместить упаковку с ID {} и именем {}.", providedParcel.getName(), providedParcel.getName());
-            boolean isPlaced = false;
+            logAttemptPlacement(providedParcel);
+            boolean isPlaced = attemptToPlaceParcel(providedParcel, trucks);
 
-            for (Truck truck : trucks) {
-                if (parcelService.tryPack(truck, providedParcel)) {
-                    log.info("Упаковка с ID {} успешно размещена в существующем грузовике.", providedParcel.getName());
-                    isPlaced = true;
-                    break;
-                }
-            }
             if (!isPlaced) {
-                log.info("Упаковка с ID {} не поместилась. Повторная попытка размещения в существующих грузовиках...", providedParcel.getName());
+                logRetryPlacement(providedParcel);
+                isPlaced = retryToPlaceParcel(providedParcel, trucks);
+            }
 
-                for (Truck truck : trucks) {
-                    if (parcelService.tryPack(truck, providedParcel)) {
-                        log.info("Упаковка с ID {} размещена после повторной проверки.", providedParcel.getName());
-                        isPlaced = true;
-                        break;
-                    }
-                }
-            }
             if (!isPlaced) {
-                log.error("Не удалось разместить посылку с ID {} в существующих грузовиках.", providedParcel.getName());
-                throw new InsufficientTrucksException("Не хватает указанных грузовиков для размещения всех посылок!");
+                handlePlacementFailure(providedParcel);
             }
         }
+    }
+
+    /**
+     * Логирует попытку размещения посылки.
+     *
+     * @param parcel посылка для размещения
+     */
+    private void logAttemptPlacement(Parcel parcel) {
+        log.info("Пытаемся разместить упаковку с ID {} и именем {}.", parcel.getName(), parcel.getName());
+    }
+
+    /**
+     * Пытается разместить посылку в одном из грузовиков.
+     *
+     * @param parcel посылка для размещения
+     * @param trucks список грузовиков
+     * @return true если размещение удалось, иначе false
+     */
+    private boolean attemptToPlaceParcel(Parcel parcel, List<Truck> trucks) {
+        for (Truck truck : trucks) {
+            if (parcelService.tryPack(truck, parcel)) {
+                log.info("Упаковка с ID {} успешно размещена в существующем грузовике.", parcel.getName());
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Логирует начало повторной попытки размещения посылки.
+     *
+     * @param parcel посылка для размещения
+     */
+    private void logRetryPlacement(Parcel parcel) {
+        log.info("Упаковка с ID {} не поместилась. Повторная попытка размещения в существующих грузовиках...", parcel.getName());
+    }
+
+    /**
+     * Пытается повторно разместить посылку в одном из грузовиков.
+     *
+     * @param parcel посылка для размещения
+     * @param trucks список грузовиков
+     * @return true если размещение удалось, иначе false
+     */
+    private boolean retryToPlaceParcel(Parcel parcel, List<Truck> trucks) {
+        for (Truck truck : trucks) {
+            if (parcelService.tryPack(truck, parcel)) {
+                log.info("Упаковка с ID {} размещена после повторной проверки.", parcel.getName());
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Обрабатывает ситуацию, когда размещение посылки не удалось.
+     *
+     * @param parcel посылка, которую не удалось разместить
+     */
+    private void handlePlacementFailure(Parcel parcel) {
+        log.error("Не удалось разместить посылку с ID {} в существующих грузовиках.", parcel.getName());
+        throw new InsufficientTrucksException("Не хватает указанных грузовиков для размещения всех посылок!");
     }
 
     /**
