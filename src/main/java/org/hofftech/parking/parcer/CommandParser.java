@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
 public class CommandParser {
 
     private static final String COMMAND_REGEX = "\\+([a-zA-Z]+),?\\s*(\"[^\"]+\"|[^+]+)";
-    private static final Pattern COMMAND_PATTERN = Pattern.compile(COMMAND_REGEX); // Предкомпилированный Pattern
+    private static final Pattern COMMAND_PATTERN = Pattern.compile(COMMAND_REGEX);
 
     private static final String SAVE = "save";
     private static final String EASY = "easy";
