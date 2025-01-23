@@ -127,7 +127,7 @@ public class FileProcessingUtil {
             parcelValidator.validateFile(lines);
             parcels = parseFileLines(parcelsFile, lines);
         } else if (parcelsText != null && !parcelsText.isEmpty()) {
-            parcels = fileParser.getParcelFromArgs(parcelsText);
+            parcels = fileParser.parceParcelFromArgs(parcelsText);
         }
         if (parcels.isEmpty()) {
             throw new IllegalArgumentException("Упаковки не представлены, продолжение работы невозможно");

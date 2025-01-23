@@ -9,16 +9,13 @@ import org.hofftech.parking.repository.ParcelRepository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
-
-/**
- * Сервис для парсинга информации о посылках.
- * Предоставляет методы для извлечения посылок из файла и аргументов.
- */
 @Slf4j
 @RequiredArgsConstructor
 public class ParsingService {
-    private static final String COMMA_REPLACEMENTS = "[“”\"]";
+    // Предварительно скомпилированный паттерн для замены символов
+    private static final Pattern COMMA_REPLACEMENT_PATTERN = Pattern.compile("[“”\"]");
     private static final String PARCELS_SPLITTER = ",";
     private final ParcelRepository parcelRepository;
 
@@ -27,19 +24,19 @@ public class ParsingService {
      *
      * @param lines список строк, представляющих имена посылок
      * @return список объектов {@link Parcel}
-     * @throws RuntimeException если посылка не найдена в репозитории
+     * @throws ParcelNotFoundException если посылка не найдена в репозитории
      */
     public List<Parcel> parseParcelsFromFile(List<String> lines) {
         List<Parcel> parcels = new ArrayList<>();
         for (String parcelName : lines) {
-            String trimmedName = parcelName.trim().replaceAll(COMMA_REPLACEMENTS, "");
+            String trimmedName = COMMA_REPLACEMENT_PATTERN.matcher(parcelName.trim()).replaceAll("");
             if (trimmedName.isEmpty()) {
                 continue;
             }
             parcelRepository.findParcel(trimmedName).ifPresentOrElse(
                     parcels::add,
                     () -> {
-                        throw new RuntimeException("Посылка " + trimmedName + " не найдена!");
+                        throw new ParcelNotFoundException("Посылка \"" + trimmedName + "\" не найдена!");
                     }
             );
         }
@@ -54,9 +51,9 @@ public class ParsingService {
      * @throws ParcelArgumentException если строка аргументов пуста или null
      * @throws ParcelNotFoundException если одна из посылок не найдена в репозитории
      */
-    public List<Parcel> getParcelFromArgs(String parcelsText) {
+    public List<Parcel> parceParcelFromArgs(String parcelsText) {
         if (parcelsText == null || parcelsText.isBlank()) {
-            throw new ParcelArgumentException("Аргумент с посылками пуст");
+            throw new ParcelArgumentException("Аргумент с посылками пуст.");
         }
         List<Parcel> parcels = new ArrayList<>();
         String[] names = parcelsText.split(PARCELS_SPLITTER);
@@ -67,7 +64,7 @@ public class ParsingService {
                         parcels::add,
                         () -> {
                             throw new ParcelNotFoundException(
-                                    "Посылка '" + trimmedName + "' из аргументов не найдена и не может быть обработана"
+                                    "Посылка \"" + trimmedName + "\" из аргументов не найдена и не может быть обработана."
                             );
                         }
                 );
@@ -76,3 +73,4 @@ public class ParsingService {
         return parcels;
     }
 }
+
