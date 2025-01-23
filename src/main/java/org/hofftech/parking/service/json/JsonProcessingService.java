@@ -94,7 +94,6 @@ public class JsonProcessingService {
      * @param user         идентификатор пользователя
      * @return список карт с названиями посылок и их количеством
      */
-    @SneakyThrows
     public List<Map<String, Long>> importParcelsFromJson(String jsonFilePath, boolean isWithCount, String user) {
         File jsonFile = new File(jsonFilePath);
         if (!jsonFile.exists()) {
