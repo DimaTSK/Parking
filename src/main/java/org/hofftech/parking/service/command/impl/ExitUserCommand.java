@@ -6,12 +6,18 @@ import org.hofftech.parking.service.command.UserCommand;
  * Класс реализации пользовательской команды для создания посылки.
  */
 public class ExitUserCommand implements UserCommand {
+
+    private static final int EXIT_SUCCESS = 0;
+
     /**
-     * Выполняет команду создания посылки на основе переданной команды.
+     * Выполняет команду завершения работы приложения.
+     *
+     * @param command Переданная команда
+     * @return Сообщение о завершении работы
      */
     @Override
     public String execute(ParsedCommand command) {
-        System.exit(0);
+        System.exit(EXIT_SUCCESS);
         return "Приложение завершает работу.";
     }
 }

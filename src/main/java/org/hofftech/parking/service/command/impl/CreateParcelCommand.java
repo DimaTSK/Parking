@@ -11,7 +11,7 @@ import java.util.List;
  * Класс реализации пользовательской команды для создания посылки.
  */
 @RequiredArgsConstructor
-public class ListUserCommand implements UserCommand {
+public class CreateParcelCommand implements UserCommand {
 
     private final ParcelRepository parcelRepository;
     /**

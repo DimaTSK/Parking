@@ -13,7 +13,7 @@ import org.hofftech.parking.service.command.impl.CreateUserCommand;
 import org.hofftech.parking.service.command.impl.DeleteUserCommand;
 import org.hofftech.parking.service.command.impl.ExitUserCommand;
 import org.hofftech.parking.service.command.impl.FindUserCommand;
-import org.hofftech.parking.service.command.impl.ListUserCommand;
+import org.hofftech.parking.service.command.impl.CreateParcelCommand;
 import org.hofftech.parking.service.command.impl.LoadUserCommand;
 import org.hofftech.parking.service.command.impl.StartUserCommand;
 import org.hofftech.parking.service.command.impl.UnloadUserCommand;
@@ -46,7 +46,7 @@ public class CommandFactory {
             case FIND -> new FindUserCommand(repository);
             case UPDATE -> new UpdateUserCommand(repository, parcelValidator);
             case DELETE -> new DeleteUserCommand(repository);
-            case LIST -> new ListUserCommand(repository);
+            case LIST -> new CreateParcelCommand(repository);
             case LOAD -> new LoadUserCommand(fileProcessingUtil);
             case UNLOAD -> new UnloadUserCommand(jsonProcessingService, fileSavingUtil);
             case BILLING -> new BillingUserCommand(orderManagerService);
