@@ -18,6 +18,8 @@ import java.util.regex.Pattern;
 public class CommandParser {
 
     private static final String COMMAND_REGEX = "\\+([a-zA-Z]+),?\\s*(\"[^\"]+\"|[^+]+)";
+    private static final Pattern COMMAND_PATTERN = Pattern.compile(COMMAND_REGEX); // Предкомпилированный Pattern
+
     private static final String SAVE = "save";
     private static final String EASY = "easy";
     private static final String EVEN = "even";
@@ -68,8 +70,7 @@ public class CommandParser {
      */
     private Map<String, String> extractParameters(String command) {
         Map<String, String> parameters = new HashMap<>();
-        Pattern pattern = Pattern.compile(COMMAND_REGEX);
-        Matcher matcher = pattern.matcher(command);
+        Matcher matcher = COMMAND_PATTERN.matcher(command);
 
         while (matcher.find()) {
             String key = matcher.group(GROUP_ONE);
