@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.hofftech.parking.exception.InputFileException;
+import org.hofftech.parking.exception.JsonWriteException;
 import org.hofftech.parking.model.Order;
 import org.hofftech.parking.model.enums.OrderOperationType;
 import org.hofftech.parking.model.Parcel;
@@ -64,7 +65,7 @@ public class JsonProcessingService {
             log.info("JSON файл успешно создан: {}", outputFile.getAbsolutePath());
             return jsonString;
         } catch (IOException e) {
-            throw new RuntimeException("Ошибка при записи JSON: " + e.getMessage(), e);
+            throw new JsonWriteException("Не удалось записать JSON", e);
         }
     }
 
