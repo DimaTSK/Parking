@@ -94,14 +94,11 @@ public class LoadUserCommand implements UserCommand {
      * @return результат обработки посылок
      */
     private String processParcels(ParsedCommand command, List<String> trucksFromArgs, String user, ParcelSourceType sourceType) {
-        switch (sourceType) {
-            case TEXT:
-                return processParcelsFromText(command, trucksFromArgs, user);
-            case FILE:
-                return processParcelsFromFile(command, trucksFromArgs, user);
-            default:
-                throw new IllegalArgumentException("Неизвестный тип источника посылок");
-        }
+        return switch (sourceType) {
+            case TEXT -> processParcelsFromText(command, trucksFromArgs, user);
+            case FILE -> processParcelsFromFile(command, trucksFromArgs, user);
+            default -> throw new IllegalArgumentException("Неизвестный тип источника посылок");
+        };
     }
 
     /**

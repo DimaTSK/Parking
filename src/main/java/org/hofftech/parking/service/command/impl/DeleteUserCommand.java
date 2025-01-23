@@ -1,7 +1,6 @@
 package org.hofftech.parking.service.command.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.hofftech.parking.exception.ParcelArgumentException;
 import org.hofftech.parking.exception.ParcelNameException;
 import org.hofftech.parking.model.ParsedCommand;
 import org.hofftech.parking.repository.ParcelRepository;
