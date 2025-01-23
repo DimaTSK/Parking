@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hofftech.parking.factory.CommandFactory;
 import org.hofftech.parking.handler.CommandHandler;
-import org.hofftech.parking.model.ParsedCommand;
 import org.hofftech.parking.parcer.CommandParser;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
@@ -20,7 +19,7 @@ import org.springframework.shell.standard.ShellOption;
 @ShellComponent
 @Slf4j
 @RequiredArgsConstructor
-public class CommandController {
+public class ConsoleController {
 
     private final CommandHandler commandHandler;
 
