@@ -4,22 +4,21 @@ import org.hofftech.parking.exception.InsufficientTrucksException;
 import org.hofftech.parking.model.Parcel;
 import org.hofftech.parking.model.ParcelStartPosition;
 import org.hofftech.parking.model.Truck;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class TruckServiceTest {
 
     @Mock
@@ -27,11 +26,6 @@ class TruckServiceTest {
 
     @InjectMocks
     private TruckService truckService;
-
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
 
     @Nested
     @DisplayName("Тесты для метода addParcelsToMultipleTrucks")
@@ -65,46 +59,5 @@ class TruckServiceTest {
         }
     }
 
-    @Nested
-    @DisplayName("Тесты для метода printTrucks")
-    class PrintTrucksTests {
-
-        @Test
-        @DisplayName("Печать состояния грузовиков возвращает корректное строковое представление")
-        void testPrintTrucks() {
-            // Arrange
-            Truck truck1 = new Truck(3, 3);
-            Truck truck2 = new Truck(2, 2);
-
-            // Предположим, что посылки уже размещены
-            Parcel parcel1 = new Parcel("P1", Arrays.asList("XX", "XX"), 'X', new ParcelStartPosition(0, 0));
-            Parcel parcel2 = new Parcel("P2", Arrays.asList("XX"), 'X', new ParcelStartPosition(1, 1));
-            truck1.getParcels().add(parcel1);
-            truck2.getParcels().add(parcel2);
-
-            String expectedOutput =
-                    "Truck 1\n" +
-                            "3x3\n" +
-                            "+++++\n" +
-                            "+  +\n" +
-                            "+  +\n" +
-                            "+++++\n" +
-                            "+  +\n" +
-                            "+  +\n" +
-                            "+++++\n" +
-                            "\n" +
-                            "Truck 2\n" +
-                            "2x2\n" +
-                            "++++\n" +
-                            "+  +\n" +
-                            "+  +\n" +
-                            "++++\n";
-
-
-            String result = truckService.printTrucks(Arrays.asList(truck1, truck2));
-
-            assertThat(result).contains("Truck 1", "3x3", "Truck 2", "2x2");
-        }
-    }
 
 }

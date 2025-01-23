@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -22,7 +23,6 @@ class OrderManagerServiceTest {
     void setUp() {
         orderManagerService = new OrderManagerService();
     }
-
 
     @Test
     @DisplayName("Generate Report with Incorrect Date Format Should Throw BillingException")
@@ -65,7 +65,7 @@ class OrderManagerServiceTest {
         );
 
 
-        int expectedCost = order.getTotalCost();
+        int expectedCost = orderManagerService.calculateTotalCost(order);
 
         orderManagerService.addOrder(order);
 
@@ -93,7 +93,7 @@ class OrderManagerServiceTest {
                 LocalDate.of(2023, 6, 15),
                 OrderOperationType.LOAD,
                 1,
-                Arrays.asList(parcel1)
+                List.of(parcel1)
         );
 
         Order unloadOrder = new Order(
@@ -111,8 +111,8 @@ class OrderManagerServiceTest {
         String report = orderManagerService.generateReport("user4", "15-06-2023", "16-06-2023");
 
 
-        int loadCost = loadOrder.getTotalCost();
-        int unloadCost = unloadOrder.getTotalCost();
+        int loadCost = orderManagerService.calculateTotalCost(loadOrder);
+        int unloadCost = orderManagerService.calculateTotalCost(unloadOrder);
 
         String expectedReport = String.join("\n",
                 String.format("15-06-2023; Погрузка; 1 машин; 1 посылок; %d рублей", loadCost),
