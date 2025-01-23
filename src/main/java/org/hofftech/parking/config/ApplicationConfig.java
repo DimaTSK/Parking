@@ -95,10 +95,11 @@ public class ApplicationConfig {
             JsonProcessingService jsonProcessingService,
             FileSavingService fileSavingService,
             ParcelValidator parcelValidator,
-            OrderManagerService orderManagerService) {
+            OrderManagerService orderManagerService,
+            FormatterService formatterService) {
         return new CommandFactory(
                 parcelRepository, fileProcessingUtil, jsonProcessingService,
-                fileSavingService, parcelValidator, orderManagerService);
+                fileSavingService, parcelValidator, orderManagerService,formatterService);
     }
 
     @Bean
@@ -111,14 +112,10 @@ public class ApplicationConfig {
         return new CommandParser(commandTypeSelectionService);
     }
 
-    /**
-     * Создаёт и настраивает бин {@link ResponseFormatter}.
-     *
-     * @return экземпляр {@link ResponseFormatter}
-     */
+
     @Bean
-    public ResponseFormatter responseFormatter() {
-        return new ResponseFormatter();
+    public FormatterService responseFormatter() {
+        return new FormatterService();
     }
 
     /**
@@ -131,7 +128,7 @@ public class ApplicationConfig {
      * @param botName         имя бота, считываемое из свойств приложения
      * @param processorFactory зависимость {@link CommandFactory}
      * @param commandParser     зависимость {@link CommandParser}
-     * @param responseFormatter зависимость {@link ResponseFormatter}
+     * @param formatterService зависимость {@link FormatterService}
      * @return экземпляр {@link TelegramController}
      */
     @Bean
@@ -140,8 +137,8 @@ public class ApplicationConfig {
             @Value("${telegram.bot.name}") String botName,
             CommandFactory processorFactory,
             CommandParser commandParser,
-            ResponseFormatter responseFormatter) {
-        TelegramController botController = new TelegramController(token, botName, processorFactory, commandParser, responseFormatter);
+            FormatterService formatterService) {
+        TelegramController botController = new TelegramController(token, botName, processorFactory, commandParser, formatterService);
         try {
             botController.registerBot();
             return botController;

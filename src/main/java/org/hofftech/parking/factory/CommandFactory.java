@@ -2,6 +2,7 @@ package org.hofftech.parking.factory;
 import lombok.RequiredArgsConstructor;
 import org.hofftech.parking.model.enums.CommandType;
 import org.hofftech.parking.repository.ParcelRepository;
+import org.hofftech.parking.service.FormatterService;
 import org.hofftech.parking.util.FileProcessingUtil;
 import org.hofftech.parking.service.FileSavingService;
 import org.hofftech.parking.service.json.JsonProcessingService;
@@ -33,6 +34,7 @@ public class CommandFactory {
     private final FileSavingService fileSavingService;
     private final ParcelValidator parcelValidator;
     private final OrderManagerService orderManagerService;
+    private final FormatterService formatterService;
 
     /**
      * Создает процессор команды на основе указанного типа команды.
@@ -46,7 +48,7 @@ public class CommandFactory {
             case FIND -> new FindUserCommand(repository);
             case UPDATE -> new UpdateUserCommand(repository, parcelValidator);
             case DELETE -> new DeleteUserCommand(repository);
-            case LIST -> new CreateParcelCommand(repository);
+            case LIST -> new CreateParcelCommand(repository,formatterService);
             case LOAD -> new LoadUserCommand(fileProcessingUtil);
             case UNLOAD -> new UnloadUserCommand(jsonProcessingService, fileSavingService);
             case BILLING -> new BillingUserCommand(orderManagerService);
