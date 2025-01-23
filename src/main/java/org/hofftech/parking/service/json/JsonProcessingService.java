@@ -34,6 +34,8 @@ public class JsonProcessingService {
     private static final int TRUCK_NAME_INDEX = 1;
     private static final String TRUCK_SIZE_SPLITTER = "x";
 
+    private static final long INDIVIDUAL_PARCEL_QUANTITY = 1L;
+
     private final ObjectMapper objectMapper;
     private final OrderManagerService orderManagerService;
 
@@ -159,7 +161,7 @@ public class JsonProcessingService {
                 .entrySet()
                 .stream()
                 .map(entry -> Map.of(entry.getKey(), entry.getValue()))
-                .toList();
+                .collect(Collectors.toList());
     }
 
     /**
@@ -170,7 +172,7 @@ public class JsonProcessingService {
      */
     private List<Map<String, Long>> getIndividualParcels(List<Parcel> parcels) {
         return parcels.stream()
-                .map(parcel -> Map.of(parcel.getName(), 1L))
+                .map(parcel -> Map.of(parcel.getName(), INDIVIDUAL_PARCEL_QUANTITY))
                 .collect(Collectors.toList());
     }
 
