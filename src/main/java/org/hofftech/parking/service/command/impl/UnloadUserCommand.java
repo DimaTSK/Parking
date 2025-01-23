@@ -2,6 +2,7 @@ package org.hofftech.parking.service.command.impl;
 
 
 import lombok.RequiredArgsConstructor;
+import org.hofftech.parking.exception.FileSavingException;
 import org.hofftech.parking.exception.OutputFileException;
 import org.hofftech.parking.exception.UserNotProvidedException;
 import org.hofftech.parking.model.ParsedCommand;
@@ -37,7 +38,7 @@ public class UnloadUserCommand implements UserCommand {
         }
 
         if (user == null || user.isEmpty()) {
-            throw new UserNotProvidedException("Пользователь должен быть передан для комынды UNLOAD");
+            throw new UserNotProvidedException("Пользователь должен быть передан для команды UNLOAD");
         }
 
         try {
@@ -46,7 +47,7 @@ public class UnloadUserCommand implements UserCommand {
             fileSavingUtil.saveParcelsToFile(parcelsCountMap, OUTPUT_FILE_PATH, isWithCount);
             return "Файл успешно импортирован из JSON: " + inFile;
         } catch (IOException e) {
-            throw new RuntimeException("Ошибка при обработке команды importJson: " + e.getMessage());
+            throw new FileSavingException("Ошибка при сохранении файла: " + e.getMessage(), e);
         }
     }
 }
