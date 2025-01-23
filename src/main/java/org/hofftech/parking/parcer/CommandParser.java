@@ -17,6 +17,7 @@ import java.util.regex.Pattern;
 @AllArgsConstructor
 public class CommandParser {
 
+    // Regular expression patterns and related constants
     private static final String COMMAND_REGEX = "\\+([a-zA-Z]+),?\\s*(\"[^\"]+\"|[^+]+)";
     private static final Pattern COMMAND_PATTERN = Pattern.compile(COMMAND_REGEX);
 
@@ -32,13 +33,27 @@ public class CommandParser {
     private static final String OLD_NAME = "oldName";
     private static final String FORM = "form";
     private static final String SYMBOL = "symbol";
-    private static final int GROUP_ONE = 1;
-    private static final int GROUP_TWO = 2;
-    private static final int FIRST_ARGUMENT_INDEX = 0;
-    private static final String COMMAND_SPLIT_SYMBOL = " ";
     private static final String USER_ID = "user";
     private static final String DATE_FROM = "from";
     private static final String DATE_TO = "to";
+
+    private static final int GROUP_ONE = 1;
+    private static final int GROUP_TWO = 2;
+    private static final int FIRST_ARGUMENT_INDEX = 0;
+
+    private static final String COMMAND_SPLIT_SYMBOL = " ";
+    private static final String COMMAND_PREFIX_REGEX = "^/";
+    private static final String COMMAND_SUFFIX_REGEX = ",$";
+    private static final String QUOTE_REGEX = "\"";
+    private static final String EMPTY_STRING = "";
+    private static final String COMMA = ",";
+
+    private static final int SUBSTRING_START_OFFSET = 1;
+    private static final int SUBSTRING_END_OFFSET = 1;
+
+    private static final String DOUBLE_QUOTE = "\"";
+    private static final String SLASH = "/";
+    private static final String EMPTY_TRIMMED = "";
 
     private final CommandTypeService commandTypeService;
 
@@ -50,8 +65,7 @@ public class CommandParser {
      */
     public ParsedCommand parse(String command) {
         Map<String, String> parameters = extractParameters(command);
-        String firstArgumentFromCommand = command.split(COMMAND_SPLIT_SYMBOL)[FIRST_ARGUMENT_INDEX]
-                .replaceFirst("^/", "").toUpperCase();
+        String firstArgumentFromCommand = extractFirstArgument(command);
 
         CommandType commandType = commandTypeService.determineCommandType(firstArgumentFromCommand);
 
@@ -76,13 +90,59 @@ public class CommandParser {
             String key = matcher.group(GROUP_ONE);
             String value = matcher.group(GROUP_TWO);
 
-            if (value.startsWith("\"") && value.endsWith("\"")) {
-                value = value.substring(1, value.length() - 1);
+            if (isQuoted(value)) {
+                value = stripQuotes(value);
             }
-            value = value.replaceAll(",$", "").trim();
+            value = removeTrailingComma(value).trim();
             parameters.put(key, value);
         }
         return parameters;
+    }
+
+    /**
+     * Извлекает первый аргумент из команды.
+     *
+     * @param command строка команды
+     * @return первый аргумент команды в верхнем регистре без префикса "/"
+     */
+    private String extractFirstArgument(String command) {
+        String[] parts = command.split(COMMAND_SPLIT_SYMBOL);
+        if (parts.length == 0) {
+            return EMPTY_STRING;
+        }
+        return parts[FIRST_ARGUMENT_INDEX]
+                .replaceFirst(COMMAND_PREFIX_REGEX, EMPTY_STRING)
+                .toUpperCase();
+    }
+
+    /**
+     * Проверяет, заключено ли значение в кавычки.
+     *
+     * @param value строка для проверки
+     * @return true, если значение начинается и заканчивается кавычкой, иначе false
+     */
+    private boolean isQuoted(String value) {
+        return value.startsWith(DOUBLE_QUOTE) && value.endsWith(DOUBLE_QUOTE);
+    }
+
+    /**
+     * Удаляет кавычки из начала и конца строки.
+     *
+     * @param value строка с кавычками
+     * @return строка без начальных и конечных кавычек
+     */
+    private String stripQuotes(String value) {
+        return value.substring(SUBSTRING_START_OFFSET, value.length() - SUBSTRING_END_OFFSET);
+    }
+
+    /**
+     * Удаляет запятую в конце строки, если она присутствует.
+     *
+     * @param value строка с потенциальной запятой на конце
+     * @return строка без запятой на конце
+     */
+    private String removeTrailingComma(String value) {
+        return value.replaceAll(COMMAND_SUFFIX_REGEX, EMPTY_STRING);
     }
 
     /**
@@ -92,10 +152,10 @@ public class CommandParser {
      * @return объект {@link ParsedCommand} с установленными параметрами
      */
     private ParsedCommand createParsedCommand(Map<String, String> parameters) {
-        boolean saveToFile = parameters.containsKey(SAVE);
+        boolean isSaveToFile = parameters.containsKey(SAVE);
         boolean isEasyAlgorithm = parameters.containsKey(EASY);
         boolean isEvenAlgorithm = parameters.containsKey(EVEN);
-        boolean withCount = parameters.containsKey(WITH_COUNT);
+        boolean isWithCount = parameters.containsKey(WITH_COUNT);
 
         String parcelsText = parameters.get(PARCELS_TEXT);
         String parcelsFile = parameters.get(PARCELS_FILE);
@@ -106,7 +166,7 @@ public class CommandParser {
         String dateTo = parameters.get(DATE_TO);
 
         return new ParsedCommand(
-                saveToFile,
+                isSaveToFile,
                 isEasyAlgorithm,
                 isEvenAlgorithm,
                 user,
@@ -116,7 +176,7 @@ public class CommandParser {
                 parcelsFile,
                 trucks,
                 inFile,
-                withCount
+                isWithCount
         );
     }
 
