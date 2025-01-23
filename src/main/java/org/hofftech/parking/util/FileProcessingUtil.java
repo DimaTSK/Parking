@@ -7,12 +7,11 @@ import org.hofftech.parking.model.Order;
 import org.hofftech.parking.model.enums.OrderOperationType;
 import org.hofftech.parking.model.Parcel;
 import org.hofftech.parking.model.Truck;
-import org.hofftech.parking.parcer.ParsingService;
 import org.hofftech.parking.service.json.JsonProcessingService;
 import org.hofftech.parking.service.OrderManagerService;
 import org.hofftech.parking.service.TruckService;
 import org.hofftech.parking.service.packingalgorithm.PackingAlgorithm;
-import org.hofftech.parking.validator.ParcelValidator;
+import org.hofftech.parking.parcer.ParsingService;
 
 import java.nio.file.Path;
 import java.time.LocalDate;
@@ -33,8 +32,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FileProcessingUtil {
 
-    private final ParsingService fileParser;
-    private final ParcelValidator parcelValidator;
+    private final ParsingService parsingService;
     private final TruckService truckService;
     private final JsonProcessingService jsonProcessingService;
     private final ParcelAlgorithmFactory parcelAlgorithmFactory;
@@ -60,7 +58,7 @@ public class FileProcessingUtil {
      */
     public String process(Path parcelsFile, String parcelsText, List<String> trucksFromArgs,
                           boolean isEasyAlgorithm, boolean isSaveToFile, boolean isEvenAlgorithm, String user) {
-        List<Parcel> parcels = getParcelsFromFileOrArgs(parcelsFile, parcelsText);
+        List<Parcel> parcels = parsingService.getParcels(parcelsFile, parcelsText);
         PackingAlgorithm strategy = parcelAlgorithmFactory.createStrategy(isEasyAlgorithm);
         List<Truck> trucks = strategy.addParcels(parcels, isEasyAlgorithm, isEvenAlgorithm, trucksFromArgs);
 
@@ -91,7 +89,7 @@ public class FileProcessingUtil {
         for (Truck truck : trucks) {
             List<Parcel> parcelsFromTruck = truck.getParcels();
             if (!parcelsFromTruck.isEmpty()) {
-                allParcels.addAll(truck.getParcels());
+                allParcels.addAll(parcelsFromTruck);
                 truckCount++;
             }
         }
@@ -105,34 +103,6 @@ public class FileProcessingUtil {
         );
         orderManagerService.addOrder(order);
         log.info("Заказ на погрузку добавлен для пользователя {}", userId);
-    }
-
-    /**
-     * Получает список посылок из файла или из текстового представления.
-     *
-     * <p>
-     * В зависимости от предоставленных аргументов, метод читает посылки из файла или
-     * парсит их из текстовой строки. После этого выполняется валидация полученных данных.
-     * </p>
-     *
-     * @param parcelsFile путь к файлу с посылками
-     * @param parcelsText текстовое представление посылок
-     * @return список объектов {@link Parcel}, представляющих посылки
-     * @throws IllegalArgumentException если посылки не представлены
-     */
-    private List<Parcel> getParcelsFromFileOrArgs(Path parcelsFile, String parcelsText) {
-        List<Parcel> parcels = new ArrayList<>();
-        if (parcelsFile != null) {
-            List<String> lines = FileReaderUtil.readAllLines(parcelsFile);
-            parcelValidator.validateFile(lines);
-            parcels = parseFileLines(parcelsFile, lines);
-        } else if (parcelsText != null && !parcelsText.isEmpty()) {
-            parcels = fileParser.parceParcelFromArgs(parcelsText);
-        }
-        if (parcels.isEmpty()) {
-            throw new IllegalArgumentException("Упаковки не представлены, продолжение работы невозможно");
-        }
-        return parcels;
     }
 
     /**
@@ -154,26 +124,5 @@ public class FileProcessingUtil {
         } catch (Exception e) {
             throw new RuntimeException("Ошибка при сохранении данных в JSON: " + e.getMessage());
         }
-    }
-
-    /**
-     * Парсит строки файла и преобразует их в список посылок.
-     *
-     * <p>
-     * Использует сервис {@link ParsingService} для парсинга строк из файла в объекты {@link Parcel}.
-     * Если ни одна посылка не была успешно распарсена, выбрасывается исключение.
-     * </p>
-     *
-     * @param filePath путь к файлу с посылками
-     * @param lines    список строк из файла
-     * @return список объектов {@link Parcel}, представляющих посылки
-     * @throws RuntimeException если ни одна посылка не была распарсена
-     */
-    protected List<Parcel> parseFileLines(Path filePath, List<String> lines) {
-        List<Parcel> parcels = fileParser.parseParcelsFromFile(lines);
-        if (parcels.isEmpty()) {
-            throw new RuntimeException("Не удалось распарсить ни одной упаковки из файла: " + filePath);
-        }
-        return parcels;
     }
 }

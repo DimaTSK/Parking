@@ -58,8 +58,8 @@ public class ApplicationConfig {
     }
 
     @Bean
-    public ParsingService parsingService(ParcelRepository parcelRepository) {
-        return new ParsingService(parcelRepository);
+    public ParsingService parsingService(ParcelRepository parcelRepository, ParcelValidator parcelValidator) {
+        return new ParsingService(parcelRepository,parcelValidator);
     }
 
     @Bean
@@ -81,13 +81,12 @@ public class ApplicationConfig {
     @Bean
     public FileProcessingUtil fileProcessingService(
             ParsingService parsingService,
-            ParcelValidator parcelValidator,
             TruckService truckService,
             JsonProcessingService jsonProcessingService,
             ParcelAlgorithmFactory parcelAlgorithmFactory,
             OrderManagerService orderManagerService) {
         return new FileProcessingUtil(
-                parsingService, parcelValidator, truckService,
+                parsingService, truckService,
                 jsonProcessingService, parcelAlgorithmFactory, orderManagerService);
     }
 

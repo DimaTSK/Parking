@@ -6,7 +6,10 @@ import org.hofftech.parking.exception.ParcelArgumentException;
 import org.hofftech.parking.exception.ParcelNotFoundException;
 import org.hofftech.parking.model.Parcel;
 import org.hofftech.parking.repository.ParcelRepository;
+import org.hofftech.parking.validator.ParcelValidator;
+import org.hofftech.parking.util.FileReaderUtil;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -14,10 +17,55 @@ import java.util.regex.Pattern;
 @Slf4j
 @RequiredArgsConstructor
 public class ParsingService {
-    // Предварительно скомпилированный паттерн для замены символов
+
     private static final Pattern COMMA_REPLACEMENT_PATTERN = Pattern.compile("[“”\"]");
     private static final String PARCELS_SPLITTER = ",";
     private final ParcelRepository parcelRepository;
+    private final ParcelValidator parcelValidator;
+
+    /**
+     * Получает список посылок из файла или из текстового представления.
+     *
+     * <p>
+     * В зависимости от предоставленных аргументов, метод читает посылки из файла или
+     * парсит их из текстовой строки. После этого выполняется валидация полученных данных.
+     * </p>
+     *
+     * @param parcelsFile путь к файлу с посылками
+     * @param parcelsText текстовое представление посылок
+     * @return список объектов {@link Parcel}, представляющих посылки
+     * @throws IllegalArgumentException если посылки не представлены
+     */
+    public List<Parcel> getParcels(Path parcelsFile, String parcelsText) {
+        List<Parcel> parcels = new ArrayList<>();
+        if (parcelsFile != null) {
+            List<String> lines = FileReaderUtil.readAllLines(parcelsFile);
+            parcelValidator.validateFile(lines);
+            parcels = parseFileLines(parcelsFile, lines);
+        } else if (parcelsText != null && !parcelsText.isEmpty()) {
+            parcels = parceParcelFromArgs(parcelsText);
+        }
+        if (parcels.isEmpty()) {
+            throw new IllegalArgumentException("Упаковки не представлены, продолжение работы невозможно");
+        }
+        return parcels;
+    }
+
+    /**
+     * Парсит список строк из файла и возвращает список соответствующих посылок.
+     *
+     * @param filePath путь к файлу с посылками
+     * @param lines    список строк из файла
+     * @return список объектов {@link Parcel}, представляющих посылки
+     * @throws ParcelNotFoundException если ни одна посылка не была распарсена
+     */
+    protected List<Parcel> parseFileLines(Path filePath, List<String> lines) {
+        List<Parcel> parcels = parseParcelsFromFile(lines);
+        if (parcels.isEmpty()) {
+            throw new ParcelNotFoundException("Не удалось распарсить ни одной упаковки из файла: " + filePath);
+        }
+        return parcels;
+    }
 
     /**
      * Парсит список строк из файла и возвращает список соответствующих посылок.
@@ -73,4 +121,3 @@ public class ParsingService {
         return parcels;
     }
 }
-
