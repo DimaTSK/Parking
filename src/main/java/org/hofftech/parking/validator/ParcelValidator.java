@@ -19,6 +19,8 @@ public class ParcelValidator {
 
     private static final String FORM_SPLITTER = ",";
     private static final int FIRST_ROW_INDEX = 0;
+    private static final int NO_OFFSET = 0;
+    private static final int ONE_OFFSET = 1;
 
     /**
      * Проверяет, не висят ли символы ниже формы.
@@ -31,20 +33,20 @@ public class ParcelValidator {
      *
      * @param currentRow текущая строка формы
      * @param nextRow    следующая строка формы
-     * @param i          индекс текущей строки
+     * @param rowIndex   индекс текущей строки
      * @throws ValidateException если символ висит в воздухе
      */
-    private static void checkSymbolsBelowShape(String currentRow, String nextRow, int i) {
-        for (int j = FIRST_ROW_INDEX; j < currentRow.length(); j++) {
-            char current = currentRow.charAt(j);
+    private void checkSymbolsBelowShape(String currentRow, String nextRow, int rowIndex) {
+        for (int columnIndex = FIRST_ROW_INDEX; columnIndex < currentRow.length(); columnIndex++) {
+            char currentChar = currentRow.charAt(columnIndex);
 
-            if (current != ' ') {
-                boolean hasLeft = j > 0 && currentRow.charAt(j - 1) != ' ';
-                boolean hasRight = j < currentRow.length() - 1 && currentRow.charAt(j + 1) != ' ';
-                boolean hasBottom = j < nextRow.length() && nextRow.charAt(j) != ' ';
+            if (currentChar != ' ') {
+                boolean hasLeft = columnIndex > NO_OFFSET && currentRow.charAt(columnIndex - ONE_OFFSET) != ' ';
+                boolean hasRight = columnIndex < currentRow.length() - ONE_OFFSET && currentRow.charAt(columnIndex + ONE_OFFSET) != ' ';
+                boolean hasBottom = columnIndex < nextRow.length() && nextRow.charAt(columnIndex) != ' ';
 
                 if ((!hasLeft && !hasBottom) || (!hasRight && !hasBottom)) {
-                    throw new ValidateException("Символ в позиции (" + i + ", " + j + ") висит в воздухе.");
+                    throw new ValidateException("Символ в позиции (" + rowIndex + ", " + columnIndex + ") висит в воздухе.");
                 }
             }
         }
@@ -88,13 +90,13 @@ public class ParcelValidator {
      * @throws ValidateException если обнаружены висящие символы
      */
     public void validateDiagonalTouch(List<String> rows) {
-        int height = rows.size();
+        int totalRows = rows.size();
 
-        for (int i = FIRST_ROW_INDEX; i < height - 1; i++) {
-            String currentRow = rows.get(i);
-            String nextRow = rows.get(i + 1);
+        for (int rowIndex = FIRST_ROW_INDEX; rowIndex < totalRows - ONE_OFFSET; rowIndex++) {
+            String currentRow = rows.get(rowIndex);
+            String nextRow = rows.get(rowIndex + ONE_OFFSET);
 
-            checkSymbolsBelowShape(currentRow, nextRow, i);
+            checkSymbolsBelowShape(currentRow, nextRow, rowIndex);
         }
     }
 
@@ -113,5 +115,7 @@ public class ParcelValidator {
         if (lines.isEmpty()) {
             throw new ValidateException("Файл пустой или не содержит данных.");
         }
+
+        log.info("Файл содержит {} строк(и).", lines.size());
     }
 }
