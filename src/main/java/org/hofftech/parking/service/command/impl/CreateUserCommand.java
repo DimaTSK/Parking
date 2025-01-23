@@ -33,7 +33,7 @@ public class CreateUserCommand implements UserCommand {
             throw new ParcelArgumentException("Недостаточно данных для создания посылки");
         }
 
-        List<String> shape = parcelValidator.parseAndValidateForm(form);
+        List<String> shape = parcelValidator.parseForm(form);
         Parcel newParcel = new Parcel(name, shape, symbol, new ParcelStartPosition(POSITION_START_INDEX, POSITION_START_INDEX));
         parcelRepository.addParcel(newParcel);
 

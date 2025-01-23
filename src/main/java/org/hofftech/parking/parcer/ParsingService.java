@@ -7,7 +7,7 @@ import org.hofftech.parking.exception.ParcelNotFoundException;
 import org.hofftech.parking.model.Parcel;
 import org.hofftech.parking.repository.ParcelRepository;
 import org.hofftech.parking.validator.ParcelValidator;
-import org.hofftech.parking.util.FileReaderUtil;
+import org.hofftech.parking.service.FileReaderService;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -39,7 +39,7 @@ public class ParsingService {
     public List<Parcel> getParcels(Path parcelsFile, String parcelsText) {
         List<Parcel> parcels = new ArrayList<>();
         if (parcelsFile != null) {
-            List<String> lines = FileReaderUtil.readAllLines(parcelsFile);
+            List<String> lines = FileReaderService.readAllLines(parcelsFile);
             parcelValidator.validateFile(lines);
             parcels = parseFileLines(parcelsFile, lines);
         } else if (parcelsText != null && !parcelsText.isEmpty()) {

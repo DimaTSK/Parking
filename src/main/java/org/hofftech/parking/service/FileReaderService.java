@@ -1,4 +1,4 @@
-package org.hofftech.parking.util;
+package org.hofftech.parking.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.hofftech.parking.exception.InputFileException;
@@ -18,7 +18,7 @@ import java.util.List;
  * </p>
  */
 @Slf4j
-public final class FileReaderUtil {
+public final class FileReaderService {
 
     /**
      * Читает все строки из файла по указанному пути.

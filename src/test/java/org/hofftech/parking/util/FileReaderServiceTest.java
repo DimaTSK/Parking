@@ -1,6 +1,7 @@
 package org.hofftech.parking.util;
 
 import org.hofftech.parking.exception.InputFileException;
+import org.hofftech.parking.service.FileReaderService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -13,7 +14,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class FileReaderUtilTest {
+class FileReaderServiceTest {
 
     @TempDir
     Path tempDir;
@@ -27,7 +28,7 @@ class FileReaderUtilTest {
         List<String> lines = Arrays.asList("Первая строка", "Вторая строка", "Третья строка");
         Files.write(tempFile, lines, StandardOpenOption.WRITE);
 
-        List<String> readLines = FileReaderUtil.readAllLines(tempFile);
+        List<String> readLines = FileReaderService.readAllLines(tempFile);
 
         assertEquals(lines, readLines, "Прочитанные строки должны совпадать с ожидаемыми");
     }
@@ -39,7 +40,7 @@ class FileReaderUtilTest {
     void testReadAllLines_EmptyFile() throws IOException {
         Path emptyFile = Files.createFile(tempDir.resolve("emptyFile.txt"));
 
-        List<String> readLines = FileReaderUtil.readAllLines(emptyFile);
+        List<String> readLines = FileReaderService.readAllLines(emptyFile);
 
         assertTrue(readLines.isEmpty(), "Прочитанные строки должны быть пустыми");
     }
@@ -52,7 +53,7 @@ class FileReaderUtilTest {
         Path nonExistentFile = tempDir.resolve("nonExistentFile.txt");
 
         InputFileException exception = assertThrows(InputFileException.class, () -> {
-            FileReaderUtil.readAllLines(nonExistentFile);
+            FileReaderService.readAllLines(nonExistentFile);
         });
 
         assertTrue(exception.getMessage().contains("Файл не существует"),

@@ -64,7 +64,7 @@ public class ParcelValidator {
      * @return список строк, представляющих строки формы
      * @throws ValidateException если форма пустая или имеет некорректный формат
      */
-    public List<String> parseAndValidateForm(String form) {
+    public List<String> parseForm(String form) {
         if (form == null || form.isEmpty()) {
             throw new ValidateException("Форма посылки не указана.");
         }
