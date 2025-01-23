@@ -28,6 +28,7 @@ public class TruckService {
 
     private static final int WIDTH_INDEX = 0;
     private static final int HEIGHT_INDEX = 1;
+    private static final int EXPECTED_SIZE_PARTS = 2;
 
     private static final String INVALID_TRUCK_SIZE_FORMAT_MESSAGE = "Размер грузовика должен быть в формате ширинаxвысота, например 10x10.";
     private static final String NON_NUMERIC_TRUCK_SIZE_MESSAGE = "Размеры грузовика должны быть числами.";
@@ -163,28 +164,20 @@ public class TruckService {
      */
     private void placeParcels(List<Parcel> parcelList, List<Truck> trucks) {
         for (Parcel providedParcel : parcelList) {
-            logAttemptPlacement(providedParcel);
+            log.info("Пытаемся разместить упаковку с ID {} и именем {}.", providedParcel.getName(), providedParcel.getName());
             boolean isPlaced = attemptToPlaceParcel(providedParcel, trucks);
 
             if (!isPlaced) {
-                logRetryPlacement(providedParcel);
+                log.info("Упаковка с ID {} не поместилась. Повторная попытка размещения в существующих грузовиках...", providedParcel.getName());
                 isPlaced = retryToPlaceParcel(providedParcel, trucks);
             }
 
             if (!isPlaced) {
-                handlePlacementFailure(providedParcel);
+                throw new InsufficientTrucksException("Не хватает указанных грузовиков для размещения всех посылок!");
             }
         }
     }
 
-    /**
-     * Логирует попытку размещения посылки.
-     *
-     * @param parcel посылка для размещения
-     */
-    private void logAttemptPlacement(Parcel parcel) {
-        log.info("Пытаемся разместить упаковку с ID {} и именем {}.", parcel.getName(), parcel.getName());
-    }
 
     /**
      * Пытается разместить посылку в одном из грузовиков.
@@ -204,15 +197,6 @@ public class TruckService {
     }
 
     /**
-     * Логирует начало повторной попытки размещения посылки.
-     *
-     * @param parcel посылка для размещения
-     */
-    private void logRetryPlacement(Parcel parcel) {
-        log.info("Упаковка с ID {} не поместилась. Повторная попытка размещения в существующих грузовиках...", parcel.getName());
-    }
-
-    /**
      * Пытается повторно разместить посылку в одном из грузовиков.
      *
      * @param parcel посылка для размещения
@@ -229,15 +213,6 @@ public class TruckService {
         return false;
     }
 
-    /**
-     * Обрабатывает ситуацию, когда размещение посылки не удалось.
-     *
-     * @param parcel посылка, которую не удалось разместить
-     */
-    private void handlePlacementFailure(Parcel parcel) {
-        log.error("Не удалось разместить посылку с ID {} в существующих грузовиках.", parcel.getName());
-        throw new InsufficientTrucksException("Не хватает указанных грузовиков для размещения всех посылок!");
-    }
 
     /**
      * Создает новый грузовик на основе предоставленного размера.
@@ -254,8 +229,7 @@ public class TruckService {
     private Truck createTruck(String providedTruckSize) {
         String[] splitSize = providedTruckSize.split(TRUCK_SIZE_SPLITTER);
 
-        if (splitSize.length != 2) {
-            log.error("Некорректный формат размера грузовика: {}", providedTruckSize);
+        if (splitSize.length != EXPECTED_SIZE_PARTS) {
             throw new IllegalArgumentException(INVALID_TRUCK_SIZE_FORMAT_MESSAGE);
         }
 
@@ -264,7 +238,6 @@ public class TruckService {
             int height = Integer.parseInt(splitSize[HEIGHT_INDEX].trim());
 
             if (width <= 0 || height <= 0) {
-                log.error("Размеры грузовика должны быть положительными числами: {}x{}", width, height);
                 throw new IllegalArgumentException(NEGATIVE_TRUCK_SIZE_MESSAGE);
             }
 
@@ -272,7 +245,6 @@ public class TruckService {
             log.info("Создан грузовик размером {}x{}.", width, height);
             return currentTruck;
         } catch (NumberFormatException e) {
-            log.error("Не удалось преобразовать размеры грузовика в числа: {}", providedTruckSize);
             throw new NumberFormatException(NON_NUMERIC_TRUCK_SIZE_MESSAGE);
         }
     }
