@@ -3,6 +3,7 @@ package org.hofftech.parking.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hofftech.parking.factory.CommandFactory;
+import org.hofftech.parking.handler.CommandHandler;
 import org.hofftech.parking.model.ParsedCommand;
 import org.hofftech.parking.parcer.CommandParser;
 import org.springframework.shell.standard.ShellComponent;
@@ -21,8 +22,7 @@ import org.springframework.shell.standard.ShellOption;
 @RequiredArgsConstructor
 public class CommandController {
 
-    private final CommandFactory processorFactory;
-    private final CommandParser commandParser;
+    private final CommandHandler commandHandler;
 
     /**
      * Стартовая команда, выводящая приветственное сообщение и список доступных команд.
@@ -31,7 +31,7 @@ public class CommandController {
      */
     @ShellMethod("Стартовая команда")
     public String start() {
-        return "Привет!Это приложение по перекладыванию посылочек.";
+        return "Привет! Это приложение по перекладыванию посылочек.";
     }
 
     /**
@@ -56,7 +56,7 @@ public class CommandController {
      */
     @ShellMethod("Поиск посылки")
     public String find(@ShellOption(defaultValue = "") String args) {
-        return handleCommand("find " + args);
+        return commandHandler.handleCommand("find " + args);
     }
 
     /**
@@ -67,7 +67,7 @@ public class CommandController {
      */
     @ShellMethod("Создание новой посылки")
     public String create(@ShellOption(defaultValue = "") String args) {
-        return handleCommand("create " + args);
+        return commandHandler.handleCommand("create " + args);
     }
 
     /**
@@ -78,7 +78,7 @@ public class CommandController {
      */
     @ShellMethod("Обновление существующей посылки")
     public String update(@ShellOption(defaultValue = "") String args) {
-        return handleCommand("update " + args);
+        return commandHandler.handleCommand("update " + args);
     }
 
     /**
@@ -89,7 +89,7 @@ public class CommandController {
      */
     @ShellMethod("Удаление посылки")
     public String delete(@ShellOption(defaultValue = "") String args) {
-        return handleCommand("delete " + args);
+        return commandHandler.handleCommand("delete " + args);
     }
 
     /**
@@ -99,7 +99,7 @@ public class CommandController {
      */
     @ShellMethod("Список всех посылок")
     public String list() {
-        return handleCommand("list");
+        return commandHandler.handleCommand("list");
     }
 
     /**
@@ -110,7 +110,7 @@ public class CommandController {
      */
     @ShellMethod("Погрузка")
     public String load(@ShellOption(defaultValue = "") String args) {
-        return handleCommand("load " + args);
+        return commandHandler.handleCommand("load " + args);
     }
 
     /**
@@ -121,7 +121,7 @@ public class CommandController {
      */
     @ShellMethod("Разгрузка")
     public String unload(@ShellOption(defaultValue = "") String args) {
-        return handleCommand("unload " + args);
+        return commandHandler.handleCommand("unload " + args);
     }
 
     /**
@@ -132,27 +132,6 @@ public class CommandController {
      */
     @ShellMethod("Генерация отчета биллинга")
     public String billing(@ShellOption(defaultValue = "") String args) {
-        return handleCommand("billing " + args);
-    }
-
-    /**
-     * Обрабатывает переданную команду, выполняет её и возвращает результат.
-     * <p>
-     * Парсит строковую команду, создает соответствующий процессор команды через {@link CommandFactory},
-     * выполняет команду и возвращает результат. В случае возникновения ошибки, логирует её и возвращает сообщение об ошибке.
-     * </p>
-     *
-     * @param command строковое представление команды для обработки
-     * @return результат выполнения команды или сообщение об ошибке
-     */
-    private String handleCommand(String command) {
-        try {
-            ParsedCommand parsedCommand = commandParser.parse(command);
-            return processorFactory.createProcessor(parsedCommand.getCommandType())
-                    .execute(parsedCommand);
-        } catch (Exception e) {
-            log.error("Ошибка обработки команды: {}", e.getMessage(), e);
-            return "Ошибка: " + e.getMessage();
-        }
+        return commandHandler.handleCommand("billing " + args);
     }
 }
