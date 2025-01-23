@@ -3,6 +3,7 @@ package org.hofftech.parking.service;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.hofftech.parking.exception.InsufficientTrucksException;
 import org.hofftech.parking.model.Parcel;
 import org.hofftech.parking.model.Truck;
 
@@ -29,8 +30,9 @@ public class TruckService {
     private static final int FIRST_PART = 0;
     private static final int SECOND_PART = 1;
     private static final String EMPTY_TRUCKS_ERROR_MESSAGE = "Аргумент с грузовиками пуст, погрузка невозможна";
-    private static final String STANDARD_TRUCK_SIZE = "10x10"; // Пример стандартного размера
+    private static final String STANDARD_TRUCK_SIZE = "10x10";
     private static final boolean DEFAULT_IS_EVEN_ALGORITHM = false;
+    private static final int NEXT_TRUCK_OFFSET = 1;
 
     private final ParcelService parcelService;
 
@@ -46,13 +48,12 @@ public class TruckService {
      * @param isEvenAlgorithm   флаг, указывающий использовать ли равномерный алгоритм
      * @param trucksFromArgs    список размеров грузовиков, предоставленных через аргументы
      * @return список грузовиков с размещенными посылками
-     * @throws IllegalArgumentException если список грузовиков пуст и стандартные размеры не заданы
-     * @throws RuntimeException         если недостаточно грузовиков для размещения всех посылок
+     * @throws InsufficientTrucksException если список грузовиков пуст и стандартные размеры не заданы
+     * @throws InsufficientTrucksException если недостаточно грузовиков для размещения всех посылок
      */
     public List<Truck> addParcelsToMultipleTrucks(List<Parcel> parcelList, Boolean isEvenAlgorithm, List<String> trucksFromArgs) {
         log.info("Начало размещения упаковок. Всего упаковок: {}", parcelList.size());
 
-        // Сортировка посылок по высоте и ширине (предполагается, что Parcel реализует Comparable)
         parcelList.sort(null);
         log.info("Упаковки отсортированы по высоте и ширине.");
 
@@ -63,7 +64,6 @@ public class TruckService {
             return trucks;
         }
 
-        // Если список грузовиков не пуст, создаем грузовики на основе предоставленных размеров
         for (String providedTruckSize : trucksFromArgs) {
             trucks.add(createTruck(providedTruckSize));
         }
@@ -88,8 +88,8 @@ public class TruckService {
      * @param trucks             список грузовиков для добавления
      * @param parcelList         список посылок для размещения
      * @param isEvenAlgorithm    флаг, указывающий использовать ли равномерный алгоритм
-     * @throws IllegalArgumentException если стандартный размер грузовика не задан
-     * @throws RuntimeException         если размещение посылок невозможно
+     * @throws InsufficientTrucksException если стандартный размер грузовика не задан
+     * @throws InsufficientTrucksException если размещение посылок невозможно
      */
     private void handleEmptyTrucksList(List<Truck> trucks, List<Parcel> parcelList, Boolean isEvenAlgorithm) {
         log.info("Массив грузовиков пуст. Используем стандартные размеры {} и плотное размещение.", STANDARD_TRUCK_SIZE);
@@ -115,12 +115,12 @@ public class TruckService {
      *
      * @param parcels список посылок для распределения
      * @param trucks  список грузовиков, в которые будут размещены посылки
-     * @throws IllegalArgumentException если список грузовиков пуст
-     * @throws RuntimeException         если недостаточно грузовиков для размещения всех посылок
+     * @throws InsufficientTrucksException если список грузовиков пуст
+     * @throws InsufficientTrucksException если недостаточно грузовиков для размещения всех посылок
      */
     public void distributeParcelsEvenly(List<Parcel> parcels, List<Truck> trucks) {
         if (trucks.isEmpty()) {
-            throw new IllegalArgumentException("Невозможно распределить посылки: нет грузовиков.");
+            throw new InsufficientTrucksException("Невозможно распределить посылки: нет грузовиков.");
         }
         int totalParcels = parcels.size();
         int numberOfTrucks = trucks.size();
@@ -133,14 +133,14 @@ public class TruckService {
             for (int i = 0; i < numberOfTrucks; i++) {
                 Truck currentTruck = trucks.get((currentTruckIndex + i) % numberOfTrucks);
                 if (parcelService.tryPack(currentTruck, nextParcel)) {
-                    log.info("Посылка {} успешно размещена в грузовике {}.", nextParcel.getName(), (currentTruckIndex + i) % numberOfTrucks + 1);
+                    log.info("Посылка {} успешно размещена в грузовике {}.", nextParcel.getName(), ((currentTruckIndex + i) % numberOfTrucks) + 1);
                     isPlaced = true;
-                    currentTruckIndex = (currentTruckIndex + i + 1) % numberOfTrucks;
+                    currentTruckIndex = (currentTruckIndex + i + NEXT_TRUCK_OFFSET) % numberOfTrucks;
                     break;
                 }
             }
             if (!isPlaced) {
-                throw new RuntimeException("Не хватает указанных грузовиков для размещения!");
+                throw new InsufficientTrucksException("Не хватает указанных грузовиков для размещения всех посылок!");
             }
         }
         log.info("Все посылки успешно распределены по грузовикам.");
@@ -156,6 +156,7 @@ public class TruckService {
      *
      * @param parcelList список посылок для размещения
      * @param trucks     список грузовиков, в которые будут размещены посылки
+     * @throws InsufficientTrucksException если недостаточно грузовиков для размещения всех посылок
      */
     private void placeParcels(List<Parcel> parcelList, List<Truck> trucks) {
         for (Parcel providedParcel : parcelList) {
@@ -182,7 +183,7 @@ public class TruckService {
             }
             if (!isPlaced) {
                 log.error("Не удалось разместить посылку с ID {} в существующих грузовиках.", providedParcel.getName());
-                throw new RuntimeException("Не хватает указанных грузовиков для размещения всех посылок!");
+                throw new InsufficientTrucksException("Не хватает указанных грузовиков для размещения всех посылок!");
             }
         }
     }
@@ -281,6 +282,7 @@ public class TruckService {
      * @param parcels        список посылок для размещения
      * @param providedTrucks список размеров грузовиков в формате {@code ширинаxвысота}
      * @return список грузовиков с размещенными посылками
+     * @throws InsufficientTrucksException если недостаточно предоставленных грузовиков для размещения всех посылок
      */
     public List<Truck> addParcelsToIndividualTrucks(List<Parcel> parcels, List<String> providedTrucks) {
         List<Truck> trucks = new ArrayList<>();
@@ -289,7 +291,7 @@ public class TruckService {
         for (Parcel parcel : parcels) {
             if (truckIndex >= providedTrucks.size()) {
                 log.error("Недостаточно предоставленных грузовиков для размещения посылок.");
-                throw new RuntimeException("Не хватает предоставленных грузовиков для размещения всех посылок.");
+                throw new InsufficientTrucksException("Не хватает предоставленных грузовиков для размещения всех посылок.");
             }
             Truck truck = createTruck(providedTrucks.get(truckIndex));
             truckIndex++;
