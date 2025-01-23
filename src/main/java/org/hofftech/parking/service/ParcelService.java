@@ -135,6 +135,25 @@ public class ParcelService {
         List<String> shape = providedParcel.getReversedShape();
         int height = shape.size();
 
+        boolean packed = iterateOverStartY(truck, providedParcel, shape, height);
+
+        if (!packed) {
+            log.warn("Упаковка {} не смогла быть добавлена в грузовик.", providedParcel.getName());
+        }
+
+        return packed;
+    }
+
+    /**
+     * Перебирает возможные позиции по оси Y и пытается разместить упаковку.
+     *
+     * @param truck          Грузовик, в который пытаемся добавить упаковку.
+     * @param providedParcel Упаковка, которую нужно добавить.
+     * @param shape          Форма упаковки в виде списка строк.
+     * @param height         Высота формы упаковки.
+     * @return {@code true}, если упаковку удалось добавить, иначе {@code false}.
+     */
+    private boolean iterateOverStartY(Truck truck, Parcel providedParcel, List<String> shape, int height) {
         for (int startY = START_Y_POSITION; startY <= truck.getHeight() - height; startY++) {
             for (int startX = START_X_POSITION; startX <= truck.getWidth() - shape.get(0).length(); startX++) {
                 if (canAddParcel(truck, providedParcel, startX, startY)) {
@@ -145,8 +164,6 @@ public class ParcelService {
                 }
             }
         }
-
-        log.warn("Упаковка {} не смогла быть добавлена в грузовик.", providedParcel.getName());
         return false;
     }
 
