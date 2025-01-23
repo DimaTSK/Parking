@@ -2,6 +2,7 @@ package org.hofftech.parking.util;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hofftech.parking.exception.ParcelsNotFoundException; // Импорт кастомного исключения
 import org.hofftech.parking.factory.ParcelAlgorithmFactory;
 import org.hofftech.parking.model.Order;
 import org.hofftech.parking.model.enums.OrderOperationType;
@@ -55,10 +56,16 @@ public class FileProcessingUtil {
      * @param isEvenAlgorithm  флаг использования четного алгоритма
      * @param user             идентификатор пользователя
      * @return строковое сообщение о результате обработки
+     * @throws ParcelsNotFoundException если список посылок пуст
      */
     public String process(Path parcelsFile, String parcelsText, List<String> trucksFromArgs,
                           boolean isEasyAlgorithm, boolean isSaveToFile, boolean isEvenAlgorithm, String user) {
         List<Parcel> parcels = parsingService.getParcels(parcelsFile, parcelsText);
+
+        if (parcels.isEmpty()) {
+            throw new ParcelsNotFoundException();
+        }
+
         PackingAlgorithm strategy = parcelAlgorithmFactory.createStrategy(isEasyAlgorithm);
         List<Truck> trucks = strategy.addParcels(parcels, isEasyAlgorithm, isEvenAlgorithm, trucksFromArgs);
 
@@ -122,7 +129,7 @@ public class FileProcessingUtil {
             String result = jsonProcessingService.saveToJson(trucks);
             log.info("Данные успешно сохранены в JSON: {}", result);
         } catch (Exception e) {
-            throw new RuntimeException("Ошибка при сохранении данных в JSON: " + e.getMessage());
+            throw new RuntimeException("Ошибка при сохранении данных в JSON: " + e.getMessage(), e);
         }
     }
 }
