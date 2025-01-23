@@ -1,14 +1,17 @@
 package org.hofftech.parking.service.command.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.hofftech.parking.exception.ParcelLoadingException;
 import org.hofftech.parking.exception.UserNotProvidedException;
 import org.hofftech.parking.model.ParsedCommand;
+import org.hofftech.parking.model.enums.ParcelSourceType;
 import org.hofftech.parking.util.FileProcessingUtil;
 import org.hofftech.parking.service.command.UserCommand;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+
 
 /**
  * Класс реализации пользовательской команды для загрузки посылок.
@@ -23,15 +26,17 @@ public class LoadUserCommand implements UserCommand {
      *
      * @param command объект, содержащий параметры команды
      * @return результат выполнения команды
+     * @throws ParcelLoadingException если произошла ошибка при загрузке посылок
      */
     @Override
     public String execute(ParsedCommand command) {
         try {
             String user = getUser(command);
             List<String> trucksFromArgs = parseTrucks(command.getTrucks());
-            return processParcels(command, trucksFromArgs, user);
+            ParcelSourceType sourceType = determineParcelSourceType(command);
+            return processParcels(command, trucksFromArgs, user, sourceType);
         } catch (Exception e) {
-            throw new RuntimeException("Ошибка при погрузке: " + e.getMessage(), e);
+            throw new ParcelLoadingException("Ошибка при погрузке: " + e.getMessage(), e);
         }
     }
 
@@ -64,20 +69,38 @@ public class LoadUserCommand implements UserCommand {
     }
 
     /**
+     * Определяет тип источника посылок на основе команды.
+     *
+     * @param command объект с параметрами команды
+     * @return тип источника посылок
+     */
+    private ParcelSourceType determineParcelSourceType(ParsedCommand command) {
+        if (isParcelsTextProvided(command)) {
+            return ParcelSourceType.TEXT;
+        } else if (isParcelsFileProvided(command)) {
+            return ParcelSourceType.FILE;
+        } else {
+            throw new IllegalArgumentException("Укажите источник посылок (текст или файл)");
+        }
+    }
+
+    /**
      * Обрабатывает источники посылок и выполняет соответствующую обработку.
      *
      * @param command        объект с параметрами команды
      * @param trucksFromArgs список грузов
      * @param user           имя пользователя
+     * @param sourceType     тип источника посылок
      * @return результат обработки посылок
      */
-    private String processParcels(ParsedCommand command, List<String> trucksFromArgs, String user) {
-        if (isParcelsTextProvided(command)) {
-            return processParcelsFromText(command, trucksFromArgs, user);
-        } else if (isParcelsFileProvided(command)) {
-            return processParcelsFromFile(command, trucksFromArgs, user);
-        } else {
-            throw new IllegalArgumentException("Укажите источник посылок (текст или файл)");
+    private String processParcels(ParsedCommand command, List<String> trucksFromArgs, String user, ParcelSourceType sourceType) {
+        switch (sourceType) {
+            case TEXT:
+                return processParcelsFromText(command, trucksFromArgs, user);
+            case FILE:
+                return processParcelsFromFile(command, trucksFromArgs, user);
+            default:
+                throw new IllegalArgumentException("Неизвестный тип источника посылок");
         }
     }
 
@@ -113,7 +136,7 @@ public class LoadUserCommand implements UserCommand {
      */
     private String processParcelsFromText(ParsedCommand command, List<String> trucksFromArgs, String user) {
         return fileProcessingUtil.processFile(
-                null,
+                null, // Path не требуется
                 command.getParcelsText(),
                 trucksFromArgs,
                 command.isUseEasyAlgorithm(),
@@ -134,7 +157,7 @@ public class LoadUserCommand implements UserCommand {
     private String processParcelsFromFile(ParsedCommand command, List<String> trucksFromArgs, String user) {
         return fileProcessingUtil.processFile(
                 Path.of(command.getParcelsFile()),
-                null,
+                null, // Текст не требуется
                 trucksFromArgs,
                 command.isUseEasyAlgorithm(),
                 command.isSaveToFile(),
