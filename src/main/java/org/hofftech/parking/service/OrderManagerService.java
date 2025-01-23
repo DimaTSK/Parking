@@ -46,7 +46,7 @@ public class OrderManagerService {
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
-        log.info("Отчет для " + userId + " с " + from + " по " + to);
+        log.info("Отчет для {} с {} по {}", userId, from, to);
         try {
             fromDate = LocalDate.parse(from, formatter);
             toDate = LocalDate.parse(to, formatter);
@@ -73,19 +73,12 @@ public class OrderManagerService {
                 .collect(Collectors.joining("\n"));
     }
 
-    /**
-     * Получает список заказов для указанного пользователя в заданном диапазоне дат.
-     *
-     * @param userId   Идентификатор пользователя.
-     * @param dateFrom Начальная дата диапазона.
-     * @param dateTo   Конечная дата диапазона.
-     * @return Список заказов, соответствующих критериям фильтрации.
-     */
     private List<Order> getOrdersByUserIdAndDateRange(String userId, LocalDate dateFrom, LocalDate dateTo) {
         return orders.stream()
-                .filter(order -> order.getUserId().equals(userId)
-                        && (order.getDate().isEqual(dateFrom) || order.getDate().isAfter(dateFrom))
-                        && (order.getDate().isEqual(dateTo) || order.getDate().isBefore(dateTo)))
+                .filter(order -> order.getUserId().equals(userId))
+                .filter(order -> !order.getDate().isBefore(dateFrom))
+                .filter(order -> !order.getDate().isAfter(dateTo))
                 .toList();
     }
+
 }
