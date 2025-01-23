@@ -8,6 +8,7 @@ import org.hofftech.parking.model.Truck;
 
 import java.util.ArrayList;
 import java.util.List;
+
 /**
  * Сервис для управления грузовиками и размещения посылок.
  * <p>
@@ -25,9 +26,12 @@ import java.util.List;
 public class TruckService {
 
     private static final String TRUCK_SIZE_SPLITTER = "x";
-    private static final int FIRST_ROW_INDEX = 0;
     private static final int FIRST_PART = 0;
     private static final int SECOND_PART = 1;
+    private static final String EMPTY_TRUCKS_ERROR_MESSAGE = "Аргумент с грузовиками пуст, погрузка невозможна";
+    private static final String STANDARD_TRUCK_SIZE = "10x10"; // Пример стандартного размера
+    private static final boolean DEFAULT_IS_EVEN_ALGORITHM = false;
+
     private final ParcelService parcelService;
 
     /**
@@ -38,35 +42,67 @@ public class TruckService {
      * При необходимости используется равномерный алгоритм распределения.
      * </p>
      *
-     * @param parcelList       список посылок для размещения
-     * @param isEvenAlgorithm  флаг, указывающий использовать ли равномерный алгоритм
+     * @param parcelList        список посылок для размещения
+     * @param isEvenAlgorithm   флаг, указывающий использовать ли равномерный алгоритм
      * @param trucksFromArgs    список размеров грузовиков, предоставленных через аргументы
      * @return список грузовиков с размещенными посылками
-     * @throws IllegalArgumentException если список грузовиков пуст
+     * @throws IllegalArgumentException если список грузовиков пуст и стандартные размеры не заданы
      * @throws RuntimeException         если недостаточно грузовиков для размещения всех посылок
      */
     public List<Truck> addParcelsToMultipleTrucks(List<Parcel> parcelList, Boolean isEvenAlgorithm, List<String> trucksFromArgs) {
         log.info("Начало размещения упаковок. Всего упаковок: {}", parcelList.size());
+
+        // Сортировка посылок по высоте и ширине (предполагается, что Parcel реализует Comparable)
         parcelList.sort(null);
         log.info("Упаковки отсортированы по высоте и ширине.");
 
         List<Truck> trucks = new ArrayList<>();
 
         if (trucksFromArgs.isEmpty()) {
-            throw new IllegalArgumentException("Аргумент с грузовиками пуст, погрузка невозможна");
+            handleEmptyTrucksList(trucks, parcelList, isEvenAlgorithm);
+            return trucks;
+        }
+
+        // Если список грузовиков не пуст, создаем грузовики на основе предоставленных размеров
+        for (String providedTruckSize : trucksFromArgs) {
+            trucks.add(createTruck(providedTruckSize));
+        }
+
+        if (!isEvenAlgorithm) {
+            placeParcels(parcelList, trucks);
         } else {
-            for (String providedTruckSize : trucksFromArgs) {
-                trucks.add(createTruck(providedTruckSize));
-            }
-            if (!isEvenAlgorithm) {
-                placeParcels(parcelList, trucks);
-            } else {
-                distributeParcelsEvenly(parcelList, trucks);
-            }
+            distributeParcelsEvenly(parcelList, trucks);
         }
 
         log.info("Размещение завершено. Всего грузовиков: {}", trucks.size());
         return trucks;
+    }
+
+    /**
+     * Обрабатывает случай, когда список грузовиков пуст.
+     *
+     * <p>
+     * Создает стандартный грузовик, добавляет его в список грузовиков и размещает посылки.
+     * </p>
+     *
+     * @param trucks             список грузовиков для добавления
+     * @param parcelList         список посылок для размещения
+     * @param isEvenAlgorithm    флаг, указывающий использовать ли равномерный алгоритм
+     * @throws IllegalArgumentException если стандартный размер грузовика не задан
+     * @throws RuntimeException         если размещение посылок невозможно
+     */
+    private void handleEmptyTrucksList(List<Truck> trucks, List<Parcel> parcelList, Boolean isEvenAlgorithm) {
+        log.info("Массив грузовиков пуст. Используем стандартные размеры {} и плотное размещение.", STANDARD_TRUCK_SIZE);
+        Truck standardTruck = createTruck(STANDARD_TRUCK_SIZE);
+        trucks.add(standardTruck);
+
+        if (!isEvenAlgorithm) {
+            placeParcels(parcelList, trucks);
+        } else {
+            distributeParcelsEvenly(parcelList, trucks);
+        }
+
+        log.warn("Аргумент с грузовиками пуст, погрузка выполнена с использованием стандартных грузовиков.");
     }
 
     /**
@@ -94,7 +130,7 @@ public class TruckService {
 
         for (Parcel nextParcel : parcels) {
             boolean isPlaced = false;
-            for (int i = FIRST_ROW_INDEX; i < numberOfTrucks; i++) {
+            for (int i = 0; i < numberOfTrucks; i++) {
                 Truck currentTruck = trucks.get((currentTruckIndex + i) % numberOfTrucks);
                 if (parcelService.tryPack(currentTruck, nextParcel)) {
                     log.info("Посылка {} успешно размещена в грузовике {}.", nextParcel.getName(), (currentTruckIndex + i) % numberOfTrucks + 1);
@@ -139,9 +175,14 @@ public class TruckService {
                 for (Truck truck : trucks) {
                     if (parcelService.tryPack(truck, providedParcel)) {
                         log.info("Упаковка с ID {} размещена после повторной проверки.", providedParcel.getName());
+                        isPlaced = true;
                         break;
                     }
                 }
+            }
+            if (!isPlaced) {
+                log.error("Не удалось разместить посылку с ID {} в существующих грузовиках.", providedParcel.getName());
+                throw new RuntimeException("Не хватает указанных грузовиков для размещения всех посылок!");
             }
         }
     }
@@ -159,9 +200,20 @@ public class TruckService {
      */
     private Truck createTruck(String providedTruckSize) {
         String[] splitSize = providedTruckSize.split(TRUCK_SIZE_SPLITTER);
-        Truck currentTruck = new Truck(Integer.parseInt(splitSize[FIRST_PART].trim()), Integer.parseInt(splitSize[SECOND_PART].trim()));
-        log.info("Создан грузовик размером {}x{}.", splitSize[0].trim(), splitSize[1].trim());
-        return currentTruck;
+        if (splitSize.length != 2) {
+            log.error("Некорректный формат размера грузовика: {}", providedTruckSize);
+            throw new IllegalArgumentException("Размер грузовика должен быть в формате ширинаxвысота, например 10x10.");
+        }
+        try {
+            int width = Integer.parseInt(splitSize[FIRST_PART].trim());
+            int height = Integer.parseInt(splitSize[SECOND_PART].trim());
+            Truck currentTruck = new Truck(width, height);
+            log.info("Создан грузовик размером {}x{}.", width, height);
+            return currentTruck;
+        } catch (NumberFormatException e) {
+            log.error("Не удалось преобразовать размеры грузовика в числа: {}", providedTruckSize);
+            throw new NumberFormatException("Размеры грузовика должны быть числами.");
+        }
     }
 
     /**
@@ -235,6 +287,10 @@ public class TruckService {
         int truckIndex = 0;
 
         for (Parcel parcel : parcels) {
+            if (truckIndex >= providedTrucks.size()) {
+                log.error("Недостаточно предоставленных грузовиков для размещения посылок.");
+                throw new RuntimeException("Не хватает предоставленных грузовиков для размещения всех посылок.");
+            }
             Truck truck = createTruck(providedTrucks.get(truckIndex));
             truckIndex++;
             parcelService.tryPack(truck, parcel);
