@@ -23,19 +23,6 @@ public class CommandHandler {
     private final CommandParser commandParser;
 
     /**
-     * Основной метод обработки команды без обработки исключений.
-     *
-     * @param command строковое представление команды для обработки
-     * @return результат выполнения команды в виде строки
-     * @throws IllegalArgumentException если не найден процессор для заданного типа команды
-     */
-    public String execute(String command) {
-        ParsedCommand parsedCommand = commandParser.parse(command);
-        UserCommand processor = processorFactory.createProcessor(parsedCommand.getCommandType());
-        return processor.execute(parsedCommand);
-    }
-
-    /**
      * Обрабатывает переданную команду, выполняет её и возвращает результат.
      * <p>
      * Парсит строковую команду, создаёт соответствующий процессор команды через {@link CommandFactory},
@@ -47,7 +34,9 @@ public class CommandHandler {
      */
     public String handleCommand(String command) {
         try {
-            return execute(command);
+            ParsedCommand parsedCommand = commandParser.parse(command);
+            UserCommand processor = processorFactory.createProcessor(parsedCommand.getCommandType());
+            return processor.execute(parsedCommand);
         } catch (Exception e) {
             log.error("Ошибка обработки команды: {}", e.getMessage(), e);
             return "Ошибка: " + e.getMessage();
