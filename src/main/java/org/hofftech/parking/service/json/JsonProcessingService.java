@@ -64,8 +64,7 @@ public class JsonProcessingService {
             log.info("JSON файл успешно создан: {}", outputFile.getAbsolutePath());
             return jsonString;
         } catch (IOException e) {
-            log.error("Ошибка при записи JSON: {}", e.getMessage());
-            throw new RuntimeException(e);
+            throw new RuntimeException("Ошибка при записи JSON: " + e.getMessage(), e);
         }
     }
 
@@ -107,7 +106,7 @@ public class JsonProcessingService {
                     }
             );
         } catch (IOException e) {
-            throw new RuntimeException("Ошибка маппинга: " + e.getMessage());
+            throw new RuntimeException("Ошибка маппинга: " + e.getMessage(), e);
         }
         List<Parcel> parcels = new ArrayList<>();
         List<TruckDto> trucks = jsonData.get(TRUCKS_ARRAY);
