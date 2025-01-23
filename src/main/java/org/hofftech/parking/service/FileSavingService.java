@@ -89,7 +89,6 @@ public final class FileSavingService {
             writer.write(line);
             writer.newLine();
         } catch (IOException e) {
-            log.error("Ошибка записи строки с подсчётом для {}: {}", key, e.getMessage());
             throw new FileSavingException("Не удалось записать строку с подсчётом для: " + key, e);
         }
     }
@@ -112,7 +111,6 @@ public final class FileSavingService {
                 writer.newLine();
             }
         } catch (IOException e) {
-            log.error("Ошибка записи строк без подсчёта для {}: {}", key, e.getMessage());
             throw new FileSavingException("Не удалось записать строки без подсчёта для: " + key, e);
         }
     }
