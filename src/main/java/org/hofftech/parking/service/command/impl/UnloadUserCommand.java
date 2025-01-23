@@ -11,7 +11,6 @@ import org.hofftech.parking.service.json.JsonProcessingService;
 import org.hofftech.parking.service.command.UserCommand;
 
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 /**
@@ -30,7 +29,7 @@ public class UnloadUserCommand implements UserCommand {
     @Override
     public String execute(ParsedCommand command) {
         String inFile = command.getInFile();
-        boolean isWithCount = command.isIswithCount();
+        boolean isWithCount = command.isWithCount();
         String user = command.getUser();
 
         if (inFile == null || inFile.isEmpty()) {

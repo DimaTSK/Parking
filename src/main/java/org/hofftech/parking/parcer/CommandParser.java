@@ -1,8 +1,8 @@
 package org.hofftech.parking.parcer;
 
-import lombok.AllArgsConstructor;
-import org.hofftech.parking.model.enums.CommandType;
+import lombok.RequiredArgsConstructor;
 import org.hofftech.parking.model.ParsedCommand;
+import org.hofftech.parking.model.enums.CommandType;
 import org.hofftech.parking.service.CommandTypeSelectionService;
 
 import java.util.HashMap;
@@ -14,13 +14,9 @@ import java.util.regex.Pattern;
  * Класс для парсинга пользовательских команд.
  * Предоставляет методы для извлечения параметров из строки команды и создания объекта {@link ParsedCommand}.
  */
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class CommandParser {
-
-    // Regular expression patterns and related constants
-    private static final String COMMAND_REGEX = "\\+([a-zA-Z]+),?\\s*(\"[^\"]+\"|[^+]+)";
-    private static final Pattern COMMAND_PATTERN = Pattern.compile(COMMAND_REGEX);
-
+    private static final Pattern COMMAND_PATTERN = Pattern.compile("\\+([a-zA-Z]+),?\\s*(\"[^\"]+\"|[^+]+)");
     private static final String SAVE = "save";
     private static final String EASY = "easy";
     private static final String EVEN = "even";
@@ -44,16 +40,11 @@ public class CommandParser {
     private static final String COMMAND_SPLIT_SYMBOL = " ";
     private static final String COMMAND_PREFIX_REGEX = "^/";
     private static final String COMMAND_SUFFIX_REGEX = ",$";
-    private static final String QUOTE_REGEX = "\"";
     private static final String EMPTY_STRING = "";
-    private static final String COMMA = ",";
 
     private static final int SUBSTRING_START_OFFSET = 1;
     private static final int SUBSTRING_END_OFFSET = 1;
-
     private static final String DOUBLE_QUOTE = "\"";
-    private static final String SLASH = "/";
-    private static final String EMPTY_TRIMMED = "";
 
     private final CommandTypeSelectionService commandTypeSelectionService;
 

@@ -29,7 +29,7 @@ public class ParsedCommand {
     private final String parcelsFile;
     private final String trucks;
     private final String inFile;
-    private final boolean iswithCount;
+    private final boolean isWithCount;
 
     private CommandType commandType;
 }
