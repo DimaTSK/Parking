@@ -22,6 +22,7 @@ public class Parcel implements Comparable<Parcel> {
     private List<String> shape;
     private char symbol;
     private ParcelStartPosition parcelStartPosition;
+    private static final int EQUAL = 0;
 
     public int getWidth() {
         return shape.getFirst().length();
@@ -71,7 +72,7 @@ public class Parcel implements Comparable<Parcel> {
     @Override
     public int compareTo(Parcel other) {
         int heightDiff = Integer.compare(other.getHeight(), this.getHeight());
-        if (heightDiff == 0) {
+        if (heightDiff == EQUAL) {
             return Integer.compare(other.getWidth(), this.getWidth());
         }
         return heightDiff;
