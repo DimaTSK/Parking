@@ -38,12 +38,12 @@ public class JsonProcessingService {
     private static final int ADJUSTING_FOR_START_POSITION = 1;
     private static final int TRUCK_NAME_INDEX = 1;
     private static final String TRUCK_SIZE_SPLITTER = "x";
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
     private final OrderManagerService orderManagerService;
 
-    public JsonProcessingService(OrderManagerService orderManagerService) {
+    public JsonProcessingService(OrderManagerService orderManagerService, ObjectMapper objectMapper) {
         this.orderManagerService = orderManagerService;
-        this.objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+        this.objectMapper = objectMapper;
     }
 
     /**

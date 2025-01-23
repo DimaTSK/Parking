@@ -1,5 +1,7 @@
 package org.hofftech.parking.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import org.hofftech.parking.controller.TelegramController;
 import org.hofftech.parking.exception.TelegramBotRegistrationException;
 import org.hofftech.parking.factory.CommandFactory;
@@ -64,10 +66,16 @@ public class ApplicationConfig {
     public ParcelAlgorithmFactory packingStrategyFactory(TruckService truckService) {
         return new ParcelAlgorithmFactory(truckService);
     }
+    @Bean
+    public ObjectMapper objectMapper() {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.enable(SerializationFeature.INDENT_OUTPUT);
+        return mapper;
+    }
 
     @Bean
-    public JsonProcessingService jsonProcessingService(OrderManagerService orderManagerService) {
-        return new JsonProcessingService(orderManagerService);
+    public JsonProcessingService jsonProcessingService(OrderManagerService orderManagerService, ObjectMapper objectMapper) {
+        return new JsonProcessingService(orderManagerService, objectMapper);
     }
 
     @Bean
