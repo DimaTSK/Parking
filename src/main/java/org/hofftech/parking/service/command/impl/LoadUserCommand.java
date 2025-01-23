@@ -9,48 +9,137 @@ import org.hofftech.parking.service.command.UserCommand;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+
 /**
- * Класс реализации пользовательской команды для создания посылки.
+ * Класс реализации пользовательской команды для загрузки посылок.
  */
 @RequiredArgsConstructor
 public class LoadUserCommand implements UserCommand {
 
     private final FileProcessingUtil fileProcessingUtil;
+
     /**
-     * Выполняет команду создания посылки на основе переданной команды.
+     * Выполняет команду загрузки посылок на основе переданной команды.
+     *
+     * @param command объект, содержащий параметры команды
+     * @return результат выполнения команды
      */
     @Override
     public String execute(ParsedCommand command) {
-        String parcelsText = command.getParcelsText();
-        String parcelsFile = command.getParcelsFile();
-        String trucksText = command.getTrucks();
-        String user = command.getUser();
-        boolean useEasyAlgorithm = command.isUseEasyAlgorithm();
-        boolean useEvenAlgorithm = command.isUseEvenAlgorithm();
-        boolean saveToFile = command.isSaveToFile();
-
         try {
-            List<String> trucksFromArgs = trucksText != null && !trucksText.isEmpty()
-                    ? new ArrayList<>(List.of(trucksText.split(",")))
-                    : new ArrayList<>();
-
-            if (user == null || user.isEmpty()) {
-                throw new UserNotProvidedException("Пользователь должен быть передан для команды LOAD");
-            }
-
-            if (parcelsText != null && !parcelsText.isEmpty()) {
-                return fileProcessingUtil.processFile(
-                        null, parcelsText, trucksFromArgs, useEasyAlgorithm, saveToFile,
-                        useEvenAlgorithm, user);
-            } else if (parcelsFile != null && !parcelsFile.isBlank()) {
-                return fileProcessingUtil.processFile(
-                        Path.of(parcelsFile), null, trucksFromArgs, useEasyAlgorithm, saveToFile,
-                        useEvenAlgorithm, user);
-            } else {
-                throw new IllegalArgumentException("Укажите источник посылок (текст или файл)");
-            }
+            String user = getUser(command);
+            List<String> trucksFromArgs = parseTrucks(command.getTrucks());
+            return processParcels(command, trucksFromArgs, user);
         } catch (Exception e) {
-            throw new RuntimeException("Ошибка при погрузке: " + e.getMessage());
+            throw new RuntimeException("Ошибка при погрузке: " + e.getMessage(), e);
         }
+    }
+
+    /**
+     * Проверяет и возвращает пользователя из команды.
+     *
+     * @param command объект с параметрами команды
+     * @return имя пользователя
+     * @throws UserNotProvidedException если пользователь не указан
+     */
+    private String getUser(ParsedCommand command) {
+        String user = command.getUser();
+        if (user == null || user.isEmpty()) {
+            throw new UserNotProvidedException("Пользователь должен быть передан для команды LOAD");
+        }
+        return user;
+    }
+
+    /**
+     * Парсит строки грузов в список.
+     *
+     * @param trucksText строка с грузами, разделенными запятыми
+     * @return список грузов
+     */
+    private List<String> parseTrucks(String trucksText) {
+        if (trucksText != null && !trucksText.isEmpty()) {
+            return new ArrayList<>(List.of(trucksText.split(",")));
+        }
+        return new ArrayList<>();
+    }
+
+    /**
+     * Обрабатывает источники посылок и выполняет соответствующую обработку.
+     *
+     * @param command        объект с параметрами команды
+     * @param trucksFromArgs список грузов
+     * @param user           имя пользователя
+     * @return результат обработки посылок
+     */
+    private String processParcels(ParsedCommand command, List<String> trucksFromArgs, String user) {
+        if (isParcelsTextProvided(command)) {
+            return processParcelsFromText(command, trucksFromArgs, user);
+        } else if (isParcelsFileProvided(command)) {
+            return processParcelsFromFile(command, trucksFromArgs, user);
+        } else {
+            throw new IllegalArgumentException("Укажите источник посылок (текст или файл)");
+        }
+    }
+
+    /**
+     * Проверяет, предоставлен ли текст посылок.
+     *
+     * @param command объект с параметрами команды
+     * @return true, если текст посылок предоставлен, иначе false
+     */
+    private boolean isParcelsTextProvided(ParsedCommand command) {
+        String parcelsText = command.getParcelsText();
+        return parcelsText != null && !parcelsText.isEmpty();
+    }
+
+    /**
+     * Проверяет, предоставлен ли файл с посылками.
+     *
+     * @param command объект с параметрами команды
+     * @return true, если файл с посылками предоставлен, иначе false
+     */
+    private boolean isParcelsFileProvided(ParsedCommand command) {
+        String parcelsFile = command.getParcelsFile();
+        return parcelsFile != null && !parcelsFile.isBlank();
+    }
+
+    /**
+     * Обрабатывает посылки из текста.
+     *
+     * @param command        объект с параметрами команды
+     * @param trucksFromArgs список грузов
+     * @param user           имя пользователя
+     * @return результат обработки посылок
+     */
+    private String processParcelsFromText(ParsedCommand command, List<String> trucksFromArgs, String user) {
+        return fileProcessingUtil.processFile(
+                null,
+                command.getParcelsText(),
+                trucksFromArgs,
+                command.isUseEasyAlgorithm(),
+                command.isSaveToFile(),
+                command.isUseEvenAlgorithm(),
+                user
+        );
+    }
+
+    /**
+     * Обрабатывает посылки из файла.
+     *
+     * @param command        объект с параметрами команды
+     * @param trucksFromArgs список грузов
+     * @param user           имя пользователя
+     * @return результат обработки посылок
+     */
+    private String processParcelsFromFile(ParsedCommand command, List<String> trucksFromArgs, String user) {
+        return fileProcessingUtil.processFile(
+                Path.of(command.getParcelsFile()),
+                null,
+                trucksFromArgs,
+                command.isUseEasyAlgorithm(),
+                command.isSaveToFile(),
+                command.isUseEvenAlgorithm(),
+                user
+        );
     }
 }
