@@ -57,12 +57,12 @@ class ParcelValidatorTest {
      * когда форма равна {@code null}.
      */
     @Test
-    void testValidateForm_NullForm() {
+    void testParseAndValidateForm_NullForm() {
         String form = null;
 
         ValidateException exception = assertThrows(
                 ValidateException.class,
-                () -> parcelValidator.validateForm(form),
+                () -> parcelValidator.parseAndValidateForm(form),
                 "Должен выбрасываться ValidateException для null формы"
         );
 
@@ -75,12 +75,12 @@ class ParcelValidatorTest {
      * когда форма пуста.
      */
     @Test
-    void testValidateForm_EmptyForm() {
+    void testParseAndValidateForm_EmptyForm() {
         String form = "";
 
         ValidateException exception = assertThrows(
                 ValidateException.class,
-                () -> parcelValidator.validateForm(form),
+                () -> parcelValidator.parseAndValidateForm(form),
                 "Должен выбрасываться ValidateException для пустой формы"
         );
 
@@ -92,12 +92,12 @@ class ParcelValidatorTest {
      * Тестирует, что метод {@code validateForm} корректно парсит форму без разделителя и возвращает список с одной строкой.
      */
     @Test
-    void testValidateForm_SingleLineForm() {
+    void testParseAndValidateForm_SingleLineForm() {
         String form = "XXX\nX X\nXXX";
 
         List<String> expected = List.of("XXX\nX X\nXXX");
 
-        List<String> result = parcelValidator.validateForm(form);
+        List<String> result = parcelValidator.parseAndValidateForm(form);
 
         assertEquals(expected, result, "Метод должен возвращать список с одной строкой для формы без разделителя");
     }
@@ -106,12 +106,12 @@ class ParcelValidatorTest {
      * Тестирует, что метод {@code validateForm} корректно парсит мультистрочную форму с разделителем и возвращает список строк.
      */
     @Test
-    void testValidateForm_MultiLineForm_Valid() {
+    void testParseAndValidateForm_MultiLineForm_Valid() {
         String form = "XXX,X X,XXX";
 
         List<String> expected = Arrays.asList("XXX", "X X", "XXX");
 
-        List<String> result = parcelValidator.validateForm(form);
+        List<String> result = parcelValidator.parseAndValidateForm(form);
 
         assertEquals(expected, result, "Метод должен корректно парсить форму с разделителем");
     }
@@ -121,12 +121,12 @@ class ParcelValidatorTest {
      * когда форма с разделителем содержит символы, которые "висят в воздухе".
      */
     @Test
-    void testValidateForm_MultiLineForm_InvalidDiagonalTouch() {
+    void testParseAndValidateForm_MultiLineForm_InvalidDiagonalTouch() {
         String form = " X ,X X,   ";
 
         ValidateException exception = assertThrows(
                 ValidateException.class,
-                () -> parcelValidator.validateForm(form),
+                () -> parcelValidator.parseAndValidateForm(form),
                 "Должен выбрасываться ValidateException для формы с некорректным касанием символов"
         );
 
@@ -138,12 +138,12 @@ class ParcelValidatorTest {
      * Тестирует, что метод {@code validateForm} успешно обрабатывает форму с несколькими строками без ошибок.
      */
     @Test
-    void testValidateForm_MultiLineForm_NoDiagonalTouchIssues() {
+    void testParseAndValidateForm_MultiLineForm_NoDiagonalTouchIssues() {
         String form = "XXX,X X,XXX,X X,XXX";
 
         List<String> expected = Arrays.asList("XXX", "X X", "XXX", "X X", "XXX");
 
-        List<String> result = parcelValidator.validateForm(form);
+        List<String> result = parcelValidator.parseAndValidateForm(form);
 
         assertEquals(expected, result, "Метод должен корректно парсить форму с несколькими строками без ошибок касания символов");
     }
@@ -155,12 +155,12 @@ class ParcelValidatorTest {
      * когда символ "висят в воздухе" на последней строке.
      */
     @Test
-    void testValidateForm_InvalidSymbolOnLastRow() {
+    void testParseAndValidateForm_InvalidSymbolOnLastRow() {
         String form = "XXX,X X,  X";
 
         ValidateException exception = assertThrows(
                 ValidateException.class,
-                () -> parcelValidator.validateForm(form),
+                () -> parcelValidator.parseAndValidateForm(form),
                 "Должен выбрасываться ValidateException для символа, висящего в воздухе на последней строке"
         );
 
@@ -174,12 +174,12 @@ class ParcelValidatorTest {
      * но с корректными вертикальными связями.
      */
     @Test
-    void testValidateForm_NoHorizontalConnections_ButValidVertical() {
+    void testParseAndValidateForm_NoHorizontalConnections_ButValidVertical() {
         String form = "X X,X X,X X";
 
         List<String> expected = Arrays.asList("X X", "X X", "X X");
 
-        List<String> result = parcelValidator.validateForm(form);
+        List<String> result = parcelValidator.parseAndValidateForm(form);
 
         assertEquals(expected, result, "Метод должен корректно обрабатывать формы без горизонтальных связей, но с валидными вертикальными");
     }
@@ -189,13 +189,13 @@ class ParcelValidatorTest {
      * когда входная форма содержит неверные разделители.
      */
     @Test
-    void testValidateForm_InvalidFormSplitter() {
+    void testParseAndValidateForm_InvalidFormSplitter() {
         String form = "XXX;X X;XXX"; // Использован неверный разделитель ';' вместо ','
 
         List<String> expected = List.of("XXX;X X;XXX");
 
         // В данном случае, если разделитель ';' не содержащийся в FORM_SPLITTER, метод должен вернуть одну строку
-        List<String> result = parcelValidator.validateForm(form);
+        List<String> result = parcelValidator.parseAndValidateForm(form);
 
         assertEquals(expected, result, "Метод должен возвращать список с одной строкой при отсутствии правильного разделителя");
     }

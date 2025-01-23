@@ -40,7 +40,7 @@ public class UpdateUserCommand implements UserCommand {
         }
 
         List<String> newShape = Optional.ofNullable(command.getForm())
-                .map(parcelValidator::validateForm)
+                .map(parcelValidator::parseAndValidateForm)
                 .orElse(existingParcel.getShape());
 
         Parcel updatedParcel = new Parcel(

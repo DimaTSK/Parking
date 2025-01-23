@@ -5,6 +5,10 @@ import org.hofftech.parking.exception.BillingException;
 import org.hofftech.parking.model.ParsedCommand;
 import org.hofftech.parking.service.OrderManagerService;
 import org.hofftech.parking.service.command.UserCommand;
+
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Класс реализации пользовательской команды для биллинга.
  */
@@ -21,12 +25,23 @@ public class BillingUserCommand implements UserCommand {
         String dateFrom = command.getFrom();
         String dateTo = command.getTo();
 
-        if (user != null && dateFrom != null && dateTo != null &&
-                !user.isEmpty() && !dateFrom.isEmpty() && !dateTo.isEmpty()) {
-            return orderManagerService.generateReport(user, dateFrom, dateTo);
-        } else {
-            throw new BillingException("Пользователь и диапазон дат должны быть указаны в BILLING");
+        List<String> missingFields = new ArrayList<>();
+
+        if (user == null || user.isEmpty()) {
+            missingFields.add("user");
+        }
+        if (dateFrom == null || dateFrom.isEmpty()) {
+            missingFields.add("dateFrom");
+        }
+        if (dateTo == null || dateTo.isEmpty()) {
+            missingFields.add("dateTo");
         }
 
+        if (missingFields.isEmpty()) {
+            return orderManagerService.generateReport(user, dateFrom, dateTo);
+        } else {
+            String missing = String.join(", ", missingFields);
+            throw new BillingException("Недостаточно данных для выполнения BILLING команды. Отсутствующие параметры: " + missing);
+        }
     }
 }
