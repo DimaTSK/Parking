@@ -9,9 +9,7 @@ import lombok.Getter;
  * который может быть выполнен пользователем или системой.
  * </p>
  *
- * @see lombok.Getter
  */
-@Getter
 public enum CommandType {
     START,
     EXIT,

@@ -36,12 +36,7 @@ public class CommandHandler {
     public String execute(String command) {
         ParsedCommand parsedCommand = commandParser.parse(command);
         currentProcessor = processorFactory.createProcessor(parsedCommand.getCommandType());
-
-        if (currentProcessor != null) {
-            return currentProcessor.execute(parsedCommand);
-        } else {
-            throw new IllegalArgumentException("Процессор для команды не найден: " + parsedCommand.getCommandType());
-        }
+        return currentProcessor.execute(parsedCommand);
     }
 
     /**
