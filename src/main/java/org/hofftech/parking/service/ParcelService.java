@@ -155,7 +155,7 @@ public class ParcelService {
      */
     private boolean iterateOverStartY(Truck truck, Parcel providedParcel, List<String> shape, int height) {
         for (int startY = START_Y_POSITION; startY <= truck.getHeight() - height; startY++) {
-            for (int startX = START_X_POSITION; startX <= truck.getWidth() - shape.get(0).length(); startX++) {
+            for (int startX = START_X_POSITION; startX <= truck.getWidth() - shape.getFirst().length(); startX++) {
                 if (canAddParcel(truck, providedParcel, startX, startY)) {
                     log.info("Упаковка {} успешно добавлена", providedParcel.getName());
                     providedParcel.setParcelStartPosition(new ParcelStartPosition(startX, startY));
