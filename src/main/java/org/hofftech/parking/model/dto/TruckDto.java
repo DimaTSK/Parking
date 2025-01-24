@@ -1,29 +1,21 @@
 package org.hofftech.parking.model.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 /**
- * Data Transfer Object (DTO) для представления информации о грузовике.
- * Используется для передачи данных между различными слоями приложения.
+ * Класс DTO (Data Transfer Object) для транспортного средства типа грузовик.
+ * <p>
+ * Представляет данные, связанные с грузовиком, включая его идентификатор, размер и список груза.
  */
+@NoArgsConstructor
+@AllArgsConstructor
 @Data
 public class TruckDto {
-
-    /**
-     * Уникальный идентификатор грузовика.
-     */
     private int truckId;
-
-    /**
-     * Размер грузовика. Может представлять собой категории размеров, такие как "Маленький", "Средний", "Большой" и т.д.
-     */
     private String truckSize;
-
-    /**
-     * Список пакетов, находящихся в данном грузовике.
-     * Представляет собой список объектов {@link ParcelDto}, содержащих информацию о каждом пакете.
-     */
-    private List<ParcelDto> packages;
+    private List<ParcelDto> parcels;
 }

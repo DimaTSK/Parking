@@ -1,118 +1,156 @@
 package org.hofftech.parking.config;
 
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
-import org.hofftech.parking.controller.ConsoleController;
-import org.hofftech.parking.factory.CommandProcessorFactory;
-import org.hofftech.parking.factory.PackingStrategyFactory;
-import org.hofftech.parking.handler.impl.CommandHandlerImpl;
-import org.hofftech.parking.parcer.CommandParser;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import org.hofftech.parking.controller.TelegramController;
+import org.hofftech.parking.exception.TelegramBotRegistrationException;
+import org.hofftech.parking.factory.CommandFactory;
+import org.hofftech.parking.factory.ParcelAlgorithmFactory;
 import org.hofftech.parking.repository.ParcelRepository;
+import org.hofftech.parking.parcer.CommandParser;
 import org.hofftech.parking.service.*;
-import org.hofftech.parking.util.telegram.TelegramAppender;
-import org.hofftech.parking.util.telegram.TelegramBotService;
-import org.hofftech.parking.util.telegram.TelegramPrintStream;
+import org.hofftech.parking.util.FileProcessingUtil;
+import org.hofftech.parking.service.json.JsonProcessingService;
+import org.hofftech.parking.parcer.ParsingService;
 import org.hofftech.parking.validator.ParcelValidator;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 /**
- * {@code ApplicationConfig} — класс конфигурации приложения.
+ * Конфигурационный класс приложения, отвечающий за настройку и создание бинов Spring.
  * <p>
- * В процессе инициализации создаются и настраиваются все необходимые зависимости,
- * включая репозиторий посылок, сервисы, фабрики процессоров команд и стратегии упаковки,
- * а также инициализируется Telegram-бот.
+ * Этот класс определяет все необходимые бины, включая репозитории, сервисы, утилиты и контроллеры,
+ * которые используются в приложении. Каждый бин создается с помощью аннотации {@link Bean} и
+ * управляется контейнером Spring.
  * </p>
- *
- * @версия 1.0
- * @с момента 2023-04-27
  */
-@Getter
-@Slf4j
+@Configuration
 public class ApplicationConfig {
-    /**
-     * Консольный слушатель для обработки команд пользователя.
-     */
-    private final ConsoleController consoleController;
 
-    /**
-     * Создаёт новый экземпляр {@code ApplicationConfig} и инициализирует все зависимости.
-     */
-    public ApplicationConfig() {
-        log.info("Создаем зависимости...");
+    // Существующие бины...
+
+    @Bean
+    public ParcelRepository parcelRepository() {
+        ParcelRepository repository = new ParcelRepository();
+        repository.loadDefaultParcels();
+        return repository;
+    }
+
+    @Bean
+    public OrderManagerService orderManagerService() {
+        return new OrderManagerService();
+    }
+
+    @Bean
+    public ParcelService packingService() {
+        return new ParcelService();
+    }
+
+    @Bean
+    public TruckService truckService(ParcelService parcelService,FormatterService formatterService) {
+        return new TruckService(parcelService,formatterService);
+    }
+
+    @Bean
+    public ParcelValidator validatorService() {
+        return new ParcelValidator();
+    }
+
+    @Bean
+    public ParsingService parsingService(ParcelRepository parcelRepository, ParcelValidator parcelValidator) {
+        return new ParsingService(parcelRepository,parcelValidator);
+    }
+
+    @Bean
+    public ParcelAlgorithmFactory packingStrategyFactory(TruckService truckService) {
+        return new ParcelAlgorithmFactory(truckService);
+    }
+    @Bean
+    public ObjectMapper objectMapper() {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.enable(SerializationFeature.INDENT_OUTPUT);
+        return mapper;
+    }
+
+    @Bean
+    public JsonProcessingService jsonProcessingService(OrderManagerService orderManagerService, ObjectMapper objectMapper) {
+        return new JsonProcessingService(orderManagerService, objectMapper);
+    }
+
+    @Bean
+    public FileProcessingUtil fileProcessingService(
+            ParsingService parsingService,
+            TruckService truckService,
+            JsonProcessingService jsonProcessingService,
+            ParcelAlgorithmFactory parcelAlgorithmFactory,
+            OrderManagerService orderManagerService) {
+        return new FileProcessingUtil(
+                parsingService, truckService,
+                jsonProcessingService, parcelAlgorithmFactory, orderManagerService);
+    }
+
+    @Bean
+    public FileSavingService fileSavingService() {
+        return new FileSavingService();
+    }
+
+    @Bean
+    public CommandFactory commandFactory(
+            ParcelRepository parcelRepository,
+            FileProcessingUtil fileProcessingUtil,
+            JsonProcessingService jsonProcessingService,
+            FileSavingService fileSavingService,
+            ParcelValidator parcelValidator,
+            OrderManagerService orderManagerService,
+            FormatterService formatterService) {
+        return new CommandFactory(
+                parcelRepository, fileProcessingUtil, jsonProcessingService,
+                fileSavingService, parcelValidator, orderManagerService,formatterService);
+    }
+
+    @Bean
+    public CommandTypeSelectionService commandTypeService() {
+        return new CommandTypeSelectionService();
+    }
+
+    @Bean
+    public CommandParser commandParser(CommandTypeSelectionService commandTypeSelectionService) {
+        return new CommandParser(commandTypeSelectionService);
+    }
 
 
-        ParcelRepository parcelRepository = new ParcelRepository();
-        parcelRepository.loadDefaultPackages();
-
-
-        ParcelService parcelService = new ParcelService();
-        TruckService truckService = new TruckService(parcelService);
-        ParcelValidator parcelValidator = new ParcelValidator();
-
-
-        CommandProcessorFactory processorFactory = getCommandProcessorFactory(
-                parcelValidator, truckService, parcelRepository
-        );
-
-
-        CommandParser commandParser = new CommandParser();
-        CommandHandlerImpl commandHandler = new CommandHandlerImpl(processorFactory, commandParser);
-
-
-        this.consoleController = new ConsoleController(commandHandler);
-
-
-        initializeTelegramBot(commandHandler);
+    @Bean
+    public FormatterService responseFormatter() {
+        return new FormatterService();
     }
 
     /**
-     * Инициализирует Telegram-бота и настраивает интеграцию с консольным выводом.
+     * Создаёт и настраивает бин {@link TelegramController}, отвечающий за интеграцию с Telegram-ботом.
+     * <p>
+     * Регистрация бота производится при инициализации бина. В случае ошибки регистрации выбрасывается {@link RuntimeException}.
+     * </p>
      *
-     * @param commandHandlerImpl обработчик команд, используемый Telegram-ботом
+     * @param token           токен бота, считываемый из свойств приложения
+     * @param botName         имя бота, считываемое из свойств приложения
+     * @param processorFactory зависимость {@link CommandFactory}
+     * @param commandParser     зависимость {@link CommandParser}
+     * @param formatterService зависимость {@link FormatterService}
+     * @return экземпляр {@link TelegramController}
      */
-    private void initializeTelegramBot(CommandHandlerImpl commandHandlerImpl) {
-        String token = "7787231158:AAE90-cAJlHmEEF9Ds0g2Pm3xXu2RLcfeUo";
-        String botName = "java_education_parking_bot";
-
-        if (token == null || token.isEmpty()) {
-            log.error("Переменная окружения TELEGRAM_BOT_TOKEN не установлена.");
-            throw new IllegalStateException("Отсутствует токен Telegram-бота.");
+    @Bean
+    public TelegramController telegramBotController(
+            @Value("${telegram.bot.token}") String token,
+            @Value("${telegram.bot.name}") String botName,
+            CommandFactory processorFactory,
+            CommandParser commandParser,
+            FormatterService formatterService) {
+        TelegramController botController = new TelegramController(token, botName, processorFactory, commandParser, formatterService);
+        try {
+            botController.registerBot();
+            return botController;
+        } catch (Exception e) {
+            throw new TelegramBotRegistrationException("Ошибка регистрации Telegram-бота", e);
         }
-
-        if (botName == null || botName.isEmpty()) {
-            log.error("Переменная окружения TELEGRAM_BOT_NAME не установлена.");
-            throw new IllegalStateException("Отсутствует имя Telegram-бота.");
-        }
-
-        TelegramAppender telegramAppender = new TelegramAppender();
-        TelegramPrintStream telegramPrintStream = new TelegramPrintStream(System.out, null);
-
-
-        TelegramBotService telegramBotService = new TelegramBotService(
-                commandHandlerImpl,
-                telegramAppender,
-                telegramPrintStream,
-                token,
-                botName
-        );
-
-        log.info("Telegram-бот инициализирован.");
-    }
-
-    /**
-     * Создает и возвращает экземпляр {@link CommandProcessorFactory} с необходимыми зависимостями.
-     *
-     * @param parcelValidator   валидатор посылок
-     * @param truckService      сервис управления грузовиками
-     * @param parcelRepository  репозиторий для управления посылками
-     * @return экземпляр {@link CommandProcessorFactory}
-     */
-    private CommandProcessorFactory getCommandProcessorFactory(
-            ParcelValidator parcelValidator, TruckService truckService, ParcelRepository parcelRepository) {
-        ParsingService parsingService = new ParsingService(parcelRepository);
-        PackingStrategyFactory packingStrategyFactory = new PackingStrategyFactory(truckService);
-        JsonProcessingService jsonProcessingService = new JsonProcessingService();
-        FileProcessingService fileProcessingService = new FileProcessingService(
-                parsingService, parcelValidator, truckService, jsonProcessingService, packingStrategyFactory);
-        return new CommandProcessorFactory(parcelRepository, fileProcessingService, jsonProcessingService);
     }
 }

@@ -10,59 +10,32 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Класс, представляющий пакет с его формой и характеристиками.
+ * Класс {@code Parcel} представляет собой посылку с определенными свойствами, такими как название, форма, символ и начальная позиция.
+ * Реализует интерфейс {@link Comparable} для сравнения посылок по высоте и ширине.
  */
 @Getter
 @Setter
 @ToString
 @AllArgsConstructor
-public class Parcel {
-    /**
-     * Название пакета.
-     */
+public class Parcel implements Comparable<Parcel> {
     private String name;
-
-    /**
-     * Форма пакета, представленная списком строк.
-     */
     private List<String> shape;
-
-    /**
-     * Символ, используемый для отображения пакета.
-     */
     private char symbol;
-
-    /**
-     * Начальная позиция пакета.
-     */
     private ParcelStartPosition parcelStartPosition;
+    private static final int START_POSITION_HEIGHT = 0;
 
-    /**
-     * Возвращает ширину пакета, основанную на длине первой строки формы.
-     *
-     * @return Ширина пакета.
-     */
     public int getWidth() {
-        if (shape == null || shape.isEmpty()) {
-            return 0;
-        }
-        return shape.get(0).length();
+        return shape.getFirst().length();
     }
 
-    /**
-     * Возвращает высоту пакета, основанную на количестве строк в форме.
-     *
-     * @return Высота пакета.
-     */
     public int getHeight() {
-        return (shape != null) ? shape.size() : 0;
+        return shape.size();
     }
 
     /**
-     * Обновляет символ, используемый в форме пакета.
-     * Заменяет все вхождения текущего символа на новый символ.
+     * Обновляет символ, используемый для представления посылки, и заменяет все вхождения старого символа на новый в форме.
      *
-     * @param newSymbol Новый символ для использования в форме.
+     * @param newSymbol новый символ для замены
      */
     public void updateSymbol(char newSymbol) {
         if (shape == null || shape.isEmpty()) {
@@ -79,14 +52,29 @@ public class Parcel {
     }
 
     /**
-     * Возвращает перевёрнутую форму пакета.
-     * Порядок строк в форме инвертируется.
+     * Возвращает форму посылки в обратном порядке строк.
      *
-     * @return Перевёрнутая форма как список строк.
+     * @return список строк формы в обратном порядке
      */
-    public List<String> getUniqueShape() {
+    public List<String> getReversedShape() {
         List<String> reversedShape = new ArrayList<>(this.shape);
         Collections.reverse(reversedShape);
         return reversedShape;
+    }
+
+    /**
+     * Сравнивает текущую посылку с другой по высоте и ширине.
+     * Сначала сравнивается высота в порядке убывания, затем ширина в порядке убывания, если высота равна.
+     *
+     * @param other другая посылка для сравнения
+     * @return отрицательное целое число, ноль или положительное целое число, если текущая посылка меньше, равна или больше другой
+     */
+    @Override
+    public int compareTo(Parcel other) {
+        int heightDiff = Integer.compare(other.getHeight(), this.getHeight());
+        if (heightDiff == START_POSITION_HEIGHT) {
+            return Integer.compare(other.getWidth(), this.getWidth());
+        }
+        return heightDiff;
     }
 }

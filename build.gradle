@@ -1,5 +1,7 @@
 plugins {
     id 'java'
+    id 'org.springframework.boot' version '3.4.1'
+    id 'io.spring.dependency-management' version '1.1.7'
 }
 
 group = 'org.hofftech'
@@ -14,12 +16,13 @@ ext {
             commonsCollections: '4.4',
             jackson: '2.15.2',
             lombok: '1.18.30',
-            logback: '1.5.16',
+            logback: '1.4.12',
             slf4j: '2.0.9',
             junitBom: '5.10.0',
             assertj: '3.23.1',
             mockito: '5.5.0',
-            telegram: '6.9.7.1'
+            telegram: '6.9.7.1',
+            springShell: '3.3.2'
     ]
 }
 
@@ -29,7 +32,8 @@ dependencies {
     implementation "ch.qos.logback:logback-classic:${versions.logback}"
     implementation "org.slf4j:slf4j-api:${versions.slf4j}"
     implementation "org.telegram:telegrambots:${versions.telegram}"
-
+    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation "org.springframework.shell:spring-shell-starter:${versions.springShell}"
 
     compileOnly "org.projectlombok:lombok:${versions.lombok}"
     annotationProcessor "org.projectlombok:lombok:${versions.lombok}"
@@ -40,8 +44,8 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testImplementation "org.assertj:assertj-core:${versions.assertj}"
     testImplementation "org.mockito:mockito-core:${versions.mockito}"
-    testImplementation 'org.mockito:mockito-core:5.4.0'
-    testImplementation 'org.mockito:mockito-junit-jupiter:5.4.0'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
 }
 
 test {

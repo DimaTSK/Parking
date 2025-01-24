@@ -1,6 +1,8 @@
 package org.hofftech.parking.repository;
 
-import org.hofftech.parking.model.enums.DefaultPackagesType;
+import org.hofftech.parking.exception.ParcelNameException;
+import org.hofftech.parking.exception.ParcelNotFoundException;
+import org.hofftech.parking.model.enums.DefaultParcelType;
 import org.hofftech.parking.model.Parcel;
 import org.hofftech.parking.model.ParcelStartPosition;
 
@@ -8,93 +10,100 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Optional;
+
 
 /**
- * Хранилище посылок, обеспечивающее операции добавления, поиска, редактирования и удаления посылок.
+ * Репозиторий для управления посылками.
+ * Предоставляет методы для добавления, поиска, редактирования, удаления
+ * посылок, а также загрузки посылок по умолчанию.
  */
 public class ParcelRepository {
-    private final Map<String, Parcel> packages = new HashMap<>();
+    private static final int FIRST_CHAR = 0;
+    private static final int START_POSITION_X = 0;
+    private static final int START_POSITION_Y = 0;
+
+    private final Map<String, Parcel> parcels = new HashMap<>();
 
     /**
-     * Добавляет новую посылку в хранилище.
+     * Добавляет новую посылку в репозиторий.
      *
-     * @param pkg объект посылки для добавления
-     * @throws IllegalArgumentException если посылка с таким именем уже существует
+     * @param providedParcel посылка для добавления
+     * @throws ParcelNameException если посылка с таким именем уже существует
      */
-    public void addPackage(Parcel pkg) {
-        if (packages.containsKey(pkg.getName())) {
-            throw new IllegalArgumentException("Посылка с таким именем уже существует: " + pkg.getName());
+    public void addParcel(Parcel providedParcel) {
+        if (parcels.containsKey(providedParcel.getName())) {
+            throw new ParcelNameException("Посылка с таким именем уже существует: " + providedParcel.getName());
         }
-        packages.put(pkg.getName(), pkg);
+        parcels.put(providedParcel.getName(), providedParcel);
     }
 
     /**
-     * Находит и возвращает посылку по её имени, независимо от регистра.
+     * Ищет посылку по имени, игнорируя регистр.
      *
      * @param name имя посылки для поиска
-     * @return объект посылки с указанным именем
-     * @throws IllegalArgumentException если посылка не найдена
+     * @return {@code Optional} с найденной посылкой или пустой {@code Optional}, если посылка не найдена
      */
-    public Parcel findPackage(String name) {
-        for (String key : packages.keySet()) {
+    public Optional<Parcel> findParcel(String name) {
+        for (String key : parcels.keySet()) {
             if (key.equalsIgnoreCase(name)) {
-                return packages.get(key);
+                return Optional.ofNullable(parcels.get(key));
             }
         }
-        throw new IllegalArgumentException("Посылка не найдена: " + name);
+        return Optional.empty();
     }
 
     /**
-     * Редактирует существующую посылку с указанным именем.
+     * Редактирует существующую посылку.
      *
-     * @param name          имя посылки, которую необходимо обновить
-     * @param updatedParcel объект посылки с обновленными данными
-     * @throws IllegalArgumentException если посылка с указанным именем не найдена
+     * @param name          имя посылки для редактирования
+     * @param updatedParcel обновленная посылка
+     * @throws ParcelNotFoundException если посылка с данным именем не найдена
      */
-    public void editPackage(String name, Parcel updatedParcel) {
-        if (!packages.containsKey(name)) {
-            throw new IllegalArgumentException("Посылка не найдена: " + name);
+    public void editParcel(String name, Parcel updatedParcel) {
+        if (!parcels.containsKey(name)) {
+            throw new ParcelNotFoundException("Посылка не найдена: " + name);
         }
-        packages.put(name, updatedParcel);
+        parcels.put(name, updatedParcel);
     }
 
     /**
-     * Удаляет посылку из хранилища по её имени.
+     * Удаляет посылку по имени.
      *
      * @param name имя посылки для удаления
-     * @throws IllegalArgumentException если посылка с указанным именем не найдена
+     * @throws ParcelNotFoundException если посылка с данным именем не найдена
      */
-    public void deletePackage(String name) {
-        if (!packages.containsKey(name)) {
-            throw new IllegalArgumentException("Посылка не найдена: " + name);
+    public void deleteParcel(String name) {
+        if (!parcels.containsKey(name)) {
+            throw new ParcelNotFoundException("Посылка не найдена: " + name);
         }
-        packages.remove(name);
+        parcels.remove(name);
     }
 
     /**
      * Возвращает список всех посылок, отсортированных по имени.
      *
-     * @return список всех посылок в хранилище
+     * @return список всех посылок
      */
-    public List<Parcel> getAllPackages() {
-        return packages.values().stream()
+    public List<Parcel> findAllParcel() {
+        return parcels.values().stream()
                 .sorted(Comparator.comparing(Parcel::getName))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /**
-     * Загружает набор посылок по умолчанию в хранилище.
+     * Загружает посылки по умолчанию в репозиторий.
+     * Создает и добавляет посылки на основе типов из {@link DefaultParcelType}.
      */
-    public void loadDefaultPackages() {
+    public void loadDefaultParcels() {
         int counter = 1;
-        for (DefaultPackagesType type : DefaultPackagesType.values()) {
+        for (DefaultParcelType type : DefaultParcelType.values()) {
             String name = "Посылка Тип " + counter++;
-            packages.put(name, new Parcel(
+            parcels.put(name, new Parcel(
                     name,
                     type.getShape(),
-                    type.getShape().getFirst().charAt(0),
-                    new ParcelStartPosition(0, 0)
+                    type.getShape().getFirst().charAt(FIRST_CHAR),
+                    new ParcelStartPosition(START_POSITION_X, START_POSITION_Y)
             ));
         }
     }

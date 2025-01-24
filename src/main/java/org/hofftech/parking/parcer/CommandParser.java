@@ -1,8 +1,9 @@
 package org.hofftech.parking.parcer;
 
-import org.hofftech.parking.model.CommandFlags;
+import lombok.RequiredArgsConstructor;
 import org.hofftech.parking.model.ParsedCommand;
 import org.hofftech.parking.model.enums.CommandType;
+import org.hofftech.parking.service.CommandTypeSelectionService;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,46 +11,54 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Класс для разбора команд, вводимых пользователем.
- *
- * <p>Этот класс отвечает за парсинг входных строк команд, извлечение параметров и
- * создание объекта {@link ParsedCommand}, содержащего разобранные данные.</p>
+ * Класс для парсинга пользовательских команд.
+ * Предоставляет методы для извлечения параметров из строки команды и создания объекта {@link ParsedCommand}.
  */
+@RequiredArgsConstructor
 public class CommandParser {
-    /**
-     * Регулярное выражение для извлечения параметров команды.
-     */
-    private static final String PARAMETER_REGEX =
-            "-(?<flag>[a-zA-Z]+)\\s+\"(?<valueQuoted>[^\"]+)\"|" +
-                    "-(?<flagAlt>[a-zA-Z]+)\\s+(?<valueUnquoted>[^\\s]+)";
-    private static final String GROUP_FLAG = "flag";
-    private static final String GROUP_FLAG_ALT = "flagAlt";
-    private static final String GROUP_VALUE_QUOTED = "valueQuoted";
-    private static final String GROUP_VALUE_UNQUOTED = "valueUnquoted";
+    private static final Pattern COMMAND_PATTERN = Pattern.compile("\\+([a-zA-Z]+),?\\s*(\"[^\"]+\"|[^+]+)");
+    private static final String SAVE = "save";
+    private static final String EASY = "easy";
+    private static final String EVEN = "even";
+    private static final String WITH_COUNT = "withCount";
+    private static final String PARCELS_TEXT = "parcelsText";
+    private static final String PARCELS_FILE = "parcelsFile";
+    private static final String TRUCKS = "trucks";
+    private static final String IN_FILE = "inFile";
+    private static final String NAME = "name";
+    private static final String OLD_NAME = "oldName";
+    private static final String FORM = "form";
+    private static final String SYMBOL = "symbol";
+    private static final String USER_ID = "user";
+    private static final String DATE_FROM = "from";
+    private static final String DATE_TO = "to";
+
+    private static final int GROUP_ONE = 1;
+    private static final int GROUP_TWO = 2;
+    private static final int FIRST_ARGUMENT_INDEX = 0;
+
+    private static final String COMMAND_SPLIT_SYMBOL = " ";
+    private static final String COMMAND_PREFIX_REGEX = "^/";
+    private static final String COMMAND_SUFFIX_REGEX = ",$";
+    private static final String EMPTY_STRING = "";
+
+    private static final int SUBSTRING_START_OFFSET = 1;
+    private static final int SUBSTRING_END_OFFSET = 1;
+    private static final String DOUBLE_QUOTE = "\"";
+
+    private final CommandTypeSelectionService commandTypeSelectionService;
 
     /**
-     * Компилированный шаблон регулярного выражения для извлечения параметров команды.
-     */
-    private static final Pattern PARAMETER_PATTERN = Pattern.compile(PARAMETER_REGEX);
-
-    /**
-     * Парсит входную строку команды и создает объект {@link ParsedCommand}.
-     *
-     * <p>Метод выполняет следующие шаги:
-     * <ul>
-     *     <li>Извлекает параметры из команды.</li>
-     *     <li>Определяет тип команды.</li>
-     *     <li>Создает объект {@link ParsedCommand} на основе извлеченных параметров.</li>
-     *     <li>Устанавливает дополнительные параметры для команды.</li>
-     * </ul>
-     * </p>
+     * Парсит строку команды и возвращает объект {@link ParsedCommand}.
      *
      * @param command строка команды для парсинга
-     * @return объект {@link ParsedCommand}, содержащий разобранные данные команды
+     * @return объект {@link ParsedCommand}, содержащий разобранные параметры команды
      */
     public ParsedCommand parse(String command) {
         Map<String, String> parameters = extractParameters(command);
-        CommandType commandType = CommandType.fromCommand(command);
+        String firstArgumentFromCommand = extractFirstArgument(command);
+
+        CommandType commandType = commandTypeSelectionService.determineCommandType(firstArgumentFromCommand);
 
         ParsedCommand parsedCommand = createParsedCommand(parameters);
         parsedCommand.setCommandType(commandType);
@@ -59,73 +68,119 @@ public class CommandParser {
     }
 
     /**
-     * Извлекает параметры из команды с помощью регулярного выражения.
+     * Извлекает параметры из строки команды на основе регулярного выражения.
      *
-     * @param command строка команды для парсинга
-     * @return карта параметров команды, где ключ - флаг, а значение - соответствующее значение
+     * @param command строка команды
+     * @return карта с ключами и значениями параметров
      */
     private Map<String, String> extractParameters(String command) {
         Map<String, String> parameters = new HashMap<>();
-
-        Matcher matcher = PARAMETER_PATTERN.matcher(command);
+        Matcher matcher = COMMAND_PATTERN.matcher(command);
 
         while (matcher.find()) {
-            String flag = matcher.group(GROUP_FLAG);
-            String value = matcher.group(GROUP_VALUE_QUOTED);
+            String key = matcher.group(GROUP_ONE);
+            String value = matcher.group(GROUP_TWO);
 
-            if (flag != null && value != null) {
-                parameters.put("-" + flag, value);
-            } else {
-                flag = matcher.group(GROUP_FLAG_ALT);
-                value = matcher.group(GROUP_VALUE_UNQUOTED);
-                if (flag != null && value != null) {
-                    parameters.put("-" + flag, value);
-                }
+            if (isQuoted(value)) {
+                value = stripQuotes(value);
             }
+            value = removeTrailingComma(value).trim();
+            parameters.put(key, value);
         }
-
         return parameters;
+    }
+
+    /**
+     * Извлекает первый аргумент из команды.
+     *
+     * @param command строка команды
+     * @return первый аргумент команды в верхнем регистре без префикса "/"
+     */
+    private String extractFirstArgument(String command) {
+        String[] parts = command.split(COMMAND_SPLIT_SYMBOL);
+        if (parts.length == 0) {
+            return EMPTY_STRING;
+        }
+        return parts[FIRST_ARGUMENT_INDEX]
+                .replaceFirst(COMMAND_PREFIX_REGEX, EMPTY_STRING)
+                .toUpperCase();
+    }
+
+    /**
+     * Проверяет, заключено ли значение в кавычки.
+     *
+     * @param value строка для проверки
+     * @return true, если значение начинается и заканчивается кавычкой, иначе false
+     */
+    private boolean isQuoted(String value) {
+        return value.startsWith(DOUBLE_QUOTE) && value.endsWith(DOUBLE_QUOTE);
+    }
+
+    /**
+     * Удаляет кавычки из начала и конца строки.
+     *
+     * @param value строка с кавычками
+     * @return строка без начальных и конечных кавычек
+     */
+    private String stripQuotes(String value) {
+        return value.substring(SUBSTRING_START_OFFSET, value.length() - SUBSTRING_END_OFFSET);
+    }
+
+    /**
+     * Удаляет запятую в конце строки, если она присутствует.
+     *
+     * @param value строка с потенциальной запятой на конце
+     * @return строка без запятой на конце
+     */
+    private String removeTrailingComma(String value) {
+        return value.replaceAll(COMMAND_SUFFIX_REGEX, EMPTY_STRING);
     }
 
     /**
      * Создает объект {@link ParsedCommand} на основе извлеченных параметров.
      *
-     * @param parameters карта параметров команды
+     * @param parameters карта с ключами и значениями параметров
      * @return объект {@link ParsedCommand} с установленными параметрами
      */
     private ParsedCommand createParsedCommand(Map<String, String> parameters) {
-        boolean saveToFile = parameters.containsKey(CommandFlags.SAVE);
-        boolean useEasyAlgorithm = parameters.containsKey(CommandFlags.EASY);
-        boolean useEvenAlgorithm = parameters.containsKey(CommandFlags.EVEN);
-        boolean withCount = parameters.containsKey(CommandFlags.WITH_COUNT);
+        boolean isSaveToFile = parameters.containsKey(SAVE);
+        boolean isEasyAlgorithm = parameters.containsKey(EASY);
+        boolean isEvenAlgorithm = parameters.containsKey(EVEN);
+        boolean isWithCount = parameters.containsKey(WITH_COUNT);
 
-        String parcelsText = parameters.get(CommandFlags.PARCELS_TEXT);
-        String parcelsFile = parameters.get(CommandFlags.PARCELS_FILE);
-        String trucks = parameters.get(CommandFlags.TRUCKS);
-        String inFile = parameters.get(CommandFlags.IN_FILE);
+        String parcelsText = parameters.get(PARCELS_TEXT);
+        String parcelsFile = parameters.get(PARCELS_FILE);
+        String trucks = parameters.get(TRUCKS);
+        String inFile = parameters.get(IN_FILE);
+        String user = parameters.get(USER_ID);
+        String dateFrom = parameters.get(DATE_FROM);
+        String dateTo = parameters.get(DATE_TO);
 
         return new ParsedCommand(
-                saveToFile,
-                useEasyAlgorithm,
-                useEvenAlgorithm,
+                isSaveToFile,
+                isEasyAlgorithm,
+                isEvenAlgorithm,
+                user,
+                dateFrom,
+                dateTo,
                 parcelsText,
                 parcelsFile,
                 trucks,
                 inFile,
-                withCount
+                isWithCount
         );
     }
 
     /**
-     * Устанавливает дополнительные параметры для объекта {@link ParsedCommand}.
+     * Устанавливает необязательные параметры в объект {@link ParsedCommand}.
      *
-     * @param parsedCommand объект {@link ParsedCommand}, которому устанавливаются параметры
-     * @param parameters карта параметров команды
+     * @param parsedCommand объект {@link ParsedCommand}, в который устанавливаются параметры
+     * @param parameters     карта с ключами и значениями параметров
      */
     private void setOptionalParameters(ParsedCommand parsedCommand, Map<String, String> parameters) {
-        parsedCommand.setName(parameters.get(CommandFlags.NAME));
-        parsedCommand.setOldName(parameters.get(CommandFlags.OLD_NAME));
-        parsedCommand.setForm(parameters.get(CommandFlags.FORM));
-        parsedCommand.setSymbol(parameters.get(CommandFlags.SYMBOL));
+        parsedCommand.setName(parameters.get(NAME));
+        parsedCommand.setOldName(parameters.get(OLD_NAME));
+        parsedCommand.setForm(parameters.get(FORM));
+        parsedCommand.setSymbol(parameters.get(SYMBOL));
     }
 }

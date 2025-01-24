@@ -1,16 +1,10 @@
 package org.hofftech.parking.model;
-
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
-
-
-@Getter
-@Setter
-@ToString
-@RequiredArgsConstructor
-public class ParcelStartPosition {
-    private final int x;
-    private final int y;
+/**
+ * Класс, представляющий начальную позицию посылки в пространстве.
+ * Содержит координаты по осям X и Y.
+ *
+ * @param x координата X позиции посылки.
+ * @param y координата Y позиции посылки.
+ */
+public record ParcelStartPosition(int x, int y) {
 }

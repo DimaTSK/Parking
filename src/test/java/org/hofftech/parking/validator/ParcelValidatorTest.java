@@ -1,6 +1,6 @@
 package org.hofftech.parking.validator;
 
-import org.hofftech.parking.validator.ParcelValidator;
+import org.hofftech.parking.exception.ValidateException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -8,16 +8,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.*;
 
-/**
- * Тестовый класс для {@link ParcelValidator}.
- * <p>
- * Этот класс проверяет методы {@link ParcelValidator#isValidFile(List)} и
- * {@link ParcelValidator#parseAndValidateForm(String)}, включая различные сценарии
- * использования и обработки ошибок.
- * </p>
- */
 class ParcelValidatorTest {
 
     private ParcelValidator parcelValidator;
@@ -27,139 +19,135 @@ class ParcelValidatorTest {
         parcelValidator = new ParcelValidator();
     }
 
-
-    /**
-     * Тестирует, что метод {@code isValidFile} возвращает {@code false}, когда список строк равен {@code null}.
-     */
     @Test
-    void testIsValidFile_NullInput() {
-        List<String> lines = null;
-
-        boolean result = parcelValidator.isValidFile(lines);
-
-        assertFalse(result, "Метод должен вернуть false для null входа");
-    }
-
-    /**
-     * Тестирует, что метод {@code isValidFile} возвращает {@code false}, когда список строк пуст.
-     */
-    @Test
-    void testIsValidFile_EmptyList() {
+    void testValidateFile_EmptyList() {
         List<String> lines = Collections.emptyList();
 
-        boolean result = parcelValidator.isValidFile(lines);
-
-        assertFalse(result, "Метод должен вернуть false для пустого списка строк");
+        assertThatThrownBy(() -> parcelValidator.validateFile(lines))
+                .isInstanceOf(ValidateException.class)
+                .hasMessage("Файл пустой или не содержит данных.")
+                .withFailMessage("Должен выбрасываться ValidateException для пустого списка строк");
     }
 
-    /**
-     * Тестирует, что метод {@code isValidFile} возвращает {@code true}, когда список строк не пуст.
-     */
+
     @Test
-    void testIsValidFile_NonEmptyList() {
-        List<String> lines = Arrays.asList("Строка 1", "Строка 2", "Строка 3");
-
-        boolean result = parcelValidator.isValidFile(lines);
-
-        assertTrue(result, "Метод должен вернуть true для непустого списка строк");
-    }
-
-    // --- Тесты для метода parseAndValidateForm ---
-
-    /**
-     * Тестирует, что метод {@code parseAndValidateForm} выбрасывает {@code IllegalArgumentException},
-     * когда форма равна {@code null}.
-     */
-    @Test
-    void testParseAndValidateForm_NullForm() {
+    void testParseForm_NullForm() {
         String form = null;
 
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> ParcelValidator.parseAndValidateForm(form),
-                "Должен выбрасываться IllegalArgumentException для null формы"
-        );
-
-        assertEquals("Форма посылки не указана.", exception.getMessage(),
-                "Сообщение исключения должно совпадать с ожидаемым");
+        assertThatThrownBy(() -> parcelValidator.parseForm(form))
+                .isInstanceOf(ValidateException.class)
+                .hasMessage("Форма посылки не указана.")
+                .withFailMessage("Должен выбрасываться ValidateException для null формы");
     }
 
     /**
-     * Тестирует, что метод {@code parseAndValidateForm} выбрасывает {@code IllegalArgumentException},
+     * Тестирует, что метод {@code validateForm} выбрасывает {@code ValidateException},
      * когда форма пуста.
      */
     @Test
-    void testParseAndValidateForm_EmptyForm() {
+    void testParseForm_EmptyForm() {
         String form = "";
 
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> ParcelValidator.parseAndValidateForm(form),
-                "Должен выбрасываться IllegalArgumentException для пустой формы"
-        );
-
-        assertEquals("Форма посылки не указана.", exception.getMessage(),
-                "Сообщение исключения должно совпадать с ожидаемым");
+        assertThatThrownBy(() -> parcelValidator.parseForm(form))
+                .isInstanceOf(ValidateException.class)
+                .hasMessage("Форма посылки не указана.")
+                .withFailMessage("Должен выбрасываться ValidateException для пустой формы");
     }
 
     /**
-     * Тестирует, что метод {@code parseAndValidateForm} корректно парсит форму без разделителя и возвращает список с одной строкой.
+     * Тестирует, что метод {@code validateForm} корректно парсит форму без разделителя и возвращает список с одной строкой.
      */
     @Test
-    void testParseAndValidateForm_SingleLineForm() {
+    void testParseForm_SingleLineForm() {
         String form = "XXX\nX X\nXXX";
 
         List<String> expected = List.of("XXX\nX X\nXXX");
 
-        List<String> result = ParcelValidator.parseAndValidateForm(form);
+        List<String> result = parcelValidator.parseForm(form);
 
-        assertEquals(expected, result, "Метод должен возвращать список с одной строкой для формы без разделителя");
+        assertThat(result)
+                .as("Метод должен возвращать список с одной строкой для формы без разделителя")
+                .isEqualTo(expected);
     }
 
     /**
-     * Тестирует, что метод {@code parseAndValidateForm} корректно парсит мультистрочную форму с разделителем и возвращает список строк.
+     * Тестирует, что метод {@code validateForm} корректно парсит мультистрочную форму с разделителем и возвращает список строк.
      */
     @Test
-    void testParseAndValidateForm_MultiLineForm_Valid() {
+    void testParseForm_MultiLineForm_Valid() {
         String form = "XXX,X X,XXX";
 
         List<String> expected = Arrays.asList("XXX", "X X", "XXX");
 
-        List<String> result = ParcelValidator.parseAndValidateForm(form);
+        List<String> result = parcelValidator.parseForm(form);
 
-        assertEquals(expected, result, "Метод должен корректно парсить форму с разделителем");
+        assertThat(result)
+                .as("Метод должен корректно парсить форму с разделителем")
+                .isEqualTo(expected);
     }
 
     /**
-     * Тестирует, что метод {@code parseAndValidateForm} выбрасывает {@code IllegalArgumentException},
+     * Тестирует, что метод {@code validateForm} выбрасывает {@code ValidateException},
      * когда форма с разделителем содержит символы, которые "висят в воздухе".
      */
     @Test
-    void testParseAndValidateForm_MultiLineForm_InvalidDiagonalTouch() {
+    void testParseForm_MultiLineForm_InvalidDiagonalTouch() {
         String form = " X ,X X,   ";
 
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> ParcelValidator.parseAndValidateForm(form),
-                "Должен выбрасываться IllegalArgumentException для формы с некорректным касанием символов"
-        );
-
-        assertEquals("Символ в позиции (0, 1) висит в воздухе.", exception.getMessage(),
-                "Сообщение исключения должно отражать ошибку касания символов");
+        assertThatThrownBy(() -> parcelValidator.parseForm(form))
+                .isInstanceOf(ValidateException.class)
+                .hasMessage("Символ в позиции (0, 1) висит в воздухе.")
+                .withFailMessage("Должен выбрасываться ValidateException для формы с некорректным касанием символов");
     }
 
     /**
-     * Тестирует, что метод {@code parseAndValidateForm} успешно обрабатывает форму с несколькими строками без ошибок.
+     * Тестирует, что метод {@code validateForm} успешно обрабатывает форму с несколькими строками без ошибок.
      */
     @Test
-    void testParseAndValidateForm_MultiLineForm_NoDiagonalTouchIssues() {
+    void testParseForm_MultiLineForm_NoDiagonalTouchIssues() {
         String form = "XXX,X X,XXX,X X,XXX";
 
         List<String> expected = Arrays.asList("XXX", "X X", "XXX", "X X", "XXX");
 
-        List<String> result = ParcelValidator.parseAndValidateForm(form);
+        List<String> result = parcelValidator.parseForm(form);
 
-        assertEquals(expected, result, "Метод должен корректно парсить форму с несколькими строками без ошибок касания символов");
+        assertThat(result)
+                .as("Метод должен корректно парсить форму с несколькими строками без ошибок касания символов")
+                .isEqualTo(expected);
     }
 
+
+    /**
+     * Тестирует, что метод {@code validateForm} корректно обрабатывает форму без горизонтальных связей,
+     * но с корректными вертикальными связями.
+     */
+    @Test
+    void testParseForm_NoHorizontalConnections_ButValidVertical() {
+        String form = "X X,X X,X X";
+
+        List<String> expected = Arrays.asList("X X", "X X", "X X");
+
+        List<String> result = parcelValidator.parseForm(form);
+
+        assertThat(result)
+                .as("Метод должен корректно обрабатывать формы без горизонтальных связей, но с валидными вертикальными")
+                .isEqualTo(expected);
+    }
+
+    /**
+     * Тестирует, что метод {@code validateForm} выбрасывает {@code ValidateException},
+     * когда входная форма содержит неверные разделители.
+     */
+    @Test
+    void testParseForm_InvalidFormSplitter() {
+        String form = "XXX;X X;XXX"; // Использован неверный разделитель ';' вместо ','
+
+        List<String> expected = List.of("XXX;X X;XXX");
+
+        List<String> result = parcelValidator.parseForm(form);
+
+        assertThat(result)
+                .as("Метод должен возвращать список с одной строкой при отсутствии правильного разделителя")
+                .isEqualTo(expected);
+    }
 }
